@@ -13,11 +13,4 @@
     <input type="hidden" name="ReturnUrl" value="@Context.Request.Query["ReturnUrl"]" />
 
     <button type="submit" class="btn btn-primary">Login</button>
-
-    @* @if (!string.IsNullOrEmpty(ViewData["ErrorMessage"]?.ToString()))
-    {
-        <div class="alert alert-danger mt-2">
-            @ViewData["ErrorMessage"]
-        </div>
-    } *@
 </form>

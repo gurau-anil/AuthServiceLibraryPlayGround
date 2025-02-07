@@ -1,11 +1,7 @@
 ﻿using AuthServiceLibrary.Entities;
 using AuthServiceLibrary.Services.Interfaces;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace AuthenticationTestMVC.Controllers
 {
@@ -21,6 +17,8 @@ namespace AuthenticationTestMVC.Controllers
         {
             return View();
         }
+        
+
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -40,7 +38,7 @@ namespace AuthenticationTestMVC.Controllers
                 return View();
             }
         }
-
+        
         public ActionResult RegisterUser()
         {
             return View();

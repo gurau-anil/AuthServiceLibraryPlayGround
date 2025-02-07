@@ -7,8 +7,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AuthServiceLibrary", "AuthS
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AuthenticationTestMVC", "AuthenticationTestMVC\AuthenticationTestMVC.csproj", "{95ECF083-6EDA-40D4-A440-940DAFF06CB9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AuthTestLib", "AuthTestLib\AuthTestLib.csproj", "{C3ADA3E7-641D-4AB3-B7B0-9D80AAC34103}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -23,10 +21,6 @@ Global
 		{95ECF083-6EDA-40D4-A440-940DAFF06CB9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{95ECF083-6EDA-40D4-A440-940DAFF06CB9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{95ECF083-6EDA-40D4-A440-940DAFF06CB9}.Release|Any CPU.Build.0 = Release|Any CPU
-		{C3ADA3E7-641D-4AB3-B7B0-9D80AAC34103}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{C3ADA3E7-641D-4AB3-B7B0-9D80AAC34103}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{C3ADA3E7-641D-4AB3-B7B0-9D80AAC34103}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{C3ADA3E7-641D-4AB3-B7B0-9D80AAC34103}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

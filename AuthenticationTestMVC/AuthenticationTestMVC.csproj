@@ -14,8 +14,6 @@
 	  <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="8.0.7" />
 	  
     <ProjectReference Include="..\AuthServiceLibrary\AuthServiceLibrary.csproj" />
-	  
-    <ProjectReference Include="..\AuthTestLib\AuthTestLib.csproj" />
   </ItemGroup>
 
 </Project>

@@ -1,0 +1,47 @@
+﻿using Microsoft.AspNetCore.Identity;
+
+namespace AuthServiceLibrary.Entities
+{
+    public partial class User : IdentityUser
+    {
+    }
+
+
+    public class ApplicationUser : IdentityUser<Guid>
+    {
+        public DateTime CreatedAt { get; set; }
+        public DateTime? LastLogin { get; set; }
+    }
+
+    public class ApplicationRole : IdentityRole<Guid>
+    {
+        public ApplicationRole() : base()
+        {
+        }
+
+        public ApplicationRole(string roleName) : base(roleName)
+        {
+        }
+    }
+
+    public class LoginRequest
+    {
+        public string Username { get; set; } = string.Empty;
+        public string Password { get; set; } = string.Empty;
+    }
+
+    public class RegisterRequest
+    {
+        public string Username { get; set; } = string.Empty;
+        public string Email { get; set; } = string.Empty;
+        public string Password { get; set; } = string.Empty;
+    }
+
+    public class AuthResponse
+    {
+        public string Token { get; set; } = string.Empty;
+        public DateTime ExpiresAt { get; set; }
+        public IEnumerable<string> Roles { get; set; } = Array.Empty<string>();
+    }
+
+}

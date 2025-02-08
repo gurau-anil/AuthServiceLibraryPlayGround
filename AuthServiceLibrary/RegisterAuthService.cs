@@ -51,7 +51,7 @@ namespace AuthServiceLibrary
 
     public static class ServiceCollectionExtensions
     {
-        public static IServiceCollection AddCustomAuth(
+        private static IServiceCollection AddCustomAuth(
             this IServiceCollection services,
             string connectionString,
             Action<AuthConfiguration> authConfig,
@@ -70,7 +70,6 @@ namespace AuthServiceLibrary
                         maxRetryCount: 5,
                         maxRetryDelay: TimeSpan.FromSeconds(30),
                         errorNumbersToAdd: null);
-                    //sqlOptions.MigrationsHistoryTable("__CustomAuthMigrationsHistory");
                 }));
 
             // Add Identity
@@ -78,109 +77,62 @@ namespace AuthServiceLibrary
             .AddEntityFrameworkStores<AuthDbContext>()
             .AddDefaultTokenProviders();
 
-            //services.AddAuthentication(option =>
-            //{
-            //    option.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-            //    option.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-            //}).AddCookie(config.Cookie.AuthenticationScheme,
-            //        options =>
-            //        {
-            //            options.Cookie.Name = config.Cookie.CookieName;
-            //            options.ExpireTimeSpan = config.Cookie.ExpireTimeSpan;
-            //            options.LoginPath = config.Cookie.LoginPath;
-            //            options.LogoutPath = config.Cookie.LogoutPath;
-            //            options.AccessDeniedPath = config.Cookie.AccessDeniedPath;
-            //            //options.SlidingExpiration = config.Cookie.SlidingExpiration;
-            //        });
 
-            
-
-            services.AddAuthentication(options =>
+            if (config.UseJwt)
             {
-                options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-                options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-                options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-            }).AddCookie(options =>
+                services.AddAuthentication(options =>
+                {
+                    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                }).AddJwtBearer(options =>
+                {
+                    options.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        ValidateIssuer = true,
+                        ValidateAudience = true,
+                        ValidateLifetime = true,
+                        ValidateIssuerSigningKey = true,
+                        ValidIssuer = config.Jwt.Issuer,
+                        ValidAudience = config.Jwt.Audience,
+                        IssuerSigningKey = new SymmetricSecurityKey(
+                            Encoding.UTF8.GetBytes(config.Jwt.SecretKey))
+                    };
+
+                });
+            }
+            else if (config.UseCookie)
             {
-                options.Cookie.Name = config.Cookie.CookieName;
-                options.ExpireTimeSpan = config.Cookie.ExpireTimeSpan;
-                options.LoginPath = config.Cookie.LoginPath;
-                options.LogoutPath = config.Cookie.LogoutPath;
-                options.AccessDeniedPath = config.Cookie.AccessDeniedPath;
-                options.SlidingExpiration = config.Cookie.SlidingExpiration;
-            });
+                services.AddAuthentication(options =>
+                {
+                    options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                    options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                    options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                }).AddCookie(options =>
+                {
+                    options.Cookie.Name = config.Cookie.CookieName;
+                    options.ExpireTimeSpan = config.Cookie.ExpireTimeSpan;
+                    options.LoginPath = config.Cookie.LoginPath;
+                    options.LogoutPath = config.Cookie.LogoutPath;
+                    options.AccessDeniedPath = config.Cookie.AccessDeniedPath;
+                    options.SlidingExpiration = config.Cookie.SlidingExpiration;
+                });
 
 
-            services.ConfigureApplicationCookie(options =>
-            {
-                options.Cookie.Name = config.Cookie.CookieName;
-                options.ExpireTimeSpan = config.Cookie.ExpireTimeSpan;
-                options.LoginPath = config.Cookie.LoginPath;
-                options.LogoutPath = config.Cookie.LogoutPath;
-                options.AccessDeniedPath = config.Cookie.AccessDeniedPath;
-                options.SlidingExpiration = config.Cookie.SlidingExpiration;
-            });
-
-
-            // Add Authentication
-
-            //var authBuilder = services.AddAuthentication(options =>
-            //{
-            //    if (config.UseCookie && config.UseJwt)
-            //    {
-            //        options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-            //        options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-            //    }
-            //    else if (config.UseJwt)
-            //    {
-            //        options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-            //        options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-            //    }
-            //    else
-            //    {
-            //        options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-            //        options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-            //    }
-            //});
-
-            //// Configure JWT if enabled
-            //if (config.UseJwt)
-            //{
-            //    authBuilder.AddJwtBearer(options =>
-            //    {
-            //        options.TokenValidationParameters = new TokenValidationParameters
-            //        {
-            //            ValidateIssuer = true,
-            //            ValidateAudience = true,
-            //            ValidateLifetime = true,
-            //            ValidateIssuerSigningKey = true,
-            //            ValidIssuer = config.Jwt.Issuer,
-            //            ValidAudience = config.Jwt.Audience,
-            //            IssuerSigningKey = new SymmetricSecurityKey(
-            //                Encoding.UTF8.GetBytes(config.Jwt.SecretKey))
-            //        };
-            //    });
-            //}
-
-            // Configure Cookie auth if enabled
-            //if (config.UseCookie)
-            //{
-            //    services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie(CookieAuthenticationDefaults.AuthenticationScheme,
-            //        options =>
-            //    {
-            //        options.Cookie.Name = config.Cookie.CookieName;
-            //        options.ExpireTimeSpan = config.Cookie.ExpireTimeSpan;
-            //        options.LoginPath = config.Cookie.LoginPath;
-            //        options.LogoutPath = config.Cookie.LogoutPath;
-            //        options.AccessDeniedPath = config.Cookie.AccessDeniedPath;
-            //        //options.SlidingExpiration = config.Cookie.SlidingExpiration;
-            //    });
-            //}
+                services.ConfigureApplicationCookie(options =>
+                {
+                    options.Cookie.Name = config.Cookie.CookieName;
+                    options.ExpireTimeSpan = config.Cookie.ExpireTimeSpan;
+                    options.LoginPath = config.Cookie.LoginPath;
+                    options.LogoutPath = config.Cookie.LogoutPath;
+                    options.AccessDeniedPath = config.Cookie.AccessDeniedPath;
+                    options.SlidingExpiration = config.Cookie.SlidingExpiration;
+                });
+            }
 
 
 
             // Add services
-            //services.AddScoped<IJwtService, JwtService>();
+            services.AddScoped<IJwtService, JwtService>();
             services.AddScoped<IAuthService, AuthService>();
             services.AddHttpContextAccessor();
 
@@ -188,97 +140,36 @@ namespace AuthServiceLibrary
         }
 
 
-        public static IServiceCollection AddCustomCookieAuth(
+        public static IServiceCollection AddCookieAuthentication(
             this IServiceCollection services,
             string connectionString,
-            Action<Models.CookieOptions> cookieAuthConfig)
+            Action<CookieSettings> cookieAuthConfig)
         {
-            // Configure Auth
-            var config = new Models.CookieOptions();
-            cookieAuthConfig.Invoke(config);
-            //services.Configure(cookieAuthConfig);
+            CookieSettings cookieSettings = new CookieSettings();
+            cookieAuthConfig.Invoke(cookieSettings);
 
-            services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie(config.AuthenticationScheme,
-                    options =>
-                    {
-                        options.Cookie.Name = config.CookieName;
-                        options.ExpireTimeSpan = config.ExpireTimeSpan;
-                        options.LoginPath = config.LoginPath;
-                        options.LogoutPath = config.LogoutPath;
-                        options.AccessDeniedPath = config.AccessDeniedPath;
-                        //options.SlidingExpiration = config.Cookie.SlidingExpiration;
-                    });
+            services.AddCustomAuth(connectionString, options =>
+            {
+                options.Cookie = cookieSettings;
+                options.UseCookie = true;
+            });
 
-            // Add DbContext
-            services.AddDbContext<AuthDbContext>(options =>
-                options.UseSqlServer(connectionString));
+            return services;
+        }
 
-            // Add Authentication
+        public static IServiceCollection AddJwtAuthentication(
+            this IServiceCollection services,
+            string connectionString,
+            Action<JwtSettings> jwtAuthConfig)
+        {
+            JwtSettings jwtSettings = new JwtSettings();
+            jwtAuthConfig.Invoke(jwtSettings);
 
-            //var authBuilder = services.AddAuthentication(options =>
-            //{
-            //    if (config.UseCookie && config.UseJwt)
-            //    {
-            //        options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-            //        options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-            //    }
-            //    else if (config.UseJwt)
-            //    {
-            //        options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-            //        options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-            //    }
-            //    else
-            //    {
-            //        options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-            //        options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-            //    }
-            //});
-
-            //// Configure JWT if enabled
-            //if (config.UseJwt)
-            //{
-            //    authBuilder.AddJwtBearer(options =>
-            //    {
-            //        options.TokenValidationParameters = new TokenValidationParameters
-            //        {
-            //            ValidateIssuer = true,
-            //            ValidateAudience = true,
-            //            ValidateLifetime = true,
-            //            ValidateIssuerSigningKey = true,
-            //            ValidIssuer = config.Jwt.Issuer,
-            //            ValidAudience = config.Jwt.Audience,
-            //            IssuerSigningKey = new SymmetricSecurityKey(
-            //                Encoding.UTF8.GetBytes(config.Jwt.SecretKey))
-            //        };
-            //    });
-            //}
-
-            // Configure Cookie auth if enabled
-            //if (config.UseCookie)
-            //{
-            //    services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie(CookieAuthenticationDefaults.AuthenticationScheme,
-            //        options =>
-            //    {
-            //        options.Cookie.Name = config.Cookie.CookieName;
-            //        options.ExpireTimeSpan = config.Cookie.ExpireTimeSpan;
-            //        options.LoginPath = config.Cookie.LoginPath;
-            //        options.LogoutPath = config.Cookie.LogoutPath;
-            //        options.AccessDeniedPath = config.Cookie.AccessDeniedPath;
-            //        //options.SlidingExpiration = config.Cookie.SlidingExpiration;
-            //    });
-            //}
-
-            // Add Identity
-            //services.AddIdentity<ApplicationUser, ApplicationRole>(options =>
-            //{
-            //    //identityOptions?.Invoke(options);
-            //})
-            //.AddEntityFrameworkStores<AuthDbContext>()
-            //.AddDefaultTokenProviders();
-
-            // Add services
-            //services.AddScoped<IJwtService, JwtService>();
-            //services.AddScoped<IAuthService, AuthService>();
+            services.AddCustomAuth(connectionString, options =>
+            {
+                options.Jwt = jwtSettings;
+                options.UseJwt = true;
+            });
 
             return services;
         }

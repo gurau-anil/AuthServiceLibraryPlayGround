@@ -1,20 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace AuthServiceLibrary.Models
+﻿namespace AuthServiceLibrary.Models
 {
     public class AuthConfiguration
     {
-        public JwtOptions Jwt { get; set; } = new();
-        public CookieOptions Cookie { get; set; } = new();
+        public JwtSettings Jwt { get; set; } = new();
+        public CookieSettings Cookie { get; set; } = new();
         public bool UseJwt { get; set; }
         public bool UseCookie { get; set; }
     }
 
-    public class JwtOptions
+    public class JwtSettings
     {
         public string SecretKey { get; set; } = string.Empty;
         public string Issuer { get; set; } = string.Empty;
@@ -22,7 +16,7 @@ namespace AuthServiceLibrary.Models
         public int ExpirationMinutes { get; set; }
     }
 
-    public class CookieOptions
+    public class CookieSettings
     {
         public string AuthenticationScheme { get; set; } = "CustomAuth";
         public string CookieName { get; set; } = "CustomAuth";

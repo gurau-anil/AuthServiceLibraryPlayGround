@@ -165,6 +165,8 @@ namespace AuthServiceLibrary
             JwtSettings jwtSettings = new JwtSettings();
             jwtAuthConfig.Invoke(jwtSettings);
 
+            services.Configure(jwtAuthConfig);
+
             services.AddCustomAuth(connectionString, options =>
             {
                 options.Jwt = jwtSettings;

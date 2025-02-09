@@ -32,5 +32,18 @@ namespace AuthenticationTestApi.Controllers
             ModelState.AddModelError("Unauthorized", "You are not authorized to access");
             return Unauthorized(ModelState);
         }
+
+        [HttpPost]
+        [Route("register")]
+        public async Task<IActionResult> RegisterAsync([FromBody] RegisterRequest model)
+        {
+
+            var result = await _authService.RegisterAsync(model);
+            if (result.Succeeded)
+            {
+                return Ok();
+            }
+            return BadRequest("Something went wrong");
+        }
     }
 }

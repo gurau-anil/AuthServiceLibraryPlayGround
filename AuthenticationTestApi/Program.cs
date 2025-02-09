@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using System.Text;
 using AuthServiceLibrary;
 using Microsoft.IdentityModel.Tokens;
@@ -13,6 +14,10 @@ builder.Services.AddJwtAuthentication(connectionString, options =>
     options.Audience = "Test";
     options.ExpirationMinutes = 10;
     options.SecretKey = builder.Configuration.GetValue<string>("JwtSettings:SecretKey")??String.Empty;
+},
+authOptions =>
+{
+    authOptions.AddPolicy("AllowAnilOnly", policy => policy.RequireClaim(ClaimTypes.Name, "anil_gurau"));
 });
 
 builder.Services.AddControllers();

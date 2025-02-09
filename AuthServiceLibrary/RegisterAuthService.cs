@@ -10,8 +10,7 @@ using Microsoft.IdentityModel.Tokens;
 using AuthServiceLibrary.Services.Interfaces;
 using AuthServiceLibrary.Services;
 using AuthServiceLibrary.Models;
-using Microsoft.Extensions.Options;
-using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Authorization;
 
 namespace AuthServiceLibrary
 {
@@ -55,7 +54,8 @@ namespace AuthServiceLibrary
             this IServiceCollection services,
             string connectionString,
             Action<AuthConfiguration> authConfig,
-            Action<IdentityOptions>? identityOptions = null)
+            Action<IdentityOptions>? identityOptions = null,
+            Action<AuthorizationOptions> authorizationOptions = null)
         {
             // Configure Auth
             var config = new AuthConfiguration();
@@ -129,11 +129,13 @@ namespace AuthServiceLibrary
                 });
             }
 
-
+            if(authorizationOptions is not null) { services.AddAuthorization(authorizationOptions); }
+            
 
             // Add services
             services.AddScoped<IJwtService, JwtService>();
             services.AddScoped<IAuthService, AuthService>();
+            services.AddScoped<IRoleService, RoleService>();
             services.AddHttpContextAccessor();
 
             return services;
@@ -143,7 +145,8 @@ namespace AuthServiceLibrary
         public static IServiceCollection AddCookieAuthentication(
             this IServiceCollection services,
             string connectionString,
-            Action<CookieSettings> cookieAuthConfig)
+            Action<CookieSettings> cookieAuthConfig,
+            Action<AuthorizationOptions> authOptions = null)
         {
             CookieSettings cookieSettings = new CookieSettings();
             cookieAuthConfig.Invoke(cookieSettings);
@@ -152,7 +155,7 @@ namespace AuthServiceLibrary
             {
                 options.Cookie = cookieSettings;
                 options.UseCookie = true;
-            });
+            }, authorizationOptions: authOptions);
 
             return services;
         }
@@ -160,7 +163,9 @@ namespace AuthServiceLibrary
         public static IServiceCollection AddJwtAuthentication(
             this IServiceCollection services,
             string connectionString,
-            Action<JwtSettings> jwtAuthConfig)
+            Action<JwtSettings> jwtAuthConfig,
+            Action<AuthorizationOptions> authOptions = null
+            )
         {
             JwtSettings jwtSettings = new JwtSettings();
             jwtAuthConfig.Invoke(jwtSettings);
@@ -171,7 +176,7 @@ namespace AuthServiceLibrary
             {
                 options.Jwt = jwtSettings;
                 options.UseJwt = true;
-            });
+            }, authorizationOptions: authOptions);
 
             return services;
         }

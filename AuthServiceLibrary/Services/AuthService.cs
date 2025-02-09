@@ -9,20 +9,11 @@ using Microsoft.Extensions.Options;
 
 namespace AuthServiceLibrary.Services
 {
-    public class AuthResult
-    {
-        public bool Succeeded { get; set; }
-        public string? Token { get; set; }
-        public DateTime? ExpiresAt { get; set; }
-        public IEnumerable<string> Roles { get; set; } = Array.Empty<string>();
-        public string? ErrorMessage { get; set; }
-        public ClaimsPrincipal? ClaimsPrincipal { get; set; }
-    }
-
     public class AuthService : IAuthService
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
+        private readonly RoleManager<ApplicationRole> _roleManager;
         private readonly AuthConfiguration _authConfig;
         private readonly HttpContext _httpContext;
         private readonly IAuthenticationService _authenticationService;
@@ -34,7 +25,8 @@ namespace AuthServiceLibrary.Services
             IOptions<AuthConfiguration> authConfig,
             IHttpContextAccessor httpContextAccessor,
             IAuthenticationService authenticationService,
-            IJwtService jwtService)
+            IJwtService jwtService,
+            RoleManager<ApplicationRole> roleManager)
         {
             _userManager = userManager;
             _signInManager = signInManager;
@@ -42,6 +34,7 @@ namespace AuthServiceLibrary.Services
             _httpContext = httpContextAccessor?.HttpContext;
             _authenticationService = authenticationService;
             _jwtService = jwtService;
+            _roleManager = roleManager;
         }
 
         public async Task<AuthResult> LoginAsync(LoginRequest request)
@@ -70,6 +63,7 @@ namespace AuthServiceLibrary.Services
             await _userManager.UpdateAsync(user);
 
             var roles = (await _userManager.GetRolesAsync(user)).ToList();
+            var claims = (await _userManager.GetClaimsAsync(user)).ToList();
             ClaimsPrincipal claimsPrincipal = await GenerateClaimsPrincipalAsync(user, roles);
             var authResult = new AuthResult
             {
@@ -77,9 +71,9 @@ namespace AuthServiceLibrary.Services
                 Roles = roles,
                 ClaimsPrincipal = claimsPrincipal
             };
-            
 
-            
+
+
 
             // Generate JWT token if JWT auth is enabled
             if (_authConfig.UseJwt)
@@ -136,6 +130,19 @@ namespace AuthServiceLibrary.Services
                 };
             }
 
+            if (request.Roles.Count > 0)
+            {
+                await _userManager.AddToRolesAsync(user, request.Roles);
+
+                var claims = new List<Claim>
+                {
+                    new(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                    new(ClaimTypes.Name, user.UserName ?? string.Empty),
+                    new(ClaimTypes.Email, user.Email ?? string.Empty)
+                };
+                await _userManager.AddClaimsAsync(user, claims);
+            }
+
             List<string> roles = (await _userManager.GetRolesAsync(user)).ToList();
             var authResult = new AuthResult
             {
@@ -164,6 +171,40 @@ namespace AuthServiceLibrary.Services
             await _signInManager.SignOutAsync();
         }
 
+        #region Claims
+        public async Task AddClaimsAsync(ApplicationUser user, IEnumerable<Claim> claims)
+        {
+            await _userManager.AddClaimsAsync(user, claims);
+        }
+
+        public async Task<IList<Claim>> CreateClaimsAsync(ApplicationUser user)
+        {
+            return await _userManager.GetClaimsAsync(user);
+        }
+
+        public async Task<IdentityResult> ReplaceClaimsAsync(ApplicationUser user, Claim oldClaim, Claim newClaim)
+        {
+            return await _userManager.ReplaceClaimAsync(user, oldClaim, newClaim);
+        }
+
+        public async Task<IdentityResult> RemoveClaimsAsync(ApplicationUser user, Claim claim)
+        {
+            return await _userManager.RemoveClaimAsync(user, claim);
+        }
+
+        #endregion
+
+        #region Roles
+
+        public async Task AddRolesAsync(ApplicationUser user, IEnumerable<string> roles)
+        {
+            await _userManager.AddToRolesAsync(user, roles);
+        }
+
+        #endregion
+
+        #region Private
+
         private async Task<ClaimsPrincipal> GenerateClaimsPrincipalAsync(ApplicationUser user, List<string> roles)
         {
             var identity = new ClaimsIdentity(await GetClaimsAsync(user, roles), _authConfig.Cookie.AuthenticationScheme);
@@ -183,6 +224,8 @@ namespace AuthServiceLibrary.Services
 
             return claims;
         }
+        #endregion
 
     }
 }
+

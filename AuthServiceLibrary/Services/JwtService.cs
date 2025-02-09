@@ -15,11 +15,13 @@ namespace AuthServiceLibrary.Services
     {
         private readonly JwtSettings _options;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly RoleManager<ApplicationRole> _roleManager;
 
-        public JwtService(IOptions<JwtSettings> options, UserManager<ApplicationUser> userManager)
+        public JwtService(IOptions<JwtSettings> options, UserManager<ApplicationUser> userManager, RoleManager<ApplicationRole> roleManager)
         {
             _options = options.Value;
             _userManager = userManager;
+            _roleManager = roleManager;
         }
 
         public async Task<AuthResponse> GenerateTokenAsync(ApplicationUser user)
@@ -34,8 +36,9 @@ namespace AuthServiceLibrary.Services
                 new Claim(ClaimTypes.Name, user.UserName),
             };
 
-            IList<string> roles = await _userManager.GetRolesAsync(user);
+            List<string> roles = (List<string>)await _userManager.GetRolesAsync(user);
             claims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role)));
+            
 
             var expires = DateTime.UtcNow.AddMinutes(_options.ExpirationMinutes);
 

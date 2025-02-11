@@ -17,7 +17,9 @@ builder.Services.AddJwtAuthentication(connectionString, options =>
 },
 authOptions =>
 {
-    authOptions.AddPolicy("AllowAnilOnly", policy => policy.RequireClaim(ClaimTypes.Name, "anil_gurau"));
+    authOptions.AddPolicy("CombinedPolicy", policy => policy.RequireRole("Admin").RequireClaim("CanEdit", "true"));
+    authOptions.AddPolicy("AdminOnlyPolicy", policy => policy.RequireRole("Admin"));
+    authOptions.AddPolicy("CanEditPolicy", policy => policy.RequireClaim("CanEdit", "true"));
 });
 
 builder.Services.AddControllers();

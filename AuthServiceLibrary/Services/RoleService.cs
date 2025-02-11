@@ -1,5 +1,4 @@
 ﻿using System.Data;
-using System.Security.Claims;
 using AuthServiceLibrary.Entities;
 using AuthServiceLibrary.Models;
 using AuthServiceLibrary.Services.Interfaces;
@@ -52,17 +51,15 @@ namespace AuthServiceLibrary.Services
             return await _roleManager.Roles.Select(c=>c.Name).ToListAsync();
         }
 
-        
-
         public async Task AddRoleClaim(string role, IdentityRoleClaim<Guid> roleClaim)
         {
-            var foundRole = await FindRoleAsync(role);
+            ApplicationRole? foundRole = await FindRoleAsync(role);
             await _roleManager.AddClaimAsync(foundRole, roleClaim.ToClaim());
         }
 
         private async Task<ApplicationRole> FindRoleAsync(string role)
         {
-            var foundRole = await _roleManager.FindByNameAsync(role);
+            ApplicationRole? foundRole = await _roleManager.FindByNameAsync(role);
             if (foundRole is null)
                 throw new Exception($"Role - {role} Not Found in the System.");
             return foundRole;

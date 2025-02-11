@@ -29,14 +29,18 @@ namespace AuthServiceLibrary.Services
             var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_options.SecretKey));
             var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
 
-            var claims = new List<Claim>
-            {
-                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-                new Claim(ClaimTypes.Email, user.Email),
-                new Claim(ClaimTypes.Name, user.UserName),
-            };
+            List<Claim> claims = (await _userManager.GetClaimsAsync(user)).ToList();
 
             List<string> roles = (List<string>)await _userManager.GetRolesAsync(user);
+
+            IList<Claim> roleClaims;
+            foreach (var role in roles)
+            {
+                ApplicationRole? foundRole = await _roleManager.FindByNameAsync(role);
+                roleClaims = await _roleManager.GetClaimsAsync(foundRole);
+                claims.AddRange(roleClaims);
+            }
+
             claims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role)));
             
 

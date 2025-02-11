@@ -1,10 +1,12 @@
 ﻿using System.Security.Claims;
+using AuthServiceLibrary.Data;
 using AuthServiceLibrary.Entities;
 using AuthServiceLibrary.Models;
 using AuthServiceLibrary.Services.Interfaces;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 
 namespace AuthServiceLibrary.Services
@@ -18,6 +20,7 @@ namespace AuthServiceLibrary.Services
         private readonly HttpContext _httpContext;
         private readonly IAuthenticationService _authenticationService;
         private readonly IJwtService _jwtService;
+        private readonly AuthDbContext _context;
 
         public AuthService(
             UserManager<ApplicationUser> userManager,
@@ -26,7 +29,8 @@ namespace AuthServiceLibrary.Services
             IHttpContextAccessor httpContextAccessor,
             IAuthenticationService authenticationService,
             IJwtService jwtService,
-            RoleManager<ApplicationRole> roleManager)
+            RoleManager<ApplicationRole> roleManager,
+            AuthDbContext context)
         {
             _userManager = userManager;
             _signInManager = signInManager;
@@ -35,6 +39,7 @@ namespace AuthServiceLibrary.Services
             _authenticationService = authenticationService;
             _jwtService = jwtService;
             _roleManager = roleManager;
+            _context = context;
         }
 
         public async Task<AuthResult> LoginAsync(LoginRequest request)
@@ -64,7 +69,7 @@ namespace AuthServiceLibrary.Services
 
             var roles = (await _userManager.GetRolesAsync(user)).ToList();
             var claims = (await _userManager.GetClaimsAsync(user)).ToList();
-            ClaimsPrincipal claimsPrincipal = await GenerateClaimsPrincipalAsync(user, roles);
+            ClaimsPrincipal claimsPrincipal = GenerateClaimsPrincipal(user, roles);
             var authResult = new AuthResult
             {
                 Succeeded = true,
@@ -113,52 +118,69 @@ namespace AuthServiceLibrary.Services
 
         public async Task<AuthResult> RegisterAsync(RegisterRequest request)
         {
-            var user = new ApplicationUser
-            {
-                UserName = request.Username,
-                Email = request.Email,
-                CreatedAt = DateTime.UtcNow
-            };
+            AuthResult retVal = null;
 
-            var result = await _userManager.CreateAsync(user, request.Password);
-            if (!result.Succeeded)
+            var executionStrategy = _context.Database.CreateExecutionStrategy();
+
+            await executionStrategy.ExecuteAsync(async () =>
             {
-                return new AuthResult
+                //Starting Transaction to make User along with UserRoles and UserClaims are created 
+                using (var transaction = await _context.Database.BeginTransactionAsync())
                 {
-                    Succeeded = false,
-                    ErrorMessage = string.Join(", ", result.Errors.Select(e => e.Description))
-                };
-            }
+                    try
+                    {
 
-            if (request.Roles.Count > 0)
-            {
-                await _userManager.AddToRolesAsync(user, request.Roles);
+                        //Adding User
+                        ApplicationUser user = new ApplicationUser
+                        {
+                            UserName = request.Username,
+                            Email = request.Email,
+                            CreatedAt = DateTime.UtcNow
+                        };
+                        IdentityResult result = await _userManager.CreateAsync(user, request.Password);
+                        if (!result.Succeeded) { HandleException(string.Join(", ", result.Errors.Select(e => e.Description))); }
 
-                var claims = new List<Claim>
-                {
-                    new(ClaimTypes.NameIdentifier, user.Id.ToString()),
-                    new(ClaimTypes.Name, user.UserName ?? string.Empty),
-                    new(ClaimTypes.Email, user.Email ?? string.Empty)
-                };
-                await _userManager.AddClaimsAsync(user, claims);
-            }
 
-            List<string> roles = (await _userManager.GetRolesAsync(user)).ToList();
-            var authResult = new AuthResult
-            {
-                Succeeded = true,
-                Roles = roles,
-                ClaimsPrincipal = await GenerateClaimsPrincipalAsync(user, roles)
-            };
+                        //Adding User Roles
+                        if (request.Roles.Count > 0)
+                        {
+                            IdentityResult roleCreateResult = await _userManager.AddToRolesAsync(user, request.Roles);
+                            if (!roleCreateResult.Succeeded) { HandleException(string.Join(", ", roleCreateResult.Errors.Select(e => e.Description))); }
+                        }
 
-            //if (_authConfig.UseJwt)
-            //{
-            //    var jwtResult = await _jwtService.GenerateTokenAsync(user, _userManager);
-            //    authResult.Token = jwtResult.Token;
-            //    authResult.ExpiresAt = jwtResult.ExpiresAt;
-            //}
+                        //Add UserClaims
+                        IdentityResult claimCreateResult = await _userManager.AddClaimsAsync(user, GetUserClaims(user, request.Roles));
+                        if (!claimCreateResult.Succeeded) { HandleException(string.Join(", ", claimCreateResult.Errors.Select(e => e.Description))); }
 
-            return authResult;
+
+                        //commit transaction after user, userRoles and Userclaims are created. 
+                        await transaction.CommitAsync();
+
+                        //Return value
+                        retVal = new AuthResult
+                        {
+                            Succeeded = true,
+                            Roles = request.Roles,
+                            ClaimsPrincipal = GenerateClaimsPrincipal(user, request.Roles)
+                        };
+                    }
+                    catch (Exception ex)
+                    {
+                        //Rollback transaction if failed to created.
+                        await transaction.RollbackAsync();
+                        retVal = new AuthResult
+                        {
+                            Succeeded = false,
+                            ErrorMessage = ex.Message
+                        };
+                    }
+                }
+
+            });
+
+
+            return retVal;
+
         }
 
         public async Task<ApplicationUser?> GetUserByIdAsync(Guid userId)
@@ -205,13 +227,13 @@ namespace AuthServiceLibrary.Services
 
         #region Private
 
-        private async Task<ClaimsPrincipal> GenerateClaimsPrincipalAsync(ApplicationUser user, List<string> roles)
+        private ClaimsPrincipal GenerateClaimsPrincipal(ApplicationUser user, List<string> roles)
         {
-            var identity = new ClaimsIdentity(await GetClaimsAsync(user, roles), _authConfig.Cookie.AuthenticationScheme);
+            var identity = new ClaimsIdentity(GetUserClaims(user, roles), _authConfig.Cookie.AuthenticationScheme);
             return new ClaimsPrincipal(identity);
         }
 
-        private async Task<List<Claim>> GetClaimsAsync(ApplicationUser user, List<string> roles)
+        private List<Claim> GetUserClaims(ApplicationUser user, List<string> roles = null)
         {
             var claims = new List<Claim>
             {
@@ -219,10 +241,27 @@ namespace AuthServiceLibrary.Services
                 new(ClaimTypes.Name, user.UserName ?? string.Empty),
                 new(ClaimTypes.Email, user.Email ?? string.Empty)
             };
+            if(roles is not null && roles.Count > 0)
+                claims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role)));
+
+            return claims;
+        }
+
+        private List<Claim> GetRoleClaims(List<string> roles)
+        {
+            var claims = new List<Claim>
+            {
+
+            };
 
             claims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role)));
 
             return claims;
+        }
+
+        private void HandleException(string message)
+        {
+            throw new Exception(message);
         }
         #endregion
 

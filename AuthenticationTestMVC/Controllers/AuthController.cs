@@ -1,5 +1,8 @@
-﻿using AuthServiceLibrary.Entities;
+﻿using AuthenticationTestMVC.Models;
+using AuthServiceLibrary.Entities;
+using AuthServiceLibrary.Models;
 using AuthServiceLibrary.Services.Interfaces;
+using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
@@ -8,9 +11,14 @@ namespace AuthenticationTestMVC.Controllers
     public class AuthController : Controller
     {
         private readonly IAuthService _authService;
-        public AuthController(IAuthService authService)
+        private readonly IUserManagementService _userManagementService;
+        private readonly IMapper _mapper;
+
+        public AuthController(IAuthService authService, IUserManagementService userManagementService, IMapper mapper)
         {
             _authService = authService;
+            _userManagementService = userManagementService;
+            _mapper = mapper;
         }
 
         public ActionResult Login()
@@ -31,7 +39,8 @@ namespace AuthenticationTestMVC.Controllers
                 {
                     return Redirect(ReturnUrl);
                 }
-                return View();
+                ModelState.AddModelError("Password", "Invalid Login attempt.");
+                return View(model);
             }
             catch(Exception ex)
             {
@@ -46,12 +55,15 @@ namespace AuthenticationTestMVC.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> RegisterUser(RegisterRequest model)
+        public async Task<ActionResult> RegisterUser(RegisterModel model)
         {
             try
             {
-                await _authService.RegisterAsync(model);
-                return RedirectToAction("Login");
+                AuthResult result = await _userManagementService.RegisterUser(_mapper.Map<UserRegisterModel>(model));
+                if (result.Succeeded)
+                    return RedirectToAction("Login");
+                else
+                    return View();
             }
             catch
             {

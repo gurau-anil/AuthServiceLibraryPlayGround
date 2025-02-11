@@ -1,3 +1,4 @@
+using System.Reflection;
 using AuthServiceLibrary;
 using Microsoft.AspNetCore.Authentication.Cookies;
 
@@ -22,6 +23,7 @@ builder.Services.AddCookieAuthentication(
         options.SlidingExpiration = true;
     }
 );
+builder.Services.AddAutoMapper(Assembly.GetExecutingAssembly());
 
 var app = builder.Build();
 

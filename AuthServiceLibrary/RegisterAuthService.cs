@@ -11,43 +11,10 @@ using AuthServiceLibrary.Services.Interfaces;
 using AuthServiceLibrary.Services;
 using AuthServiceLibrary.Models;
 using Microsoft.AspNetCore.Authorization;
+using System.Reflection;
 
 namespace AuthServiceLibrary
 {
-    public static class RegisterAuthService
-    {
-        //public static IServiceCollection AddAuthenticationService(this IServiceCollection services, IConfiguration configuration)
-        //{
-        //    // Register ApplicationDbContext with the connection string from the consuming app's config
-        //    services.AddDbContext<AuthDbContext>(options =>
-        //        options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
-
-        //    // Register Identity with User and Role classes from the consuming project
-        //    services.AddIdentity<User, IdentityRole>()
-        //        .AddEntityFrameworkStores<AuthDbContext>()
-        //        .AddDefaultTokenProviders();
-
-        //    // Optionally, add other authentication services (like JWT Bearer)
-        //    services.AddAuthentication(options =>
-        //    {
-        //        options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-        //        options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-        //    })
-        //    .AddCookie(options =>
-        //    {
-        //        options.LoginPath = "/Account/Login";
-        //    });
-
-        //    // Add other services if needed (like authorization, etc.)
-        //    services.AddAuthorization(options =>
-        //    {
-        //        // Define any authorization policies if needed
-        //    });
-
-        //    return services;
-        //}
-    }
-
     public static class ServiceCollectionExtensions
     {
         private static IServiceCollection AddCustomAuth(
@@ -136,8 +103,11 @@ namespace AuthServiceLibrary
             services.AddScoped<IJwtService, JwtService>();
             services.AddScoped<IAuthService, AuthService>();
             services.AddScoped<IRoleService, RoleService>();
+            services.AddScoped<IUserManagementService, UserManagementService>();
             services.AddHttpContextAccessor();
 
+            //Add Automapper
+            services.AddAutoMapper(Assembly.GetExecutingAssembly());
             return services;
         }
 

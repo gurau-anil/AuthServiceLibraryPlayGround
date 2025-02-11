@@ -37,13 +37,6 @@ namespace AuthServiceLibrary.Services
                     {
                         //Adding User
                         ApplicationUser user = _mapper.Map<ApplicationUser>(model);
-                        
-                        //user = new ApplicationUser
-                        //{
-                        //    UserName = model.Username,
-                        //    Email = model.Email,
-                        //    CreatedAt = DateTime.UtcNow
-                        //};
                         IdentityResult result = await _userManager.CreateAsync(user, model.Password);
                         if (!result.Succeeded) { throw new Exception(string.Join(", ", result.Errors.Select(e => e.Description))); }
 

@@ -7,7 +7,8 @@ namespace AuthenticationTestApi.Controllers
     [Route("[controller]")]
     //[Authorize(Policy = "AllowAnilOnly")]
     //[Authorize(Policy = "AdminOnlyPolicy, CanEditPolicy")]
-    [Authorize(Policy = "CombinedPolicy")]
+    //[Authorize(Policy = "CombinedPolicy")]
+    [Authorize(Roles ="Admin, Manager")]
     public class WeatherForecastController : ControllerBase
     {
         private static readonly string[] Summaries = new[]

@@ -1,3 +1,4 @@
+using System.Reflection;
 using System.Security.Claims;
 using System.Text;
 using AuthServiceLibrary;
@@ -21,6 +22,8 @@ authOptions =>
     authOptions.AddPolicy("AdminOnlyPolicy", policy => policy.RequireRole("Admin"));
     authOptions.AddPolicy("CanEditPolicy", policy => policy.RequireClaim("CanEdit", "true"));
 });
+
+builder.Services.AddAutoMapper(Assembly.GetExecutingAssembly());
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

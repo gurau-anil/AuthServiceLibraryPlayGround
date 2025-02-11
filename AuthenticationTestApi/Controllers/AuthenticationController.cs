@@ -1,5 +1,6 @@
 ﻿using AuthenticationTestApi.Models;
 using AuthServiceLibrary.Entities;
+using AuthServiceLibrary.Models;
 using AuthServiceLibrary.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
@@ -23,27 +24,22 @@ namespace AuthenticationTestApi.Controllers
         [Route("login")]
         public async Task<IActionResult> LoginAsync([FromBody] LoginModel model)
         {
-
-            var result = await _authService.LoginAsync(new LoginRequest { Username = model.UserName , Password = model.Password});
-            if (result.Succeeded) {
-                return Ok(new { Token = result.Token, ExpiresAt = result.ExpiresAt });
-            }
-
-            ModelState.AddModelError("Unauthorized", "You are not authorized to access");
-            return Unauthorized(ModelState);
-        }
-
-        [HttpPost]
-        [Route("register")]
-        public async Task<IActionResult> RegisterAsync([FromBody] RegisterRequest model)
-        {
-
-            var result = await _authService.RegisterAsync(model);
-            if (result.Succeeded)
+            try
             {
-                return Ok();
+                AuthResult result = await _authService.LoginAsync(new LoginRequest { Username = model.UserName , Password = model.Password});
+                if (result.Succeeded)
+                {
+                    return Ok(new { Token = result.Token, ExpiresAt = result.ExpiresAt });
+                }
+                ModelState.AddModelError("Unauthorized", result.ErrorMessage);
             }
-            return BadRequest("Something went wrong");
+            catch (Exception ex)
+            {
+                ModelState.AddModelError("Unauthorized", "Either Username or Password is wrong.");
+            }
+            return Unauthorized(ModelState);
+
+            
         }
     }
 }

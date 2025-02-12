@@ -22,7 +22,7 @@ namespace AuthenticationTestApi.Controllers
 
         [HttpPost]
         [Route("register")]
-        public async Task<IActionResult> RegisterAsync([FromBody] RegisterRequest model)
+        public async Task<IActionResult> RegisterAsync([FromBody] RegisterModel model)
         {
             try
             {

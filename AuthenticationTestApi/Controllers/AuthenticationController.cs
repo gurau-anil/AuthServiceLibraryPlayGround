@@ -41,5 +41,24 @@ namespace AuthenticationTestApi.Controllers
 
             
         }
+
+        [HttpGet]
+        [Route("confirm-email/{userId}/{token}")]
+        public async Task<IActionResult> ConfirmEmailToken(string userId, string token)
+        {
+            try
+            {
+                var result = await _authService.ValidateEmailToken(userId, token);
+                if (result)
+                {
+                    return Ok("Email Validated Successfully");
+                }
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError(String.Empty, ex.Message);
+            }
+            return BadRequest(ModelState);
+        }
     }
 }

@@ -191,6 +191,27 @@ namespace AuthServiceLibrary.Services
         {
             throw new Exception(message);
         }
+
+        public async Task<bool> ValidateEmailToken(string userId, string token)
+        {
+            ApplicationUser? user = await _userManager.FindByIdAsync(userId);
+            if(user is null)
+            {
+                throw new Exception("User not found in the system");
+            }
+            try
+            {
+                var result = await _userManager.ConfirmEmailAsync(user, token);
+                if (!result.Succeeded) {
+                    throw new Exception();
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Email Confirmation Failed");
+            }
+            return true;
+        }
         #endregion
 
     }

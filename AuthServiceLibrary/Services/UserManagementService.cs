@@ -53,6 +53,7 @@ namespace AuthServiceLibrary.Services
                         if (!claimCreateResult.Succeeded) { throw new Exception(string.Join(", ", claimCreateResult.Errors.Select(e => e.Description))); }
 
 
+
                         //commit transaction after user, userRoles and Userclaims are created. 
                         await transaction.CommitAsync();
 

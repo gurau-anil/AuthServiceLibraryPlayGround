@@ -7,6 +7,7 @@ namespace AuthServiceLibrary.Services.Interfaces
     public interface IAuthService
     {
         Task<AuthResult> LoginAsync(LoginRequest request);
+        Task<bool> ValidateEmailToken(string userId, string token);
         Task LogoutAsync();
     }
 }

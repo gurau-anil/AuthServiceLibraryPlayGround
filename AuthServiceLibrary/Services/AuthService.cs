@@ -42,9 +42,9 @@ namespace AuthServiceLibrary.Services
             _context = context;
         }
 
-        public async Task<AuthResult> LoginAsync(LoginRequest request)
+        public async Task<AuthResult> LoginAsync(UserLoginModel model)
         {
-            var user = await _userManager.FindByNameAsync(request.Username);
+            var user = await _userManager.FindByNameAsync(model.Username);
             if (user == null)
             {
                 return new AuthResult
@@ -54,7 +54,7 @@ namespace AuthServiceLibrary.Services
                 };
             }
 
-            var result = await _signInManager.CheckPasswordSignInAsync(user, request.Password, false);
+            var result = await _signInManager.CheckPasswordSignInAsync(user, model.Password, false);
             if (!result.Succeeded)
             {
                 return new AuthResult

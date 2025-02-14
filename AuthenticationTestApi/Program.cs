@@ -58,6 +58,17 @@ builder.Services.AddSwaggerGen(options =>
     });
 });
 
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("MyCorsPolicy", opt=>
+    {
+        opt.AllowAnyMethod();
+        opt.AllowAnyHeader();
+        opt.AllowAnyOrigin();
+
+    } );
+});
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -66,9 +77,11 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/api-docs/swagger.json", "JWT API 1.0"));
 }
+app.UseCors("MyCorsPolicy");
 
 app.UseHttpsRedirection();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();

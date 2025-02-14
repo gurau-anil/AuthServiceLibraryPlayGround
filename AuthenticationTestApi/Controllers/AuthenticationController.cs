@@ -26,7 +26,7 @@ namespace AuthenticationTestApi.Controllers
         {
             try
             {
-                AuthResult result = await _authService.LoginAsync(new LoginRequest { Username = model.UserName , Password = model.Password});
+                AuthResult result = await _authService.LoginAsync(new UserLoginModel { Username = model.UserName , Password = model.Password});
                 if (result.Succeeded)
                 {
                     return Ok(new { Token = result.Token, ExpiresAt = result.ExpiresAt });

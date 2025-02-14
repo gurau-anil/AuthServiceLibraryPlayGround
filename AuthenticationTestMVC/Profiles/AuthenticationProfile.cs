@@ -9,6 +9,7 @@ namespace AuthenticationTestMVC.Profiles
         public AuthenticationProfile()
         {
             CreateMap<RegisterModel, UserRegisterModel>();
+            CreateMap<LoginModel, UserLoginModel>();
         }
     }
 }

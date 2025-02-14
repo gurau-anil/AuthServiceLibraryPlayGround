@@ -1,6 +1,7 @@
 using System.Reflection;
 using AuthServiceLibrary;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.CookiePolicy;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -25,6 +26,13 @@ builder.Services.AddCookieAuthentication(
 );
 builder.Services.AddAutoMapper(Assembly.GetExecutingAssembly());
 
+builder.Services.AddCookiePolicy(options => {
+    options.HttpOnly = HttpOnlyPolicy.Always;  // Ensure cookies are HttpOnly
+    options.Secure = CookieSecurePolicy.Always; // Ensure cookies are Secure (only sent over HTTPS)
+    options.MinimumSameSitePolicy = SameSiteMode.Strict;     // Prevent CSRF attacks
+});
+
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -42,6 +50,10 @@ app.UseRouting();
 
 app.UseAuthentication();
 app.UseAuthorization();
+
+app.MapControllerRoute(
+    name: "areaRoute",
+    pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}");
 
 app.MapControllerRoute(
     name: "default",

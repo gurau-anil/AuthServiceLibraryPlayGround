@@ -1,10 +1,10 @@
-﻿using AuthenticationTestMVC.Models;
+﻿using System.Security.Claims;
+using AuthenticationTestMVC.Models;
 using AuthServiceLibrary.Entities;
 using AuthServiceLibrary.Models;
 using AuthServiceLibrary.Services.Interfaces;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace AuthenticationTestMVC.Controllers
 {
@@ -30,14 +30,14 @@ namespace AuthenticationTestMVC.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> Login(LoginRequest model, [FromQuery] string ReturnUrl = "/")
+        public async Task<ActionResult> Login(LoginModel model, [FromQuery] string ReturnUrl = "/")
         {
             try
             {
-                var result = await _authService.LoginAsync(model);
+                var result = await _authService.LoginAsync(_mapper.Map<UserLoginModel>(model));
                 if (result.Succeeded)
                 {
-                    return Redirect(ReturnUrl);
+                    return LocalRedirect(ReturnUrl);
                 }
                 ModelState.AddModelError("Password", "Invalid Login attempt.");
                 return View(model);
@@ -48,14 +48,14 @@ namespace AuthenticationTestMVC.Controllers
             }
         }
         
-        public ActionResult RegisterUser()
+        public ActionResult SignUp()
         {
             return View();
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> RegisterUser(RegisterModel model)
+        public async Task<ActionResult> SignUp(RegisterModel model)
         {
             try
             {
@@ -63,11 +63,16 @@ namespace AuthenticationTestMVC.Controllers
                 if (result.Succeeded)
                     return RedirectToAction("Login");
                 else
-                    return View();
+                    ModelState.AddModelError(String.Empty, "Failed to Signup.");
+                    return View(model);
             }
-            catch
+            catch(Exception ex)
             {
-                return View();
+                if(ex.Message.Contains("Email"))
+                    ModelState.AddModelError("Email", ex.Message);
+                else
+                    ModelState.AddModelError("UserName", ex.Message);
+                return View(model);
             }
         }
 

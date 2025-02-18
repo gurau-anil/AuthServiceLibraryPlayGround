@@ -43,6 +43,12 @@
                [nzType]="isCollapsed ? 'menu-unfold' : 'menu-fold'"
             ></span>
         </span>
+        <span class="header-trigger" (click)="visible = !visible">
+            <span class="trigger"
+              nz-icon
+              [nzType]="visible ? 'menu' : 'menu'"
+            ></span>
+        </span>
       </div>
     </nz-header>
     <nz-content>
@@ -52,3 +58,28 @@
     </nz-content>
   </nz-layout>
 </nz-layout>
+
+
+<nz-drawer
+      [nzClosable]="false"
+      [nzVisible]="visible"
+      nzPlacement="left"
+      nzTitle="Basic Drawer"
+      (nzOnClose)="close()"
+      [nzExtra]="extra"
+    >
+    <ng-container *nzDrawerContent>
+      <p>Some contents...</p>
+      <p>Some contents...</p>
+      <p>Some contents...</p>
+    </ng-container>
+</nz-drawer>
+
+<ng-template #extra>
+  <span class="drawer-close" (click)="visible = false">
+      <span class="trigger"
+        nz-icon
+        nzType="close"
+      ></span>
+  </span>
+</ng-template>

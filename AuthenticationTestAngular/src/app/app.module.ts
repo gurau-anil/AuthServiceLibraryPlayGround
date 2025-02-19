@@ -9,6 +9,7 @@ import { FormsModule } from '@angular/forms';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { provideHttpClient } from '@angular/common/http';
 import { AntModules } from './ant-modules/ant.module';
+import { AgAssetsModule } from 'ag-assets';
 
 registerLocaleData(en);
 
@@ -20,7 +21,8 @@ registerLocaleData(en);
     BrowserModule,
     AppRoutingModule,
     FormsModule,
-    AntModules
+    AntModules,
+    AgAssetsModule
   ],
   providers: [
     provideAnimationsAsync(),

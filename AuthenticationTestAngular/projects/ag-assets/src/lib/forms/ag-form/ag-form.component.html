@@ -1,0 +1,68 @@
+<form (ngSubmit)="onSubmit()">
+    <div *ngFor="let field of fields">
+      <label [for]="field.name">{{ field.label }}</label>
+  
+      <!-- Render based on field type -->
+      <ng-container [ngSwitch]="field.type">
+        <!-- Text, email, or number input types -->
+        <input *ngSwitchCase="fieldTypes.Text" 
+               [id]="field.name" 
+               [(ngModel)]="model[field.name]" 
+               [name]="field.name" 
+               [placeholder]="field.placeholder" 
+               [required]="field.required" 
+               type="text" />
+  
+        <input *ngSwitchCase="fieldTypes.Email" 
+               [id]="field.name" 
+               [(ngModel)]="model[field.name]" 
+               [name]="field.name" 
+               [placeholder]="field.placeholder" 
+               [required]="field.required" 
+               type="email" />
+  
+        <input *ngSwitchCase="fieldTypes.Number" 
+               [id]="field.name" 
+               [(ngModel)]="model[field.name]" 
+               [name]="field.name" 
+               [placeholder]="field.placeholder" 
+               [required]="field.required" 
+               type="number" />
+  
+        <!-- For select inputs -->
+        <select *ngSwitchCase="fieldTypes.Select" 
+                [id]="field.name" 
+                [(ngModel)]="model[field.name]" 
+                [name]="field.name" 
+                [required]="field.required">
+          <option *ngFor="let option of field.options" [value]="option">{{ option }}</option>
+        </select>
+  
+        <!-- For radio button inputs -->
+        <div *ngSwitchCase="fieldTypes.Radio">
+          <div *ngFor="let option of field.options">
+            <input type="radio" 
+                   [id]="option" 
+                   [name]="field.name" 
+                   [(ngModel)]="model[field.name]" 
+                   [value]="option" 
+                   [required]="field.required" />
+            <label [for]="option">{{ option }}</label>
+          </div>
+        </div>
+  
+        <!-- For checkbox inputs -->
+        <div *ngSwitchCase="fieldTypes.Checkbox">
+          <input type="checkbox" 
+                 [id]="field.name" 
+                 [(ngModel)]="model[field.name]" 
+                 [name]="field.name" 
+                 [required]="field.required" />
+        </div>
+  
+      </ng-container>
+    </div>
+  
+    <button type="submit">Submit</button>
+  </form>
+  

@@ -53,7 +53,7 @@
     </nz-header>
     <nz-content>
       <div class="inner-content">
-        <ag-form [fields]="formFields"></ag-form>
+        <ag-form [fields]="formFields" (formSubmit)="handleFormSubmit($event)"></ag-form>
         <router-outlet></router-outlet>
       </div>
     </nz-content>

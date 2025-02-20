@@ -27,7 +27,8 @@ export class AppComponent implements OnInit {
     { type: FieldType.Text, label: 'Name', name: 'name', placeholder: 'Enter your name', required: true },
     { type: FieldType.Email, label: 'Email', name: 'email', placeholder: 'Enter your email', required: true },
     { type: FieldType.Select, label: 'Country', name: 'country', options: ['USA', 'Canada', 'UK'], required: true },
-    { type: FieldType.Radio, label: 'Gender', name: 'gender', options: ['Male', 'Female'], required: true }
+    { type: FieldType.Radio, label: 'Gender', name: 'gender', options: ['Male', 'Female'], required: true },
+    { type: FieldType.Checkbox, label: 'Accept Policy', name: 'policy', required: true },
   ];
 
   handleFormSubmit(formData: any) {

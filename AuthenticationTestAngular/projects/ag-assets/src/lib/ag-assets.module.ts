@@ -1,8 +1,14 @@
 import { NgModule } from '@angular/core';
 import { AgAssetsComponent } from './ag-assets.component';
 import { AgFormComponent } from './forms/ag-form/ag-form.component';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import {MatInputModule} from '@angular/material/input';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import {MatSelectModule} from '@angular/material/select';
+import {MatRadioModule} from '@angular/material/radio';
+import {MatCheckboxModule} from '@angular/material/checkbox';
+import {MatButtonModule} from '@angular/material/button';
 
 const registerAndExportComponents = [AgFormComponent]
 
@@ -13,7 +19,9 @@ const registerAndExportComponents = [AgFormComponent]
   ],
   imports: [
     FormsModule,
-    CommonModule
+    ReactiveFormsModule,
+    CommonModule,
+    MatFormFieldModule, MatInputModule, MatSelectModule, MatRadioModule, MatCheckboxModule, MatButtonModule
   ],
   exports: [
     AgAssetsComponent,

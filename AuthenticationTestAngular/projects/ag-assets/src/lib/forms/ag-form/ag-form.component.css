@@ -1,0 +1,62 @@
+/* <form [formGroup]="form" (ngSubmit)="onSubmit()">
+    <div formArrayName="fields">
+      <div *ngFor="let field of fields; let i = index">
+        <label [for]="field.name">{{ field.label }}</label>
+
+        <ng-container [ngSwitch]="field.type">
+          <!-- Text, email, or number input types -->
+          <input *ngSwitchCase="fieldTypes.Text"
+                 [id]="field.name"
+                 formControlName = "{{field.name}}"
+                 [placeholder]="field.placeholder"
+                 [required]="field.required"
+                 type="text" />
+  
+          <input *ngSwitchCase="fieldTypes.Email"
+                 [id]="field.name"
+                 formControlName = "{{field.name}}"
+                 [placeholder]="field.placeholder"
+                 [required]="field.required"
+                 type="email" />
+  
+          <input *ngSwitchCase="fieldTypes.Number"
+                 [id]="field.name"
+                 formControlName = "{{field.name}}"
+                 [placeholder]="field.placeholder"
+                 [required]="field.required"
+                 type="number" />
+  
+          <!-- For select inputs -->
+          <select *ngSwitchCase="fieldTypes.Select"
+                  [id]="field.name"
+                  formControlName = "{{field.name}}"
+                  [required]="field.required">
+            <option *ngFor="let option of field.options" [value]="option">{{ option }}</option>
+          </select>
+  
+          <!-- For radio button inputs -->
+          <div *ngSwitchCase="fieldTypes.Radio">
+            <div *ngFor="let option of field.options">
+              <input type="radio"
+                     [id]="option"
+                     formControlName = "{{field.name}}"
+                     [value]="option"
+                     [required]="field.required" />
+              <label [for]="option">{{ option }}</label>
+            </div>
+          </div>
+  
+          <!-- For checkbox inputs -->
+          <div *ngSwitchCase="fieldTypes.Checkbox">
+            <input type="checkbox"
+                   [id]="field.name"
+                   formControlName = "{{field.name}}"
+                   [required]="field.required" />
+          </div>
+  
+        </ng-container>
+      </div>
+    </div>
+  
+    <button type="submit" [disabled]="form.invalid">Submit</button>
+  </form> */

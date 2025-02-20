@@ -1,68 +1,119 @@
-<form (ngSubmit)="onSubmit()">
-    <div *ngFor="let field of fields">
-      <label [for]="field.name">{{ field.label }}</label>
+<!-- <form class="example-form">
+    <mat-form-field class="example-full-width">
+      <mat-label>Favorite food</mat-label>
+      <input matInput placeholder="Ex. Pizza" value="Sushi">
+    </mat-form-field>
   
-      <!-- Render based on field type -->
-      <ng-container [ngSwitch]="field.type">
-        <!-- Text, email, or number input types -->
-        <input *ngSwitchCase="fieldTypes.Text" 
-               [id]="field.name" 
-               [(ngModel)]="model[field.name]" 
-               [name]="field.name" 
-               [placeholder]="field.placeholder" 
-               [required]="field.required" 
-               type="text" />
+    <mat-form-field class="example-full-width">
+      <mat-label>Leave a comment</mat-label>
+      <textarea matInput placeholder="Ex. It makes me feel..."></textarea>
+    </mat-form-field>
+  </form> -->
   
-        <input *ngSwitchCase="fieldTypes.Email" 
-               [id]="field.name" 
-               [(ngModel)]="model[field.name]" 
-               [name]="field.name" 
-               [placeholder]="field.placeholder" 
-               [required]="field.required" 
-               type="email" />
+
+<form [formGroup]="agForm" (ngSubmit)="submitForm()">
+    <div *ngFor="let field of fields; let i = index">
+        <!-- <label [for]="field.name">{{ field.label }}</label>
+        <br> -->
+        <ng-container [ngSwitch]="field.type">
+          <!-- Text, email, or number input types -->
+          <mat-form-field *ngSwitchCase="fieldTypes.Text" class="example-full-width">
+            <mat-label>{{ field.label }}</mat-label>
+            <input matInput 
+            [id]="field.name"
+            formControlName = "{{field.name}}"
+            [placeholder]="field?.placeholder??''" 
+            [value]="field.value" 
+            [required]="field?.required??false" 
+            type="text">
+          </mat-form-field>
+
+          <mat-form-field *ngSwitchCase="fieldTypes.Email" class="example-full-width">
+            <mat-label>{{ field.label }}</mat-label>
+            <input matInput 
+            [id]="field.name"
+            formControlName = "{{field.name}}"
+            [placeholder]="field?.placeholder??''" 
+            [value]="field.value" 
+            [required]="field?.required??false" 
+            type="email">
+          </mat-form-field>
+
+          <!-- <input *ngSwitchCase="fieldTypes.Text"
+                 [id]="field.name"
+                 formControlName = "{{field.name}}"
+                 [placeholder]="field?.placeholder??''"
+                 [required]="field?.required??false"
+                 type="text" /> -->
   
-        <input *ngSwitchCase="fieldTypes.Number" 
-               [id]="field.name" 
-               [(ngModel)]="model[field.name]" 
-               [name]="field.name" 
-               [placeholder]="field.placeholder" 
-               [required]="field.required" 
-               type="number" />
+          <!-- <input *ngSwitchCase="fieldTypes.Email"
+                 [id]="field.name"
+                 formControlName = "{{field.name}}"
+                 [placeholder]="field?.placeholder??''"
+                 [required]="field?.required??false"
+                 type="email" /> -->
   
-        <!-- For select inputs -->
-        <select *ngSwitchCase="fieldTypes.Select" 
-                [id]="field.name" 
-                [(ngModel)]="model[field.name]" 
-                [name]="field.name" 
-                [required]="field.required">
-          <option *ngFor="let option of field.options" [value]="option">{{ option }}</option>
-        </select>
+                 <mat-form-field *ngSwitchCase="fieldTypes.Number" class="example-full-width">
+                    <mat-label>{{ field.label }}</mat-label>
+                    <input matInput 
+                    [id]="field.name"
+                    formControlName = "{{field.name}}"
+                    [placeholder]="field?.placeholder??''" 
+                    [value]="field.value" 
+                    [required]="field?.required??false" 
+                    type="number">
+                  </mat-form-field>
+          <!-- <input *ngSwitchCase="fieldTypes.Number"
+                 [id]="field.name"
+                 formControlName = "{{field.name}}"
+                 [placeholder]="field?.placeholder??''"
+                 [required]="field?.required??false"
+                 type="number" /> -->
   
-        <!-- For radio button inputs -->
-        <div *ngSwitchCase="fieldTypes.Radio">
-          <div *ngFor="let option of field.options">
-            <input type="radio" 
-                   [id]="option" 
-                   [name]="field.name" 
-                   [(ngModel)]="model[field.name]" 
-                   [value]="option" 
-                   [required]="field.required" />
-            <label [for]="option">{{ option }}</label>
-          </div>
-        </div>
+          <!-- For select inputs -->
+          <!-- <select *ngSwitchCase="fieldTypes.Select"
+                  [id]="field.name"
+                  formControlName = "{{field.name}}"
+                  [required]="field?.required??false">
+            <option *ngFor="let option of field.options" [value]="option">{{ option }}</option>
+          </select> -->
+
+          <mat-form-field *ngSwitchCase="fieldTypes.Select">
+            <mat-label>{{ field.label }}</mat-label>
+            <mat-select
+            [id]="field.name" 
+            formControlName = "{{field.name}}"
+            [required]="field?.required??false">
+              <mat-option *ngFor="let option of field.options" [value]="option">{{ option }}</mat-option>
+            </mat-select>
+          </mat-form-field>
   
-        <!-- For checkbox inputs -->
-        <div *ngSwitchCase="fieldTypes.Checkbox">
-          <input type="checkbox" 
-                 [id]="field.name" 
-                 [(ngModel)]="model[field.name]" 
-                 [name]="field.name" 
-                 [required]="field.required" />
-        </div>
+          <!-- For radio button inputs -->
+        <ng-container *ngSwitchCase="fieldTypes.Radio">
+            <mat-label>{{ field.label }}</mat-label>
+            <mat-radio-group formControlName = "{{field.name}}" [required]="field?.required??false">
+                <mat-radio-button *ngFor="let option of field.options" [value]="option" [required]="field?.required??false">{{ option }}</mat-radio-button>
+            </mat-radio-group>
+        </ng-container>
+        
   
-      </ng-container>
-    </div>
+          <!-- For checkbox inputs -->
+          <!-- <div *ngSwitchCase="fieldTypes.Checkbox">
+            <input type="checkbox"
+                   [id]="field.name"
+                   formControlName = "{{field.name}}"
+                   [required]="field?.required??false" />
+          </div> -->
+          <mat-checkbox *ngSwitchCase="fieldTypes.Checkbox" 
+          formControlName = "{{field.name}}"
+          [id]="field.name" 
+          [required]="field?.required??false">{{field.label}}</mat-checkbox>
   
-    <button type="submit">Submit</button>
+        </ng-container>
+      </div>
+      {{agForm.invalid}}
+    <button mat-flat-button type="submit" [disabled]="agForm.invalid">Submit</button>
   </form>
+
+
   

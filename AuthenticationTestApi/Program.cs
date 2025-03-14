@@ -1,6 +1,7 @@
 using System.Reflection;
 using System.Security.Claims;
 using System.Text;
+using AuthenticationTestApi.Middlewares;
 using AuthServiceLibrary;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -77,9 +78,11 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/api-docs/swagger.json", "JWT API 1.0"));
 }
-app.UseCors("MyCorsPolicy");
 
+app.UseMiddleware<ExceptionHandlingMiddleware>();
 app.UseHttpsRedirection();
+
+app.UseCors("MyCorsPolicy");
 
 app.UseAuthentication();
 app.UseAuthorization();

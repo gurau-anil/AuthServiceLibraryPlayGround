@@ -1,9 +1,8 @@
 using System.Reflection;
-using System.Security.Claims;
-using System.Text;
+using System.Threading.RateLimiting;
 using AuthenticationTestApi.Middlewares;
 using AuthServiceLibrary;
-using Microsoft.IdentityModel.Tokens;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -58,6 +57,7 @@ builder.Services.AddSwaggerGen(options =>
         }
     });
 });
+builder.Services.AddMemoryCache();
 
 
 builder.Services.AddCors(options =>
@@ -70,6 +70,33 @@ builder.Services.AddCors(options =>
 
     } );
 });
+
+builder.Services.AddSpaStaticFiles(configuration =>
+{
+    configuration.RootPath = "wwwroot";
+});
+
+builder.Services.AddRateLimiter(options =>
+{
+    options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(context =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            context.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+            _ => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = 5, // Allow max 5 consecutive requests
+                Window = TimeSpan.FromSeconds(10), // Block further requests for 10 seconds
+                QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
+                QueueLimit = 0 // Do not queue extra requests
+            }));
+
+    // Custom response when rate limit is exceeded
+    options.OnRejected = async (context, token) =>
+    {
+        context.HttpContext.Response.StatusCode = StatusCodes.Status429TooManyRequests;
+        await context.HttpContext.Response.WriteAsync("Too many requests. Try again later.", token);
+    };
+});
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -78,7 +105,9 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/api-docs/swagger.json", "JWT API 1.0"));
 }
+app.UseRateLimiter();
 
+//app.UseMiddleware<ApiKeyRateLimitingMiddleware>();
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 app.UseHttpsRedirection();
 
@@ -88,5 +117,24 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+// Serve SPA static files
+app.UseSpaStaticFiles();
+if (app.Environment.IsDevelopment())
+{
+    app.UseSpa(spa =>
+    {
+        spa.Options.SourcePath = "../../../ClientApp";
+        //spa.UseProxyToSpaDevelopmentServer("https://localhost:4200");
+    });
+}
+else
+{
+    app.UseSpa(spa =>
+    {
+        spa.Options.SourcePath = "wwwroot";
+    });
+}
+
+
 
 app.Run();

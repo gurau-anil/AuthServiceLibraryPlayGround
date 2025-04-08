@@ -4,11 +4,11 @@ using Microsoft.AspNetCore.Mvc;
 namespace AuthenticationTestApi.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
+    [Route("api")]
     //[Authorize(Policy = "AllowAnilOnly")]
     //[Authorize(Policy = "AdminOnlyPolicy, CanEditPolicy")]
     //[Authorize(Policy = "CombinedPolicy")]
-    [Authorize(Roles ="Admin, Manager")]
+    [Authorize]
     public class WeatherForecastController : ControllerBase
     {
         private static readonly string[] Summaries = new[]
@@ -23,10 +23,11 @@ namespace AuthenticationTestApi.Controllers
             _logger = logger;
         }
 
-        [HttpGet(Name = "GetWeatherForecast")]
+        [HttpGet]
+        [Route("GetWeatherForecast")]
         public IEnumerable<WeatherForecast> Get()
         {
-            throw new NotImplementedException("Test Message");
+            //throw new NotImplementedException("Test Message");
             return Enumerable.Range(1, 5).Select(index => new WeatherForecast
             {
                 Date = DateOnly.FromDateTime(DateTime.Now.AddDays(index)),

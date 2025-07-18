@@ -22,6 +22,25 @@ namespace AuthServiceLibrary.Services
             _mapper = mapper;
         }
 
+        public async Task<bool> DeleteByUsernameAsync(string username)
+        {
+            var user = await _userManager.FindByNameAsync(username);
+            if (user == null) return false;
+
+            var result = await _userManager.DeleteAsync(user);
+            return result.Succeeded;
+        }
+
+        public Task<IEnumerable<UserRegisterModel>> GetAllAsync()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<UserRegisterModel?> GetByUsernameAsync(string username)
+        {
+            throw new NotImplementedException();
+        }
+
         public async Task<AuthResult> RegisterUser(UserRegisterModel model)
         {
             await CheckIfUserNameOrEmailIsTaken(model);

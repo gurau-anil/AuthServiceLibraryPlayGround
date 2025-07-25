@@ -1,4 +1,5 @@
 ﻿using AuthenticationTestApi.Models;
+using AuthServiceLibrary;
 using AuthServiceLibrary.Entities;
 using AuthServiceLibrary.Models;
 using AuthServiceLibrary.Services.Interfaces;
@@ -64,7 +65,7 @@ namespace AuthenticationTestApi.Controllers
 
         private void IssueCookie(HttpContext context, AuthResult result)
         {
-            context.Response.Cookies.Append("access_token", result.Token, new CookieOptions
+            context.Response.Cookies.Append(AuthConstants.AccessToken, result.Token, new CookieOptions
             {
                 Domain = "localhost",
                 Path = "/",

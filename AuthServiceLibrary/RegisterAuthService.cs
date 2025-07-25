@@ -69,7 +69,7 @@ namespace AuthServiceLibrary
                     {
                         OnMessageReceived = context =>
                         {
-                            context.Request.Cookies.TryGetValue("access_token", out var accessToken);
+                            context.Request.Cookies.TryGetValue(AuthConstants.RefreshToken, out var accessToken);
                             if (!string.IsNullOrEmpty(accessToken))
                                 context.Token = accessToken;
                             return Task.CompletedTask;

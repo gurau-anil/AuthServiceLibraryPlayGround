@@ -6,8 +6,8 @@ export default function LoginPage() {
   const location = useLocation();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
-  const [userName, setUserName] = useState<string>('');
-  const [password, setPassword] = useState<string>('');
+  const [userName, setUserName] = useState<string>('admin');
+  const [password, setPassword] = useState<string>('Dev@1234');
   const [error, setError] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(false);
 
@@ -22,8 +22,9 @@ export default function LoginPage() {
         password,
       });
 
-      localStorage.setItem("bearer-token", response.data.token)
-      navigate(searchParams.get('redirectTo')??'/')
+    //   localStorage.setItem("bearer-token", response.data.token)
+    localStorage.setItem("authResult", JSON.stringify(response.data))
+    navigate(searchParams.get('redirectTo')??'/')
 
     } catch (err: any) {
       setError(err.response?.data?.message || 'Login failed');
@@ -33,11 +34,12 @@ export default function LoginPage() {
   };
 
   return (
-    <div style={{ maxWidth: 400, margin: 'auto', padding: 20 }}>
-      <h2>Login</h2>
+  <>
+    <div style={{ maxWidth: 400, margin: 'auto', padding: 20, display: 'flex', justifyContent: 'center' }}>
       <form onSubmit={handleSubmit}>
+        <h2 style={{textAlign: 'center'}}>Login</h2>
         <div>
-          <label htmlFor="userName">Email:</label>
+          <label htmlFor="userName">Email:</label><br />
           <input
             id="userName"
             type="text"
@@ -48,7 +50,7 @@ export default function LoginPage() {
           />
         </div>
         <div style={{ marginTop: 10 }}>
-          <label htmlFor="password">Password:</label>
+          <label htmlFor="password">Password:</label><br />
           <input
             id="password"
             type="password"
@@ -66,5 +68,6 @@ export default function LoginPage() {
         )}
       </form>
     </div>
+  </>
   );
 };

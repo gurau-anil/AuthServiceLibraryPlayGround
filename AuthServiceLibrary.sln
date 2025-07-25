@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AuthenticationTestApi", "Au
 EndProject
 Project("{54A90642-561A-4BB1-A94E-469ADEE60C69}") = "AuthenticationTestAngular", "AuthenticationTestAngular\AuthenticationTestAngular.esproj", "{9EE4829E-362E-4921-A68A-C4585A510828}"
 EndProject
+Project("{54A90642-561A-4BB1-A94E-469ADEE60C69}") = "authenticationtestreact", "AuthenticationTestReact\authenticationtestreact.esproj", "{F1E01699-DBE0-4E89-B656-82F99EB8DAA0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -35,6 +37,12 @@ Global
 		{9EE4829E-362E-4921-A68A-C4585A510828}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9EE4829E-362E-4921-A68A-C4585A510828}.Release|Any CPU.Build.0 = Release|Any CPU
 		{9EE4829E-362E-4921-A68A-C4585A510828}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{F1E01699-DBE0-4E89-B656-82F99EB8DAA0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F1E01699-DBE0-4E89-B656-82F99EB8DAA0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F1E01699-DBE0-4E89-B656-82F99EB8DAA0}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{F1E01699-DBE0-4E89-B656-82F99EB8DAA0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F1E01699-DBE0-4E89-B656-82F99EB8DAA0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F1E01699-DBE0-4E89-B656-82F99EB8DAA0}.Release|Any CPU.Deploy.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

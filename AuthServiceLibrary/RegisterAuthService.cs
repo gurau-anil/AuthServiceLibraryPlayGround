@@ -65,6 +65,17 @@ namespace AuthServiceLibrary
                             Encoding.UTF8.GetBytes(config.Jwt.SecretKey))
                     };
 
+                    options.Events = new JwtBearerEvents
+                    {
+                        OnMessageReceived = context =>
+                        {
+                            context.Request.Cookies.TryGetValue("access_token", out var accessToken);
+                            if (!string.IsNullOrEmpty(accessToken))
+                                context.Token = accessToken;
+                            return Task.CompletedTask;
+                        }
+                    };
+
                 });
             }
             else if (config.UseCookie)

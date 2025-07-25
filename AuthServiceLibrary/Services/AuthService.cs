@@ -85,6 +85,7 @@ namespace AuthServiceLibrary.Services
                 AuthResponse jwtResult = await _jwtService.GenerateTokenAsync(user);
                 authResult.Token = jwtResult.Token;
                 authResult.ExpiresAt = jwtResult.ExpiresAt;
+                authResult.Roles = roles;
             }
             else
             {

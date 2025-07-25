@@ -13,8 +13,8 @@ builder.Services.AddJwtAuthentication(connectionString, options =>
 {
     options.Issuer = "Test";
     options.Audience = "Test";
-    options.ExpirationMinutes = 10;
-    options.SecretKey = builder.Configuration.GetValue<string>("JwtSettings:SecretKey")??String.Empty;
+    options.ExpirationMinutes = builder.Configuration.GetValue<int>("JwtSettings:ExpiresInMinutes");
+    options.SecretKey = builder.Configuration.GetValue<string>("JwtSettings:SecretKey") ?? String.Empty;
 },
 authOptions =>
 {
@@ -66,7 +66,8 @@ builder.Services.AddCors(options =>
     {
         opt.AllowAnyMethod();
         opt.AllowAnyHeader();
-        opt.AllowAnyOrigin();
+        opt.WithOrigins("http://localhost:54647", "https://localhost:57113", "https://localhost:4200");
+        opt.AllowCredentials();
 
     } );
 });

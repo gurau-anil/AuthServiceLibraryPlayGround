@@ -1,11 +1,12 @@
 ﻿using System.Net;
-using AuthServiceLibrary.Entities;
 using AuthServiceLibrary.Services.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AuthenticationTestApi.Controllers
 {
+    [Authorize]
     [Route("api/role")]
     [ApiController]
     public class RoleController : ControllerBase

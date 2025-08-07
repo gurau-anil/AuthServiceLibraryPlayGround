@@ -30,7 +30,7 @@ namespace AuthenticationTestApi.Controllers
                 AuthResult result = await _authService.LoginAsync(new UserLoginModel { Username = model.UserName , Password = model.Password});
                 if (result.Succeeded)
                 {
-                    IssueCookie(HttpContext, result);
+                    IssueAccessTokenCookie(HttpContext, result);
                     return Ok(new { IsAuthenticated = true, Roles = result.Roles, ExpiresAt = result.ExpiresAt });
                 }
                 ModelState.AddModelError("Unauthorized", result.ErrorMessage);
@@ -63,7 +63,15 @@ namespace AuthenticationTestApi.Controllers
             return BadRequest(ModelState);
         }
 
-        private void IssueCookie(HttpContext context, AuthResult result)
+
+        [HttpGet]
+        [Route("logout")]
+        public async Task<IActionResult> LogoutAsync()
+        {
+            ClearAccessTokenCookie(HttpContext);
+            return Ok();
+        }
+        private void IssueAccessTokenCookie(HttpContext context, AuthResult result)
         {
             context.Response.Cookies.Append(AuthConstants.AccessToken, result.Token, new CookieOptions
             {
@@ -74,6 +82,20 @@ namespace AuthenticationTestApi.Controllers
                 IsEssential = true,
                 SameSite = SameSiteMode.None,
                 Expires = result.ExpiresAt
+            });
+        }
+
+        private void ClearAccessTokenCookie(HttpContext context)
+        {
+            context.Response.Cookies.Append(AuthConstants.AccessToken, "", new CookieOptions
+            {
+                Domain = "localhost",
+                Path = "/",
+                HttpOnly = true,
+                Secure = true,
+                IsEssential = true,
+                SameSite = SameSiteMode.None,
+                Expires = DateTime.Now.AddDays(-1)
             });
         }
     }

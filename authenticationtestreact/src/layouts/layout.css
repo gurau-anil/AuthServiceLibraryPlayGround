@@ -1,0 +1,21 @@
+.header{
+    background: #fcfcfc;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 50px;
+    margin-bottom: 30px;
+}
+
+.active{
+    color: coral;
+    text-decoration: underline;
+    font-weight: bold;
+    font-size: large;
+
+    
+}
+
+.active:hover{
+        color: coral;
+    }

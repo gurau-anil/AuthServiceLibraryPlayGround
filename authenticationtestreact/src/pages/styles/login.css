@@ -1,0 +1,131 @@
+.login-wrapper {
+  display: flex;
+  justify-content: center;
+  margin-top: 50px;
+}
+
+.login-container {
+  width: 100%;
+  max-width: 600px;
+  display: flex;
+  background: #ffffff;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+}
+
+.btn {
+  display: inline-block;
+  padding: 7px 20px;
+  font-size: 16px;
+  letter-spacing: 1px;
+  text-decoration: none;
+  border-radius: 5px;
+  color: #e00f0f;
+  outline: none;
+  border: 1px solid #ffffff;
+  transition: 0.3s;
+  -webkit-transition: 0.3s;
+}
+
+.btn:hover {
+  color: #4caf50;
+  background: #ffffff;
+}
+
+.col-left,
+.col-right {
+  width: 50%;
+  padding: 50px 35px;
+  display: flex;
+}
+
+.col-left {
+  width: 45%;
+  background: #4caf50;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+@media (max-width: 575.98px) {
+  .container {
+    flex-direction: column;
+    box-shadow: none;
+  }
+
+  .col-left,
+  .col-right {
+    width: 100%;
+    margin: 0;
+    padding: 30px;
+    -webkit-clip-path: none;
+    clip-path: none;
+  }
+}
+
+
+.login-form {
+  position: relative;
+  width: 100%;
+  color: #666666;
+}
+
+.login-form p:last-child {
+  margin: 0;
+}
+
+.login-form p a {
+  color: #4caf50;
+  font-size: 14px;
+  text-decoration: none;
+}
+
+.login-form p:last-child a:last-child {
+  float: right;
+}
+
+.login-form label {
+  display: block;
+  width: 100%;
+  margin-bottom: 2px;
+  letter-spacing: 0.5px;
+}
+
+.login-form p:last-child label {
+  width: 60%;
+  float: left;
+}
+
+.login-form label span {
+  color: #ff574e;
+  padding-left: 2px;
+}
+
+.login-form input {
+  display: block;
+  width: 92%;
+  height: 40px;
+  padding: 0 10px;
+  font-size: 16px;
+  letter-spacing: 1px;
+  outline: none;
+  border: 1px solid #cccccc;
+  border-radius: 5px;
+}
+
+.login-form input:focus {
+  border-color: #4b4b4b;
+}
+
+.login-form input.btn {
+  width: 100%;
+  color: #ffffff;
+  background: #4caf50;
+  border-color: #4caf50;
+  outline: none;
+  cursor: pointer;
+}
+
+.login-form input.btn:hover {
+  color: #4caf50;
+  background: #ffffff;
+}

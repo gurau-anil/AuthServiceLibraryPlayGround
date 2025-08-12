@@ -1,0 +1,21 @@
+.navMenu a {
+  color: #414141;
+  text-decoration: none;
+  font-size: 1.2em;
+  text-transform: uppercase;
+  font-weight: 500;
+  display: inline-block;
+  width: 80px;
+  -webkit-transition: all 0.2s ease-in-out;
+  transition: all 0.2s ease-in-out;
+}
+
+.navMenu a:hover {
+  color: #c28719;
+}
+
+
+.navMenu .active{
+    color: #ffa600;
+    text-decoration: underline;
+}

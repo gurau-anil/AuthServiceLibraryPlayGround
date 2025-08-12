@@ -13,7 +13,8 @@ const AppLoader = async ({ request }: { request: Request }) => {
 
     return result.data;
   } catch (error: any) {
-    // HandleError(error.status);
+    console.log(error)
+    HandleError(error.status);
   }
 };
 

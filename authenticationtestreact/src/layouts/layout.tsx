@@ -1,7 +1,8 @@
 import { NavLink, Outlet, useNavigate } from "react-router";
 import httpClient from "../axios.config";
-import './layout.css';
+import "./layout.css";
 import { useState } from "react";
+import Navbar from "../components/navbar";
 
 function Layout() {
   const navigate = useNavigate();
@@ -9,11 +10,12 @@ function Layout() {
 
   async function logout() {
     try {
-        setLoading(true);
+      setLoading(true);
       let response = await httpClient.get("api/auth/logout");
       localStorage.removeItem("authResult");
       navigate("/auth/login");
     } catch (error: any) {
+      setLoading(false);
       alert(error.message);
     }
   }
@@ -21,15 +23,10 @@ function Layout() {
   return (
     <>
       <div className="header">
-        <ul>
-          <li>
-            <NavLink to="/">Home</NavLink>
-          </li>
-          <li>
-            <NavLink to="/about">About</NavLink>
-          </li>
-        </ul>
-        <button onClick={logout} disabled={loading}>{loading ? "Signing out..." : "Sign Out"}</button>
+        <Navbar></Navbar>
+        <button onClick={logout} disabled={loading}>
+          {loading ? "Signing out..." : "Sign Out"}
+        </button>
       </div>
 
       <Outlet></Outlet>

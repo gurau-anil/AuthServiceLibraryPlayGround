@@ -1,14 +1,15 @@
 import { useState, type FormEvent } from "react";
 import httpClient from "../axios.config";
 import { useLocation, useNavigate, useSearchParams } from "react-router";
-import "./login.css";
+import "./styles/login.css";
+import reactLogo from '../assets/react.svg';
 
 export default function LoginPage() {
   const location = useLocation();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
-  const [userName, setUserName] = useState<string>("");
-  const [password, setPassword] = useState<string>("");
+  const [userName, setUserName] = useState<string>("admin");
+  const [password, setPassword] = useState<string>("Dev@1234");
   const [error, setError] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
 
@@ -35,53 +36,12 @@ export default function LoginPage() {
 
   return (
     <>
-      {/* <div style={{ maxWidth: 400, margin: 'auto', padding: 20, display: 'flex', justifyContent: 'center' }}>
-      <form onSubmit={handleSubmit}>
-        <h2 style={{textAlign: 'center'}}>Login</h2>
-        <div>
-          <label htmlFor="userName">Email:</label><br />
-          <input
-            id="userName"
-            type="text"
-            value={userName}
-            autoComplete="username"
-            onChange={e => setUserName(e.target.value)}
-            required
-          />
-        </div>
-        <div style={{ marginTop: 10 }}>
-          <label htmlFor="password">Password:</label><br />
-          <input
-            id="password"
-            type="password"
-            value={password}
-            autoComplete="current-password"
-            onChange={e => setPassword(e.target.value)}
-            required
-          />
-        </div>
-        <button type="submit" style={{ marginTop: 20 }} disabled={loading}>
-          {loading ? 'Logging in...' : 'Login'}
-        </button>
-        {error && (
-          <div style={{ color: 'red', marginTop: 10 }}>{error}</div>
-        )}
-      </form>
-    </div> */}
-
-      <div className="wrapper">
-        <div className="container">
+      <div className="login-wrapper">
+        <div className="login-container">
           <div className="col-left">
-            <div className="login-text">
-              <h2>Logo</h2>
-              <p>
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec
-                malesuada vel libero vitae eleifend. Fusce tristique ipsum
-                lorem.
-              </p>
-              <a className="btn" href="">
-                Read More
-              </a>
+            <div>
+              {/* <h2>Logo</h2> */}
+              <img src={reactLogo} style={{height: "130px"}} alt="React logo" />
             </div>
           </div>
           <div className="col-right">

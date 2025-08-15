@@ -13,7 +13,6 @@ namespace AuthenticationTestApi.Controllers
     {
         private readonly IRoleService _roleService;
 
-        // Inject IRoleService into the constructor
         public RoleController(IRoleService roleService)
         {
             _roleService = roleService;

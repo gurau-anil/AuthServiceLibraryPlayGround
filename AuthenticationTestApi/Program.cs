@@ -1,7 +1,10 @@
+using System;
 using System.Reflection;
 using System.Threading.RateLimiting;
 using AuthenticationTestApi.Middlewares;
+using AuthenticationTestApi.Models;
 using AuthServiceLibrary;
+using FluentValidation;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.OpenApi.Models;
 
@@ -24,6 +27,8 @@ authOptions =>
 });
 
 builder.Services.AddAutoMapper(Assembly.GetExecutingAssembly());
+
+builder.Services.AddScoped<IValidator<RegisterModel>, RegisterModelValidator>();
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -77,26 +82,26 @@ builder.Services.AddSpaStaticFiles(configuration =>
     configuration.RootPath = "wwwroot";
 });
 
-builder.Services.AddRateLimiter(options =>
-{
-    options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(context =>
-        RateLimitPartition.GetFixedWindowLimiter(
-            context.Connection.RemoteIpAddress?.ToString() ?? "unknown",
-            _ => new FixedWindowRateLimiterOptions
-            {
-                PermitLimit = 5, // Allow max 5 consecutive requests
-                Window = TimeSpan.FromSeconds(10), // Block further requests for 10 seconds
-                QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
-                QueueLimit = 0 // Do not queue extra requests
-            }));
+//builder.Services.AddRateLimiter(options =>
+//{
+//    options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(context =>
+//        RateLimitPartition.GetFixedWindowLimiter(
+//            context.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+//            _ => new FixedWindowRateLimiterOptions
+//            {
+//                PermitLimit = 5, // Allow max 5 consecutive requests
+//                Window = TimeSpan.FromSeconds(10), // Block further requests for 10 seconds
+//                QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
+//                QueueLimit = 0 // Do not queue extra requests
+//            }));
 
-    // Custom response when rate limit is exceeded
-    options.OnRejected = async (context, token) =>
-    {
-        context.HttpContext.Response.StatusCode = StatusCodes.Status429TooManyRequests;
-        await context.HttpContext.Response.WriteAsync("Too many requests. Try again later.", token);
-    };
-});
+//    // Custom response when rate limit is exceeded
+//    options.OnRejected = async (context, token) =>
+//    {
+//        context.HttpContext.Response.StatusCode = StatusCodes.Status429TooManyRequests;
+//        await context.HttpContext.Response.WriteAsync("Too many requests. Try again later.", token);
+//    };
+//});
 
 var app = builder.Build();
 
@@ -106,7 +111,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/api-docs/swagger.json", "JWT API 1.0"));
 }
-app.UseRateLimiter();
+//app.UseRateLimiter();
 
 //app.UseMiddleware<ApiKeyRateLimitingMiddleware>();
 app.UseMiddleware<ExceptionHandlingMiddleware>();

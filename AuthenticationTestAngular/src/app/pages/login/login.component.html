@@ -1,0 +1,45 @@
+<div class="login-wrapper">
+  <div class="login-container">
+    <div class="col-left">
+      <div>
+        <h2>Logo</h2>
+        <!-- <img src="" style='height: 130px' alt="React logo" /> -->
+      </div>
+    </div>
+    <div class="col-right">
+      <div class="login-form">
+        <h2>Login</h2>
+        <form>
+          <p>
+            <input
+              id="userName"
+              type="text"
+              autoComplete="username"
+              placeholder="Username"
+              title="username"
+              required
+            />
+          </p>
+          <p>
+            <input
+              id="password"
+              type="password"
+              placeholder="Password"
+              autoComplete="current-password"
+              title="password"
+              required
+            />
+          </p>
+          <p>
+            <button class="btn" type="submit">{{loading ? "Signing in..." : "Sign In"}}</button>
+          </p>
+
+          <p>
+            <!-- <a href="">Forget password?</a>
+            <a href="">Create an account.</a> -->
+          </p>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

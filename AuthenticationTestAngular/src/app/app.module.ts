@@ -11,12 +11,14 @@ import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { AntModules } from './ant-modules/ant.module';
 import { AgAssetsModule } from 'ag-assets';
 import { AuthInterceptor } from './auth.interceptor';
+import { LoginComponent } from './pages/login/login.component';
 
 registerLocaleData(en);
 
 @NgModule({
   declarations: [
-    AppComponent
+    AppComponent,
+    LoginComponent
   ],
   imports: [
     BrowserModule,

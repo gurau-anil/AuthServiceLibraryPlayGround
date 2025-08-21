@@ -36,9 +36,10 @@ namespace AuthServiceLibrary.Services
             throw new NotImplementedException();
         }
 
-        public Task<UserRegisterModel?> GetByUsernameAsync(string username)
+        public async Task<UserModel?> GetByUsernameAsync(string username)
         {
-            throw new NotImplementedException();
+            var result = _mapper.Map<UserModel>(await _userManager.FindByNameAsync(username));
+            return result;
         }
 
         public async Task<AuthResult> RegisterUser(UserRegisterModel model)

@@ -4,6 +4,7 @@ using AuthServiceLibrary.Services.Interfaces;
 using AutoMapper;
 using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
+using System.Net;
 
 namespace AuthenticationTestApi.Controllers
 {
@@ -40,6 +41,30 @@ namespace AuthenticationTestApi.Controllers
                 });
             }
             
+        }
+
+        [HttpDelete]
+        [Route("{username}")]
+        public async Task<IActionResult> DeleteAsync(string username)
+        {
+            try
+            {
+                var user = await _userManagement.GetByUsernameAsync(username);
+                if (user is null)
+                {
+                    return NotFound($"User: {username} not found in the system.");
+                }
+                var result = await _userManagement.DeleteByUsernameAsync(username);
+                return Ok($"User: {username} removed from the system") ;
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new
+                {
+                    Errors = ex.Message.Split('\n')
+                });
+            }
+
         }
     }
 }

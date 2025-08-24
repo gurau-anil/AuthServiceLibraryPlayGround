@@ -11,6 +11,8 @@ namespace AuthServiceLibrary.MappingProfiles
         {
             CreateMap<UserRegisterModel, ApplicationUser>()
                 .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => DateTime.UtcNow));
+            CreateMap<ApplicationUser, UserModel>();
+            CreateMap<ApplicationRole, RoleModel>();
         }
     }
 }

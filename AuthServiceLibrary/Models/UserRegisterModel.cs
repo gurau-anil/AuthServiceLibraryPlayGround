@@ -7,11 +7,4 @@
         public string Password { get; set; } = string.Empty;
         public List<string> Roles { get; set; } = new List<string>();
     }
-
-    public class UserModel
-    {
-        public Guid Id { get; set; }
-        public string UserName { get; set; }
-        public string Email { get; set; }
-    }
 }

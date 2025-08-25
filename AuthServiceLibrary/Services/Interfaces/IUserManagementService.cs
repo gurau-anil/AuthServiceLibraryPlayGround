@@ -6,8 +6,8 @@ namespace AuthServiceLibrary.Services.Interfaces
     public interface IUserManagementService
     {
         Task<AuthResult> RegisterUser(UserRegisterModel model);
-        Task<UserModel?> GetByUsernameAsync(string username);
-        Task<IEnumerable<UserRegisterModel>> GetAllAsync();
+        Task<UserModel> GetByUsernameAsync(string username);
+        Task<IEnumerable<UserModel>> GetAllAsync();
         Task<bool> DeleteByUsernameAsync(string username);
     }
 }

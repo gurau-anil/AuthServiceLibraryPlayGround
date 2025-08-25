@@ -1,6 +1,6 @@
 ﻿using System.Data;
 using AuthServiceLibrary.Entities;
-using AuthServiceLibrary.Models;
+using AuthServiceLibrary.Exceptions;
 using AuthServiceLibrary.Services.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -15,53 +15,75 @@ namespace AuthServiceLibrary.Services
             _roleManager = roleManager;
         }
 
-        public async Task<AuthResponse<string>> CreateRoleAsync(string role)
+        public async Task CreateRoleAsync(string role)
         {
-            var result = await _roleManager.CreateAsync(new ApplicationRole { Name = role});
-
-            AuthResponse<string> retVal = new AuthResponse<string>();
-
-            retVal.Succeeded = result.Succeeded;
-            retVal.Message = result.Succeeded? $"Created Role : {role}" : $"Failed to create Role : {role}";
-            retVal.Data = result.Succeeded ? role : null;
-            return retVal;
-        }
-
-        public async Task<AuthResponse<string>> DeleteRoleAsync(string role)
-        {
-            var roleToDelete = await _roleManager.FindByNameAsync(role);
-
-            AuthResponse<string> retVal = new AuthResponse<string>();
-            if (roleToDelete is null)
+            try
             {
-                retVal.Succeeded = false;
-                retVal.Message = $"Role - {role} not Found";
-                return retVal;
+                var result = await _roleManager.CreateAsync(new ApplicationRole { Name = role });
+                if (!result.Succeeded)
+                {
+                    throw new DbUpdateException();
+                }
             }
-            var result = await _roleManager.DeleteAsync(roleToDelete);
-            retVal.Succeeded = result.Succeeded;
-            retVal.Message = retVal.Succeeded ? $"Role - {role} deleted" : $"Failed to delete Role : {role} ";
+            catch (DbUpdateException ex)
+            {
 
-
-            return retVal;
+                throw new DatabaseException($"Failed to Create Role: {role}.", ex);
+            }
         }
 
-        public async Task<List<string>> GetAll()
+        public async Task DeleteRoleAsync(string role)
+        {
+            try
+            {
+                ApplicationRole? roleToDelete = await _roleManager.FindByNameAsync(role);
+                if (roleToDelete is null)
+                {
+                    throw new NotFoundException($"Role: {role} Not Found in the System.");
+                }
+
+                var result = await _roleManager.DeleteAsync(roleToDelete);
+                if (!result.Succeeded)
+                {
+                    throw new DbUpdateException();
+                }
+            }
+            catch (DbUpdateException ex)
+            {
+                throw new DatabaseException("Failed to delete role.", ex);
+            }
+        }
+
+        public async Task<List<string>> GetAllAsync()
         {
             return await _roleManager.Roles.Select(c=>c.Name).ToListAsync();
         }
 
-        public async Task AddRoleClaim(string role, IdentityRoleClaim<Guid> roleClaim)
+        public async Task AddRoleClaimAsync(string role, IdentityRoleClaim<Guid> roleClaim)
         {
-            ApplicationRole? foundRole = await FindRoleAsync(role);
-            await _roleManager.AddClaimAsync(foundRole, roleClaim.ToClaim());
+            try
+            {
+                ApplicationRole? foundRole = await FindRoleAsync(role);
+                if(foundRole is null)
+                {
+                    throw new NotFoundException($"Role: {role} not found in the system.");
+                }
+                await _roleManager.AddClaimAsync(foundRole, roleClaim.ToClaim());
+            }
+            catch (DbUpdateException ex)
+            {
+                throw new DatabaseException("Failed to add the role claim", ex);
+            }
+            
         }
 
         private async Task<ApplicationRole> FindRoleAsync(string role)
         {
             ApplicationRole? foundRole = await _roleManager.FindByNameAsync(role);
             if (foundRole is null)
-                throw new Exception($"Role - {role} Not Found in the System.");
+            {
+                throw new NotFoundException($"Role: {role} Not Found in the System.");
+            }
             return foundRole;
         }
     }

@@ -1,6 +1,7 @@
 ﻿using System.Security.Claims;
 using AuthServiceLibrary.Data;
 using AuthServiceLibrary.Entities;
+using AuthServiceLibrary.Exceptions;
 using AuthServiceLibrary.Models;
 using AuthServiceLibrary.Services.Interfaces;
 using Microsoft.AspNetCore.Authentication;
@@ -46,21 +47,13 @@ namespace AuthServiceLibrary.Services
             var user = await _userManager.FindByNameAsync(model.Username);
             if (user == null)
             {
-                return new AuthResult
-                {
-                    Succeeded = false,
-                    ErrorMessage = "Invalid username or password"
-                };
+                throw new NotFoundException($"User not found in the system.");
             }
 
             var result = await _signInManager.CheckPasswordSignInAsync(user, model.Password, false);
             if (!result.Succeeded)
             {
-                return new AuthResult
-                {
-                    Succeeded = false,
-                    ErrorMessage = "Invalid username or password"
-                };
+                throw new UnauthorizedAccessException("Failed to Login. Please check the password and try again.");
             }
 
             user.LastLogin = DateTime.UtcNow;
@@ -197,20 +190,14 @@ namespace AuthServiceLibrary.Services
             ApplicationUser? user = await _userManager.FindByIdAsync(userId);
             if(user is null)
             {
-                throw new Exception("User not found in the system");
+                throw new NotFoundException("User not found in the system");
             }
-            try
+            var result = await _userManager.ConfirmEmailAsync(user, token);
+            if (!result.Succeeded)
             {
-                var result = await _userManager.ConfirmEmailAsync(user, token);
-                if (!result.Succeeded) {
-                    throw new Exception();
-                }
+                throw new Exception("Email Confirmation Failed.");
             }
-            catch (Exception ex)
-            {
-                throw new Exception("Email Confirmation Failed");
-            }
-            return true;
+            return result.Succeeded;
         }
         #endregion
 

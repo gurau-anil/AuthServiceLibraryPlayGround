@@ -1,6 +1,7 @@
 ﻿using System.Security.Claims;
 using AuthServiceLibrary.Data;
 using AuthServiceLibrary.Entities;
+using AuthServiceLibrary.Exceptions;
 using AuthServiceLibrary.Models;
 using AuthServiceLibrary.Services.Interfaces;
 using AutoMapper;
@@ -24,22 +25,48 @@ namespace AuthServiceLibrary.Services
 
         public async Task<bool> DeleteByUsernameAsync(string username)
         {
-            var user = await _userManager.FindByNameAsync(username);
-            if (user == null) return false;
+            try
+            {
+                var user = await _userManager.FindByNameAsync(username);
+                if (user == null)
+                    throw new NotFoundException($"Username: '{username}' does not exist in the system.");
 
-            var result = await _userManager.DeleteAsync(user);
-            return result.Succeeded;
+                var result = await _userManager.DeleteAsync(user);
+                return result.Succeeded;
+            }
+            catch (DbUpdateException ex)
+            {
+                throw new DatabaseException("Failed to delete user.", ex);
+            }
         }
 
-        public Task<IEnumerable<UserRegisterModel>> GetAllAsync()
+        public async Task<IEnumerable<UserModel>> GetAllAsync()
         {
-            throw new NotImplementedException();
+            try
+            {
+                var result = await _userManager.Users.ToListAsync();
+                return _mapper.Map<IEnumerable<UserModel>>(result);
+            }
+            catch (Exception ex)
+            {
+                throw new DatabaseException("Failed to fetch users.", ex);
+            }
         }
 
-        public async Task<UserModel?> GetByUsernameAsync(string username)
+        public async Task<UserModel> GetByUsernameAsync(string username)
         {
-            var result = _mapper.Map<UserModel>(await _userManager.FindByNameAsync(username));
-            return result;
+
+            try
+            {
+                var user = await _userManager.FindByNameAsync(username);
+                if (user == null)
+                    throw new NotFoundException($"Username: '{username}' does not exist in the system.");
+                return _mapper.Map<UserModel>(user);
+            }
+            catch (DbUpdateException ex)
+            {
+                throw new DatabaseException("Failed to fetch user from database.", ex);
+            }
         }
 
         public async Task<AuthResult> RegisterUser(UserRegisterModel model)
@@ -50,7 +77,6 @@ namespace AuthServiceLibrary.Services
 
             await executionStrategy.ExecuteAsync(async () =>
             {
-                //Starting Transaction to make User along with UserRoles and UserClaims are created 
                 using (var transaction = await _context.Database.BeginTransactionAsync())
                 {
                     try
@@ -72,8 +98,6 @@ namespace AuthServiceLibrary.Services
                         IdentityResult claimCreateResult = await _userManager.AddClaimsAsync(user, GetUserClaims(user, model.Roles));
                         if (!claimCreateResult.Succeeded) { throw new Exception(string.Join(", ", claimCreateResult.Errors.Select(e => e.Description))); }
 
-
-
                         //commit transaction after user, userRoles and Userclaims are created. 
                         await transaction.CommitAsync();
 
@@ -88,11 +112,7 @@ namespace AuthServiceLibrary.Services
                     {
                         //Rollback transaction if failed to created.
                         await transaction.RollbackAsync();
-                        retVal = new AuthResult
-                        {
-                            Succeeded = false,
-                            ErrorMessage = ex.Message
-                        };
+                        throw new DatabaseException(ex.Message, ex);
                     }
                 }
 

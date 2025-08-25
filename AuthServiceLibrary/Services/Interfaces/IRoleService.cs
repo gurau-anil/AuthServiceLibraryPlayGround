@@ -7,9 +7,9 @@ namespace AuthServiceLibrary.Services.Interfaces
 {
     public interface IRoleService
     {
-        Task<AuthResponse<string>> CreateRoleAsync(string role);
-        Task<List<string>> GetAll();
-        Task<AuthResponse<string>> DeleteRoleAsync(string role);
-        Task AddRoleClaim(string role, IdentityRoleClaim<Guid> roleClaim);
+        Task CreateRoleAsync(string role);
+        Task<List<string>> GetAllAsync();
+        Task DeleteRoleAsync(string role);
+        Task AddRoleClaimAsync(string role, IdentityRoleClaim<Guid> roleClaim);
     }
 }

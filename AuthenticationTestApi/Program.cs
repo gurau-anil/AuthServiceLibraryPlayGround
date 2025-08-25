@@ -29,6 +29,7 @@ authOptions =>
 builder.Services.AddAutoMapper(Assembly.GetExecutingAssembly());
 
 builder.Services.AddScoped<IValidator<RegisterModel>, RegisterModelValidator>();
+builder.Services.AddScoped<IValidator<LoginModel>, LoginModelValidator>();
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

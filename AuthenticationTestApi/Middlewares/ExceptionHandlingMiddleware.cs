@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using AuthServiceLibrary.Exceptions;
+using System.Net;
 
 namespace AuthenticationTestApi.Middlewares
 {
@@ -33,7 +34,7 @@ namespace AuthenticationTestApi.Middlewares
             var (statusCode, errorMessage) = GetStatusCodeAndMessage(exception);
             context.Response.StatusCode = (int)statusCode;
 
-            var response = new { error = errorMessage };
+            var response = new { erros = errorMessage.Split('\n') };
             await context.Response.WriteAsJsonAsync(response);
         }
 
@@ -43,15 +44,20 @@ namespace AuthenticationTestApi.Middlewares
             {
                 case ArgumentException argEx:
                     return (HttpStatusCode.BadRequest, argEx.Message); // 400
+                case ModelValidationException valEx:
+                    return (HttpStatusCode.BadRequest, valEx.Message); // 400
                 case KeyNotFoundException keyEx:
                     return (HttpStatusCode.NotFound, keyEx.Message); // 404
                 case FileNotFoundException fileEx:
                     return (HttpStatusCode.NotFound, fileEx.Message); //404
+                case NotFoundException argEx:
+                    return (HttpStatusCode.NotFound, argEx.Message); // 404
                 case NotImplementedException notImplementedEx:
                     return (HttpStatusCode.NotImplemented, notImplementedEx.Message); //501
                 case UnauthorizedAccessException authEx:
                     return (HttpStatusCode.Unauthorized, authEx.Message); // 401
-                                                        // Add more specific exception handling here
+                case Exception ex:
+                    return (HttpStatusCode.InternalServerError, ex.Message); // 500
                 default:
                     return (HttpStatusCode.InternalServerError, "An unexpected error occurred."); // 500
             }

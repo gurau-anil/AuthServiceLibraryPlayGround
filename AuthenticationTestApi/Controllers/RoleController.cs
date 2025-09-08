@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace AuthenticationTestApi.Controllers
 {
-    [Authorize]
+    [Authorize(Roles="Admin")]
     [Route("api/role")]
     [ApiController]
     public class RoleController : ControllerBase
@@ -27,20 +27,15 @@ namespace AuthenticationTestApi.Controllers
                 return BadRequest("Role data is invalid.");
             }
 
-            var result = await _roleService.CreateRoleAsync(role);
-            if (result.Succeeded)
-            {
-                return StatusCode((int)HttpStatusCode.Created, result);
-            }
-
-            return BadRequest(result.Message);
+            await _roleService.CreateRoleAsync(role);
+            
+            return StatusCode((int)HttpStatusCode.Created, "Role Created Successfully.");
         }
 
         [HttpGet("all")]
         public async Task<IActionResult> GetRoles()
         {
-            var roles = await _roleService.GetAll();
-
+            var roles = await _roleService.GetAllAsync();
             return Ok(roles);
         }
 
@@ -48,13 +43,8 @@ namespace AuthenticationTestApi.Controllers
         [HttpDelete("{role}")]
         public async Task<IActionResult> DeleteRole(string role)
         {
-            var result = await _roleService.DeleteRoleAsync(role);
-            if (result.Succeeded)
-            {
-                return StatusCode((int)HttpStatusCode.OK, result);
-            }
-
-            return BadRequest(result.Message);
+            await _roleService.DeleteRoleAsync(role);
+            return StatusCode((int)HttpStatusCode.OK, "Role Deleted Successfully.");
         }
 
         [HttpPost]
@@ -72,7 +62,7 @@ namespace AuthenticationTestApi.Controllers
                 roleClaim.ClaimValue = claimValue;
                 roleClaim.ClaimType = claimName;
 
-                await _roleService.AddRoleClaim(role, roleClaim);
+                await _roleService.AddRoleClaimAsync(role, roleClaim);
                 return StatusCode((int)HttpStatusCode.Created);
             }
             catch (Exception ex)

@@ -26,45 +26,18 @@ namespace AuthenticationTestApi.Controllers
         [Route("register")]
         public async Task<IActionResult> RegisterAsync([FromBody] RegisterModel model)
         {
-            try
-            {
-
-                await ValidateModelAsync(model, hasMultipleError: false);
-                var result = await _userManagement.RegisterUser(_mapper.Map<UserRegisterModel>(model));
-                return Ok($"User : {model.Username} registered to the system");
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new
-                {
-                    Errors = ex.Message.Split('\n')
-                });
-            }
-            
+            await ValidateModelAsync(model, hasMultipleError: true);
+            var result = await _userManagement.RegisterUser(_mapper.Map<UserRegisterModel>(model));
+            return Ok($"User : {model.Username} registered to the system");            
         }
 
         [HttpDelete]
         [Route("{username}")]
         public async Task<IActionResult> DeleteAsync(string username)
         {
-            try
-            {
-                var user = await _userManagement.GetByUsernameAsync(username);
-                if (user is null)
-                {
-                    return NotFound($"User: {username} not found in the system.");
-                }
-                var result = await _userManagement.DeleteByUsernameAsync(username);
-                return Ok($"User: {username} removed from the system") ;
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new
-                {
-                    Errors = ex.Message.Split('\n')
-                });
-            }
-
+            UserModel user = await _userManagement.GetByUsernameAsync(username);
+            bool result = await _userManagement.DeleteByUsernameAsync(username);
+            return Ok($"User: {username} removed from the system");
         }
     }
 }

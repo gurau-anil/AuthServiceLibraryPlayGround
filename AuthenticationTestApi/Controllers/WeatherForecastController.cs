@@ -8,7 +8,7 @@ namespace AuthenticationTestApi.Controllers
     //[Authorize(Policy = "AllowAnilOnly")]
     //[Authorize(Policy = "AdminOnlyPolicy, CanEditPolicy")]
     //[Authorize(Policy = "CombinedPolicy")]
-    [Authorize]
+    //[Authorize]
     public class WeatherForecastController : ControllerBase
     {
         private static readonly string[] Summaries = new[]

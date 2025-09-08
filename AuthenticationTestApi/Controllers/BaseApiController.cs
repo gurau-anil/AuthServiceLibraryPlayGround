@@ -1,11 +1,10 @@
-﻿using FluentValidation;
+﻿using AuthServiceLibrary.Exceptions;
+using FluentValidation;
 using FluentValidation.Results;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AuthenticationTestApi.Controllers
 {
-    //[Route("api/[controller]")]
     [ApiController]
     public class BaseApiController : ControllerBase
     {
@@ -21,7 +20,7 @@ namespace AuthenticationTestApi.Controllers
 
             if (!validationResult.IsValid)
             {
-                throw new Exception(hasMultipleError ? String.Join('\n', validationResult.Errors.Select(c => c.ErrorMessage)) :
+                throw new ModelValidationException(hasMultipleError ? String.Join('\n', validationResult.Errors.Select(c => c.ErrorMessage)) :
                        validationResult.Errors.Select(c => c.ErrorMessage).First());
             }
 

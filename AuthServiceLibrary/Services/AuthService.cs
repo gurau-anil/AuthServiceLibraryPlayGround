@@ -109,6 +109,24 @@ namespace AuthServiceLibrary.Services
             return authResult;
         }
 
+
+        public async Task<string> GeneratePasswordResetTokenAsync(string email)
+        {
+            ApplicationUser? user = await _userManager.FindByEmailAsync(email);
+            return (user is not null) ? await _userManager.GeneratePasswordResetTokenAsync(user) : null;
+        }
+
+        public async Task<bool> ResetPasswordAsync(string email, string password, string token)
+        {
+            ApplicationUser? user = await _userManager.FindByEmailAsync(email);
+            if(user is not null)
+            {
+                var result = await _userManager.ResetPasswordAsync(user, token, password);
+                return result.Succeeded;
+            }
+            return false;
+        }
+
         public async Task LogoutAsync()
         {
             await _signInManager.SignOutAsync();

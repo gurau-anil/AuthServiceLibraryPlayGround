@@ -5,6 +5,9 @@ import AboutPage from "./pages/about-page";
 import httpClient from "./axios.config";
 import isUserAuthenticated from "./auth-check";
 import Layout from "./layouts/layout";
+import ForgotPassword from "./pages/forgot-password";
+import ResetPassword from "./pages/reset-password";
+import RegisterPage from "./pages/register";
 
 const AppLoader = async ({ request }: { request: Request }) => {
   isUserAuthenticated(request);
@@ -51,6 +54,18 @@ const router = createBrowserRouter([
   {
     path: "/auth/login",
     Component: LoginPage,
+  },
+  {
+    path: "/auth/register",
+    Component: RegisterPage,
+  },
+  {
+    path: "/auth/forgot-password",
+    Component: ForgotPassword,
+  },
+  {
+    path: "/auth/reset-password",
+    Component: ResetPassword,
   },
 ]);
 

@@ -34,13 +34,17 @@ export default function LoginPage() {
     }
   };
 
+  async function handleForgotPassword(e: any){
+    e.preventDefault();
+    navigate("/auth/forgot-password");
+  }
+
   return (
     <>
       <div className="login-wrapper">
         <div className="login-container">
           <div className="col-left">
             <div>
-              {/* <h2>Logo</h2> */}
               <img src={reactLogo} style={{height: "130px"}} alt="React logo" />
             </div>
           </div>
@@ -78,11 +82,16 @@ export default function LoginPage() {
                     <div style={{ color: "red", marginTop: 10 }}>{error}</div>
                   )}
                 </p>
-                {/* <p>
-                <a href="">Forget password?</a>
-                <a href="">Create an account.</a>
-              </p> */}
+                <p>
+              </p>
               </form>
+              <div>
+                <a href="#" onClick={handleForgotPassword}>Forget password?</a>
+              </div>
+              <br />
+              <div>
+                <a href="/auth/register">Create an account.</a>
+              </div>
             </div>
           </div>
         </div>

@@ -3,6 +3,9 @@ using AuthServiceLibrary;
 using AuthServiceLibrary.Models;
 using AuthServiceLibrary.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.WebUtilities;
+using System.Net;
+using System.Text;
 
 namespace AuthenticationTestApi.Controllers
 {
@@ -45,6 +48,25 @@ namespace AuthenticationTestApi.Controllers
         {
             ClearAccessTokenCookie(HttpContext);
             return Ok("Sign out successful.");
+        }
+
+        [HttpPost]
+        [Route("forgot-password")]
+        public async Task<IActionResult> ForgotPasswordAsync(string email)
+        {
+            var token = await _authService.GeneratePasswordResetTokenAsync(email);
+            var encodedToken = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(token));
+            return Ok($"{_configuration.GetValue<string>("ClientUrl")}/auth/reset-password?token={encodedToken}&email={email}");
+        }
+
+        [HttpPost]
+        [Route("reset-password")]
+        public async Task<IActionResult> ResetPasswordAsync(ResetPasswordModel model)
+        {
+            var token = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(model.Token));
+
+            var result = await _authService.ResetPasswordAsync(model.Email, model.Password, token);
+            return result? Ok("Password has been Reset."): StatusCode((int)HttpStatusCode.InternalServerError, "Password Reset Failed.");
         }
 
         private void IssueAccessTokenCookie(HttpContext context, AuthResult result)

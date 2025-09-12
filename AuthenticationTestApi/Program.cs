@@ -1,11 +1,9 @@
-using System;
 using System.Reflection;
-using System.Threading.RateLimiting;
 using AuthenticationTestApi.Middlewares;
 using AuthenticationTestApi.Models;
 using AuthServiceLibrary;
 using FluentValidation;
-using Microsoft.AspNetCore.RateLimiting;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -24,6 +22,21 @@ authOptions =>
     authOptions.AddPolicy("CombinedPolicy", policy => policy.RequireRole("Admin").RequireClaim("CanEdit", "true"));
     authOptions.AddPolicy("AdminOnlyPolicy", policy => policy.RequireRole("Admin"));
     authOptions.AddPolicy("CanEditPolicy", policy => policy.RequireClaim("CanEdit", "true"));
+},
+passwordOptions =>
+{
+    passwordOptions.Password = new PasswordOptions
+    {
+        RequireDigit = true,
+        RequireNonAlphanumeric = true,
+        RequiredLength = 8,
+        RequireUppercase = true
+    };
+    passwordOptions.SignIn.RequireConfirmedEmail = true;
+    passwordOptions.SignIn.RequireConfirmedAccount = true;
+    passwordOptions.User.RequireUniqueEmail = true;
+    passwordOptions.Lockout.MaxFailedAccessAttempts = 3;
+    passwordOptions.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(2);
 });
 
 builder.Services.AddAutoMapper(Assembly.GetExecutingAssembly());

@@ -34,7 +34,7 @@ namespace AuthenticationTestApi.Middlewares
             var (statusCode, errorMessage) = GetStatusCodeAndMessage(exception);
             context.Response.StatusCode = (int)statusCode;
 
-            var response = new { erros = errorMessage.Split('\n') };
+            var response = new { errors = errorMessage.Split('\n') };
             await context.Response.WriteAsJsonAsync(response);
         }
 

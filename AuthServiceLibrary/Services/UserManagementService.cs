@@ -1,4 +1,5 @@
 ﻿using System.Security.Claims;
+using System.Text;
 using AuthServiceLibrary.Data;
 using AuthServiceLibrary.Entities;
 using AuthServiceLibrary.Exceptions;
@@ -6,6 +7,7 @@ using AuthServiceLibrary.Models;
 using AuthServiceLibrary.Services.Interfaces;
 using AutoMapper;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.EntityFrameworkCore;
 
 namespace AuthServiceLibrary.Services
@@ -23,7 +25,7 @@ namespace AuthServiceLibrary.Services
             _mapper = mapper;
         }
 
-        public async Task<bool> DeleteByUsernameAsync(string username)
+        public async Task DeleteByUsernameAsync(string username)
         {
             try
             {
@@ -32,7 +34,8 @@ namespace AuthServiceLibrary.Services
                     throw new NotFoundException($"Username: '{username}' does not exist in the system.");
 
                 var result = await _userManager.DeleteAsync(user);
-                return result.Succeeded;
+                if(!result.Succeeded)
+                    throw new Exception($"Failed to delete user.");
             }
             catch (DbUpdateException ex)
             {
@@ -101,11 +104,15 @@ namespace AuthServiceLibrary.Services
                         //commit transaction after user, userRoles and Userclaims are created. 
                         await transaction.CommitAsync();
 
+                        //Email confirmation token has to be sent to an email
+                        var emailConfirmation = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+                        
                         //Return value
                         retVal = new AuthResult
                         {
                             Succeeded = true,
-                            Roles = model.Roles
+                            Roles = model.Roles,
+                            Token = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(emailConfirmation))
                         };
                     }
                     catch (Exception ex)

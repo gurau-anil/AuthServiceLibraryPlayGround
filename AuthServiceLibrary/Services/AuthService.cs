@@ -21,6 +21,7 @@ namespace AuthServiceLibrary.Services
         private readonly IAuthenticationService _authenticationService;
         private readonly IJwtService _jwtService;
         private readonly AuthDbContext _context;
+        private readonly IdentityOptions _identityOptions;
 
         public AuthService(
             UserManager<ApplicationUser> userManager,
@@ -30,7 +31,8 @@ namespace AuthServiceLibrary.Services
             IAuthenticationService authenticationService,
             IJwtService jwtService,
             RoleManager<ApplicationRole> roleManager,
-            AuthDbContext context)
+            AuthDbContext context,
+            IOptions<IdentityOptions> options)
         {
             _userManager = userManager;
             _signInManager = signInManager;
@@ -40,6 +42,7 @@ namespace AuthServiceLibrary.Services
             _jwtService = jwtService;
             _roleManager = roleManager;
             _context = context;
+            _identityOptions = options.Value;
         }
 
         public async Task<AuthResult> LoginAsync(UserLoginModel model)
@@ -50,10 +53,11 @@ namespace AuthServiceLibrary.Services
                 throw new NotFoundException($"User not found in the system.");
             }
 
-            var result = await _signInManager.CheckPasswordSignInAsync(user, model.Password, false);
+            var result = await _signInManager.CheckPasswordSignInAsync(user, model.Password, _identityOptions.SignIn.RequireConfirmedEmail || _identityOptions.SignIn.RequireConfirmedPhoneNumber || _identityOptions.SignIn.RequireConfirmedAccount);
             if (!result.Succeeded)
             {
-                throw new UnauthorizedAccessException("Failed to Login. Please check the password and try again.");
+                double lockoutMinutes = _identityOptions.Lockout.DefaultLockoutTimeSpan.TotalMinutes;
+                throw new UnauthorizedAccessException(result.IsLockedOut ? @$"Account Locked! Please try again after {lockoutMinutes} " + (lockoutMinutes > 1 ? "minutes." : "minute.") : "Failed to Login. Please check the password and try again.");
             }
 
             user.LastLogin = DateTime.UtcNow;
@@ -116,15 +120,31 @@ namespace AuthServiceLibrary.Services
             return (user is not null) ? await _userManager.GeneratePasswordResetTokenAsync(user) : null;
         }
 
-        public async Task<bool> ResetPasswordAsync(string email, string password, string token)
+        public async Task ResetPasswordAsync(string email, string password, string token)
         {
             ApplicationUser? user = await _userManager.FindByEmailAsync(email);
-            if(user is not null)
+            if (user is not null)
             {
                 var result = await _userManager.ResetPasswordAsync(user, token, password);
-                return result.Succeeded;
+
+                if (!result.Succeeded)
+                    throw new InvalidException("Invalid Token.");
             }
-            return false;
+            throw new NotFoundException("User not found in the system.");
+        }
+
+        public async Task ValidateEmailToken(string userId, string token)
+        {
+            ApplicationUser? user = await _userManager.FindByIdAsync(userId);
+            if (user is not null)
+            {
+                var result = await _userManager.ConfirmEmailAsync(user, token);
+                if (!result.Succeeded)
+                {
+                    throw new InvalidException("Invalid Token.");
+                }
+            }
+            throw new NotFoundException("User not found in the system");
         }
 
         public async Task LogoutAsync()
@@ -180,7 +200,7 @@ namespace AuthServiceLibrary.Services
                 new(ClaimTypes.Name, user.UserName ?? string.Empty),
                 new(ClaimTypes.Email, user.Email ?? string.Empty)
             };
-            if(roles is not null && roles.Count > 0)
+            if (roles is not null && roles.Count > 0)
                 claims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role)));
 
             return claims;
@@ -198,25 +218,7 @@ namespace AuthServiceLibrary.Services
             return claims;
         }
 
-        private void HandleException(string message)
-        {
-            throw new Exception(message);
-        }
 
-        public async Task<bool> ValidateEmailToken(string userId, string token)
-        {
-            ApplicationUser? user = await _userManager.FindByIdAsync(userId);
-            if(user is null)
-            {
-                throw new NotFoundException("User not found in the system");
-            }
-            var result = await _userManager.ConfirmEmailAsync(user, token);
-            if (!result.Succeeded)
-            {
-                throw new Exception("Email Confirmation Failed.");
-            }
-            return result.Succeeded;
-        }
         #endregion
 
     }

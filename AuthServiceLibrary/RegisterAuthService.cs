@@ -28,6 +28,7 @@ namespace AuthServiceLibrary
             var config = new AuthConfiguration();
             authConfig.Invoke(config);
             services.Configure(authConfig);
+            if(identityOptions is not null) { services.Configure(identityOptions); }
 
             // Add DbContext
             services.AddDbContext<AuthDbContext>(options =>
@@ -40,7 +41,7 @@ namespace AuthServiceLibrary
                 }));
 
             // Add Identity
-            services.AddIdentity<ApplicationUser, ApplicationRole>()
+            services.AddIdentity<ApplicationUser, ApplicationRole>(identityOptions)
             .AddEntityFrameworkStores<AuthDbContext>()
             .AddDefaultTokenProviders();
 
@@ -127,7 +128,8 @@ namespace AuthServiceLibrary
             this IServiceCollection services,
             string connectionString,
             Action<CookieSettings> cookieAuthConfig,
-            Action<AuthorizationOptions> authOptions = null)
+            Action<AuthorizationOptions> authOptions = null,
+            Action<IdentityOptions> identityOptions = null)
         {
             CookieSettings cookieSettings = new CookieSettings();
             cookieAuthConfig.Invoke(cookieSettings);
@@ -136,7 +138,9 @@ namespace AuthServiceLibrary
             {
                 options.Cookie = cookieSettings;
                 options.UseCookie = true;
-            }, authorizationOptions: authOptions);
+            }, 
+            identityOptions: identityOptions,
+            authorizationOptions: authOptions);
 
             return services;
         }
@@ -145,7 +149,8 @@ namespace AuthServiceLibrary
             this IServiceCollection services,
             string connectionString,
             Action<JwtSettings> jwtAuthConfig,
-            Action<AuthorizationOptions> authOptions = null
+            Action<AuthorizationOptions> authOptions = null,
+            Action<IdentityOptions> identityOptions = null
             )
         {
             JwtSettings jwtSettings = new JwtSettings();
@@ -157,7 +162,9 @@ namespace AuthServiceLibrary
             {
                 options.Jwt = jwtSettings;
                 options.UseJwt = true;
-            }, authorizationOptions: authOptions);
+            },
+            identityOptions: identityOptions,
+            authorizationOptions: authOptions);
 
             return services;
         }

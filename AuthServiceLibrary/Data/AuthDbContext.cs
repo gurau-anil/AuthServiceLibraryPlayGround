@@ -18,6 +18,8 @@ namespace AuthServiceLibrary.Data
             builder.Entity<ApplicationUser>(entity =>
             {
                 entity.Property(e => e.CreatedAt).HasDefaultValueSql("GETUTCDATE()");
+                entity.Property(e => e.FirstName).IsRequired(true);
+                entity.Property(e => e.LastName).IsRequired(true);
             });
         }
     }

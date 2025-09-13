@@ -1,7 +1,9 @@
+using System.Collections.Generic;
 using System.Reflection;
 using AuthenticationTestApi.Middlewares;
 using AuthenticationTestApi.Models;
 using AuthServiceLibrary;
+using AuthServiceLibrary.Models;
 using FluentValidation;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.OpenApi.Models;
@@ -43,6 +45,7 @@ builder.Services.AddAutoMapper(Assembly.GetExecutingAssembly());
 
 builder.Services.AddScoped<IValidator<RegisterModel>, RegisterModelValidator>();
 builder.Services.AddScoped<IValidator<LoginModel>, LoginModelValidator>();
+builder.Services.AddScoped<IValidator<ResetPasswordModel>, ResetPasswordModelValidator>();
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -118,6 +121,14 @@ builder.Services.AddSpaStaticFiles(configuration =>
 //});
 
 var app = builder.Build();
+
+//fetched from UserSecrets
+List<UserRegisterModel> userSeeds = builder.Configuration.GetSection("UserSeeds").Get<List<UserRegisterModel>>() ?? new List<UserRegisterModel>();
+if (userSeeds.Count > 0)
+{
+    //Seed Database with initial users
+    await app.SeedDbAsync(seedUsers => seedUsers.AddRange(userSeeds));
+}
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

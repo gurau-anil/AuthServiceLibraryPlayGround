@@ -2,15 +2,13 @@
 
 namespace AuthServiceLibrary.Entities
 {
-    public partial class User : IdentityUser
-    {
-    }
-
-
     public class ApplicationUser : IdentityUser<Guid>
     {
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime? LastLogin { get; set; }
+        public bool IsActive { get; set; }
     }
 
     public class ApplicationRole : IdentityRole<Guid>

@@ -1,7 +1,4 @@
-﻿
-using AuthServiceLibrary.Entities;
-using AuthServiceLibrary.Models;
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity;
 
 namespace AuthServiceLibrary.Services.Interfaces
 {

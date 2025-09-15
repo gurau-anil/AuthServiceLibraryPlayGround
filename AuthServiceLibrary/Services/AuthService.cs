@@ -74,8 +74,6 @@ namespace AuthServiceLibrary.Services
             };
 
 
-
-
             // Generate JWT token if JWT auth is enabled
             if (_authConfig.UseJwt)
             {
@@ -117,34 +115,48 @@ namespace AuthServiceLibrary.Services
         public async Task<string> GeneratePasswordResetTokenAsync(string email)
         {
             ApplicationUser? user = await _userManager.FindByEmailAsync(email);
-            return (user is not null) ? await _userManager.GeneratePasswordResetTokenAsync(user) : null;
+            if(user is not null)
+            {
+                if (!await _userManager.IsEmailConfirmedAsync(user))
+                {
+                    throw new InvalidException("Email is not confirmed. Please confirm your email and try again.");
+                }
+                return (user is not null) ? await _userManager.GeneratePasswordResetTokenAsync(user) : null;
+            }
+            throw new NotFoundException("User not found in the system.");
         }
 
         public async Task ResetPasswordAsync(string email, string password, string token)
         {
             ApplicationUser? user = await _userManager.FindByEmailAsync(email);
-            if (user is not null)
+            if (user is null)
             {
-                var result = await _userManager.ResetPasswordAsync(user, token, password);
-
-                if (!result.Succeeded)
-                    throw new InvalidException("Invalid Token.");
+                throw new NotFoundException("User not found in the system.");
             }
-            throw new NotFoundException("User not found in the system.");
+            var result = await _userManager.ResetPasswordAsync(user, token, password);
+
+            if (!result.Succeeded)
+                throw new InvalidException("Invalid Token.");
         }
 
-        public async Task ValidateEmailToken(string userId, string token)
+        public async Task ValidateEmailToken(string email, string token)
         {
-            ApplicationUser? user = await _userManager.FindByIdAsync(userId);
-            if (user is not null)
+            ApplicationUser? user = await _userManager.FindByEmailAsync(email);
+            if (user is null)
             {
-                var result = await _userManager.ConfirmEmailAsync(user, token);
-                if (!result.Succeeded)
-                {
-                    throw new InvalidException("Invalid Token.");
-                }
+                throw new NotFoundException("User not found in the system");
             }
-            throw new NotFoundException("User not found in the system");
+
+            if(await _userManager.IsEmailConfirmedAsync(user))
+            {
+                throw new InvalidException("Email is already confirmed.");
+            }
+
+            var result = await _userManager.ConfirmEmailAsync(user, token);
+            if (!result.Succeeded)
+            {
+                throw new InvalidException("Invalid Token.");
+            }
         }
 
         public async Task LogoutAsync()

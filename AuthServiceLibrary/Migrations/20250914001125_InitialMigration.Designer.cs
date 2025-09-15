@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace AuthServiceLibrary.Migrations
 {
     [DbContext(typeof(AuthDbContext))]
-    [Migration("20250913231007_InitialMigration")]
+    [Migration("20250914001125_InitialMigration")]
     partial class InitialMigration
     {
         /// <inheritdoc />
@@ -83,7 +83,9 @@ namespace AuthServiceLibrary.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
 
                     b.Property<DateTime?>("LastLogin")
                         .HasColumnType("datetime2");

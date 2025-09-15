@@ -8,7 +8,7 @@ namespace AuthServiceLibrary.Entities
         public string LastName { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime? LastLogin { get; set; }
-        public bool IsActive { get; set; }
+        public bool IsActive { get; set; } = true;
     }
 
     public class ApplicationRole : IdentityRole<Guid>

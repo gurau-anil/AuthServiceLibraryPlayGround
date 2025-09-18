@@ -15,11 +15,14 @@ namespace AuthenticationTestApi.Models
         public ResetPasswordModelValidator()
         {
             RuleFor(x => x.Email)
-            .NotEmpty().WithMessage("Email is required")
+            .NotEmpty().WithMessage("Email is not Provided.")
             .DependentRules(() =>
             {
                 RuleFor(x => x.Email).EmailAddress().WithMessage("Email is not valid.");
             });
+
+            RuleFor(x => x.Token)
+            .NotEmpty().WithMessage("Token is not Provided.");
 
             RuleFor(x => x.Password)
             .NotEmpty().WithMessage("Password is required")
@@ -37,8 +40,6 @@ namespace AuthenticationTestApi.Models
             .NotEmpty().WithMessage("Confirm Password is required.")
             .Equal(x => x.Password).WithMessage("The passwords do not match.");
 
-            RuleFor(x => x.Token)
-            .NotEmpty().WithMessage("Token is required.");
         }
 
     }

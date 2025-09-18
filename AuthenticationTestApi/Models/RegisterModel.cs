@@ -6,8 +6,11 @@ namespace AuthenticationTestApi.Models
     public class RegisterModel
     {
         public string Username { get; set; } = string.Empty;
+        public string FirstName { get; set; } = string.Empty;
+        public string LastName { get; set; } = string.Empty;
         public string Email { get; set; } = string.Empty;
         public string Password { get; set; } = string.Empty;
+        public string ConfirmPassword { get; set; } = string.Empty;
         public List<string> Roles { get; set; } = new List<string>();
     }
 
@@ -15,6 +18,8 @@ namespace AuthenticationTestApi.Models
     {
         public RegisterModelValidator()
         {
+            RuleFor(x => x.FirstName).NotEmpty().WithMessage("First name is required");
+            RuleFor(x => x.LastName).NotEmpty().WithMessage("Last name is required");
             RuleFor(x => x.Username).NotEmpty().WithMessage("Username is required");
 
             RuleFor(x => x.Email)
@@ -35,6 +40,10 @@ namespace AuthenticationTestApi.Models
                     .Matches("[0-9]").WithMessage("Password must contain at least one number.")
                     .Matches("[^a-zA-Z0-9]").WithMessage("Password must contain at least one special character.");
             });
+
+            RuleFor(x => x.ConfirmPassword)
+            .NotEmpty().WithMessage("Confirm Password is required.")
+            .Equal(x => x.Password).WithMessage("The passwords do not match.");
         }
 
     }

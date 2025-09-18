@@ -54,6 +54,8 @@ namespace AuthenticationTestApi.Middlewares
                     return (HttpStatusCode.NotFound, argEx.Message); // 404
                 case NotImplementedException notImplementedEx:
                     return (HttpStatusCode.NotImplemented, notImplementedEx.Message); //501
+                case InvalidException invalidex:
+                    return (HttpStatusCode.InternalServerError, invalidex.Message); //500
                 case UnauthorizedAccessException authEx:
                     return (HttpStatusCode.Unauthorized, authEx.Message); // 401
                 case Exception ex:

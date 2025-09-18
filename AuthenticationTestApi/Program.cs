@@ -1,10 +1,14 @@
 using System.Collections.Generic;
+using System.IO;
 using System.Reflection;
 using AuthenticationTestApi.Middlewares;
 using AuthenticationTestApi.Models;
 using AuthServiceLibrary;
 using AuthServiceLibrary.Models;
+using EmailService;
+using EmailService.Model;
 using FluentValidation;
+using Hangfire;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.OpenApi.Models;
 
@@ -40,6 +44,14 @@ passwordOptions =>
     passwordOptions.Lockout.MaxFailedAccessAttempts = 3;
     passwordOptions.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(2);
 });
+
+
+builder.Services.AddHangfire(configuration => configuration
+                .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
+                .UseSimpleAssemblyNameTypeSerializer()
+                .UseRecommendedSerializerSettings()
+                .UseSqlServerStorage(builder.Configuration.GetConnectionString("HangfireConnection") ?? String.Empty));
+builder.Services.AddHangfireServer();
 
 builder.Services.AddAutoMapper(Assembly.GetExecutingAssembly());
 
@@ -88,7 +100,7 @@ builder.Services.AddCors(options =>
     {
         opt.AllowAnyMethod();
         opt.AllowAnyHeader();
-        opt.WithOrigins("http://localhost:54646", "http://localhost:57113", "https://localhost:4200");
+        opt.WithOrigins("http://localhost:54646", "http://localhost:57113", "https://localhost:4200","https://auth.anilgurau.com");
         opt.AllowCredentials();
 
     } );
@@ -98,6 +110,9 @@ builder.Services.AddSpaStaticFiles(configuration =>
 {
     configuration.RootPath = "wwwroot";
 });
+
+EmailSettings? emailSettings = builder.Configuration.GetSection("EmailSettings").Get<EmailSettings>();
+builder.Services.AddSmtpEmailService(emailSettings);
 
 //builder.Services.AddRateLimiter(options =>
 //{
@@ -146,6 +161,7 @@ app.UseCors("MyCorsPolicy");
 
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseHangfireDashboard("/hangfire");
 
 app.MapControllers();
 // Serve SPA static files

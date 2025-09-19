@@ -1,7 +1,9 @@
 import axios from "axios";
+import { BASEURL } from "./config";
+import { OpenToast } from "./utilities/toast";
 
 const httpClient = axios.create({
-  baseURL: "https://localhost:7052",
+  baseURL: BASEURL,
   headers: {
     "Content-Type": "application/json",
   },
@@ -17,7 +19,21 @@ httpClient.interceptors.request.use(
     return config;
   },
   function (error) {
-    console.error("Error while make a http call.");
+    return Promise.reject(error);
+  }
+);
+
+httpClient.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (!error.response) {
+      // Network error or API is down
+      OpenToast("error", "Unable to connect to the server. Please try again later.");
+    } 
+    // else {
+    //   const message = error.response?.data?.errors[0] || error.response.data?.message || "Something went wrong.";
+    //   OpenToast("error", message);
+    // }
     return Promise.reject(error);
   }
 );

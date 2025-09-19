@@ -32,6 +32,8 @@ builder.Services.AddCookiePolicy(options => {
     options.MinimumSameSitePolicy = SameSiteMode.Strict;     // Prevent CSRF attacks
 });
 
+builder.Services.AddHttpContextAccessor();
+
 
 var app = builder.Build();
 

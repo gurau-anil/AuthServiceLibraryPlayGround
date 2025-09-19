@@ -1,35 +1,52 @@
 import { useState, type FormEvent } from "react";
 import httpClient from "../axios.config";
-import { Link, useNavigate, useSearchParams } from "react-router";
+import { useNavigate, useSearchParams } from "react-router";
+import {
+  Container,
+  Flex,
+  Box,
+  Center,
+  Stack,
+  Field,
+  Button,
+  HStack,
+  Separator,
+  Heading,
+} from "@chakra-ui/react";
+import { PasswordInput } from "../components/ui/password-input";
+import { OpenToast } from "../utilities/toast";
 
 function ResetPassword() {
+  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const [searchParams, setSearchParams] = useSearchParams();
-
   const [password, setPassword] = useState<string>("");
   const [confirmPassword, setConfirmPassword] = useState<string>("");
+  const [passwordErr, setPasswordErr] = useState<boolean>(false);
+  const [confirmPasswordErr, setConfirmPasswordErr] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
-  const [error, setError] = useState<string>("");
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setError("");
 
     try {
       var email = searchParams.get("email") ?? "";
       var token = searchParams.get("token") ?? "";
 
-      let response = await httpClient.post(`api/auth/reset-password`, {
+      await httpClient.post(`api/auth/reset-password`, {
         email: email,
         token: token,
         password: password,
         confirmPassword: confirmPassword,
       });
       ClearForm();
-      alert("Password has been reset, go to login.");
+      OpenToast("success", "Password reset successful.");
+      navigate("/auth/login");
     } catch (err: any) {
-      setError(err.response?.data || "something went wrong");
+      OpenToast(
+        "error",
+        err.response?.data?.errors[0] || "something went wrong"
+      );
     } finally {
       setLoading(false);
     }
@@ -40,55 +57,85 @@ function ResetPassword() {
     setConfirmPassword("");
   }
 
-  function goToLogin(){
-    navigate("/auth/login");
-  }
-
   return (
     <>
-      <p>
-        {error && <div style={{ color: "red", marginTop: 10 }}>{error}</div>}
-      </p>
-      <form onSubmit={handleSubmit}>
-        <p>
-          <input
-            id="password"
-            type="password"
-            value={password}
-            autoComplete="password"
-            placeholder="password"
-            title="Password"
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
-        </p>
+      <Container paddingTop="50px">
+        {/* <small>
+          <a
+            href="#"
+            onClick={(evt: any) => {
+              evt.preventDefault();
+              window.history.back();
+            }}
+          >
+            Go back
+          </a>
+        </small> */}
+        <Flex justifyContent={"center"}>
+          <Box width={{ base: "100%", sm: "50%", lg: "28%" }} p={10} bg="white">
+            <Center marginBottom="30px">
+              <Heading>Reset Password</Heading>
+            </Center>
+            <form onSubmit={handleSubmit} noValidate>
+              <Stack gap={6}>
+                {/* Password Field */}
 
-        <p>
-          <input
-            id="confirmPassword"
-            type="password"
-            value={confirmPassword}
-            autoComplete="confirmPassword"
-            placeholder="confirmPassword"
-            title="Confirm Password"
-            onChange={(e) => setConfirmPassword(e.target.value)}
-            required
-          />
-        </p>
+                <Field.Root invalid={passwordErr} required>
+                  <Field.Label>
+                    Password
+                    <Field.RequiredIndicator />
+                  </Field.Label>
+                  <PasswordInput
+                    value={password}
+                    onChange={(e) => {
+                      setPasswordErr(false);
+                      setPassword(e.target.value);
+                    }}
+                    onBlur={() => setPasswordErr(password.length === 0)}
+                  />
+                  {passwordErr && (
+                    <Field.ErrorText>Password is required.</Field.ErrorText>
+                  )}
+                </Field.Root>
 
-        <p style={{display: "flex"}}>
-          <input
-            className="btn"
-            type="submit"
-            value={loading ? "Loading" : "Reset Password"}
-            disabled={loading}
-          />
-        <button style={{marginLeft: "10px"}} onClick={goToLogin}>Go To Login</button>
-        </p>
-      </form>
-      <div>
-        {/* <Link to="/auth/login">Go To Login</Link> */}
-      </div>
+                <Field.Root invalid={confirmPasswordErr} required>
+                  <Field.Label>
+                    Confirm Password
+                    <Field.RequiredIndicator />
+                  </Field.Label>
+                  <PasswordInput
+                    value={confirmPassword}
+                    onChange={(e) => {
+                      setConfirmPasswordErr(false);
+                      setConfirmPassword(e.target.value);
+                    }}
+                    onBlur={() => setConfirmPasswordErr(password.length === 0)}
+                  />
+                  {confirmPasswordErr && (
+                    <Field.ErrorText>
+                      Confirm Password is required.
+                    </Field.ErrorText>
+                  )}
+                </Field.Root>
+
+                <Button
+                  type="submit"
+                  bg="green.600"
+                  disabled={loading || confirmPasswordErr || passwordErr}
+                  _hover={{ background: "green.500" }}
+                >
+                  {loading ? "Loading..." : "Reset Password"}
+                </Button>
+                <HStack>
+                  <Separator flex="1" />
+                  <a href="/auth/login">Go to Login</a>
+                  <Separator flex="1" />
+                </HStack>
+              </Stack>
+            </form>
+          </Box>
+        </Flex>
+      </Container>
     </>
   );
 }

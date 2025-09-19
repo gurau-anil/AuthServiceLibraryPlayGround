@@ -50,7 +50,15 @@ namespace AuthServiceLibrary.Services
             var user = await _userManager.FindByNameAsync(model.Username);
             if (user == null)
             {
-                throw new NotFoundException($"User not found in the system.");
+                user = await _userManager.FindByEmailAsync(model.Username);
+                if (user == null)
+                {
+                    throw new NotFoundException($"User not found in the system.");
+                }
+            }
+            if (!await _userManager.IsEmailConfirmedAsync(user))
+            {
+                throw new InvalidException("Email is not confirmed. Please confirm your email and try again.");
             }
 
             var result = await _signInManager.CheckPasswordSignInAsync(user, model.Password, _identityOptions.SignIn.RequireConfirmedEmail || _identityOptions.SignIn.RequireConfirmedPhoneNumber || _identityOptions.SignIn.RequireConfirmedAccount);
@@ -125,6 +133,18 @@ namespace AuthServiceLibrary.Services
             }
             throw new NotFoundException("User not found in the system.");
         }
+
+
+        public async Task<string> GenerateEmailConfirmationTokenAsync(string email)
+        {
+            ApplicationUser? user = await _userManager.FindByEmailAsync(email);
+            if (user is not null)
+            {
+                return (user is not null) ? await _userManager.GenerateEmailConfirmationTokenAsync(user) : null;
+            }
+            throw new NotFoundException("User not found in the system.");
+        }
+
 
         public async Task ResetPasswordAsync(string email, string password, string token)
         {

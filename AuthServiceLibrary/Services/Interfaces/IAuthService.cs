@@ -9,6 +9,7 @@ namespace AuthServiceLibrary.Services.Interfaces
         Task<AuthResult> LoginAsync(UserLoginModel model);
         Task ValidateEmailToken(string email, string token);
         Task<string> GeneratePasswordResetTokenAsync(string email);
+        Task<string> GenerateEmailConfirmationTokenAsync(string email);
         Task ResetPasswordAsync(string email, string password, string token);
         Task LogoutAsync();
     }

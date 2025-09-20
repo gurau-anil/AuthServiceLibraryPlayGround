@@ -8,7 +8,6 @@ import {
   Menu,
   Portal,
   Avatar,
-  Show,
 } from "@chakra-ui/react";
 import { RiMenuFold3Fill, RiMenuFold4Fill } from "react-icons/ri";
 import logo from "../../public/logo.svg";

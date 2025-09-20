@@ -8,8 +8,8 @@ function HoverBox({trigger, children}:any) {
       </HoverCard.Trigger>
       <Portal>
         <HoverCard.Positioner>
-          <HoverCard.Content p={2} minWidth={"180px"} borderRadius={2}>
-            {/* <HoverCard.Arrow /> */}
+          <HoverCard.Content p={2} minWidth={"180px"} borderRadius={2} bg={"ghostwhite"}>
+            <HoverCard.Arrow />
             {children}
           </HoverCard.Content>
         </HoverCard.Positioner>

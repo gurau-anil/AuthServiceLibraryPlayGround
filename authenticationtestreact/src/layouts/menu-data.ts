@@ -1,4 +1,4 @@
-import { FiLayout, FiUsers, FiSettings, FiBriefcase } from "react-icons/fi";
+import { FiLayout, FiUsers, FiSettings, FiBriefcase, FiClock, FiEdit, FiMail } from "react-icons/fi";
 
 const GetMenuItemData = () => {
   return [
@@ -22,13 +22,17 @@ const GetMenuItemData = () => {
         { name: "Explore1", expanded: false },
         {
           name: "Trade",
-          expanded: false,
-          submenu: [
-            { name: "Trade1", expanded: false },
-            { name: "Trade2", expanded: false, link: "/admin/user/explore" },
-          ],
+          expanded: false
         },
       ],
+    },
+    {
+      name: "History",
+      icon: FiClock 
+    },
+    {
+      name: "Templates",
+      icon: FiMail
     },
     {
       name: "Settings",

@@ -54,6 +54,8 @@ function AppMenuItem({ data,
   textAlign={"right"}
   value={data.name}
   bg={hasActiveBg? activeBg :"unset"} 
+  whiteSpace="nowrap"
+  overflow='hidden'
   _hover={{ bg: sideNavCollapsed ? "unset" : hoverBackground }} 
   onClick={()=>onMenuItemClicked?.(data)}
   >
@@ -129,7 +131,7 @@ function AppMenuItem({ data,
     {/* SUBMENU when side nav bar is not collapsed */}
     <Show when={!sideNavCollapsed}>
         {data?.submenu?.map((sub: any, index) => (
-            <Collapsible.Root open={data.expanded}>
+            <Collapsible.Root open={data.expanded} key={sub.name+index}>
                 <Collapsible.Content bg={"ghostwhite"} ml={6}>
                         <AppMenuItem key={sub.name+index} data={sub} sideNavCollapsed={sideNavCollapsed} type={"submenu"} 
                         onMenuItemClicked={onMenuItemClicked} 

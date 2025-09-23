@@ -240,5 +240,20 @@ namespace AuthServiceLibrary
 
             }
         }
+
+        public static async Task RunDbMigrationAsync(this WebApplication app)
+        {
+            using (var scope = app.Services.CreateScope())
+            {
+                var authDbContext = scope.ServiceProvider.GetRequiredService<AuthDbContext>();
+                var pendingMigrations = await authDbContext.Database.GetPendingMigrationsAsync();
+
+                if (pendingMigrations.Any())
+                {
+                    await authDbContext.Database.MigrateAsync();
+                }
+            }
+
+        }
     }
 }

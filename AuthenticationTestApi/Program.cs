@@ -1,19 +1,24 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
+using System.Threading.RateLimiting;
+using AuthenticationTestApi;
+using AuthenticationTestApi.Data;
 using AuthenticationTestApi.Middlewares;
 using AuthenticationTestApi.Models;
 using AuthServiceLibrary;
+using AuthServiceLibrary.Data;
 using AuthServiceLibrary.Models;
 using EmailService;
 using EmailService.Model;
 using FluentValidation;
 using Hangfire;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
-
+builder.Services.RegisterServices(builder.Configuration);
 // Add services to the container.
 string connectionString = builder.Configuration.GetConnectionString("DefaultConnection")?? String.Empty;
 builder.Services.AddJwtAuthentication(connectionString, options =>
@@ -45,6 +50,10 @@ passwordOptions =>
     passwordOptions.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(2);
 });
 
+builder.Services.AddDbContext<AppDbContext>(options =>
+{
+    options.UseSqlServer(connectionString);
+});
 
 builder.Services.AddHangfire(configuration => configuration
                 .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
@@ -121,7 +130,7 @@ builder.Services.AddSmtpEmailService(emailSettings);
 //            context.Connection.RemoteIpAddress?.ToString() ?? "unknown",
 //            _ => new FixedWindowRateLimiterOptions
 //            {
-//                PermitLimit = 5, // Allow max 5 consecutive requests
+//                PermitLimit = 10, // Allow max 5 consecutive requests
 //                Window = TimeSpan.FromSeconds(10), // Block further requests for 10 seconds
 //                QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
 //                QueueLimit = 0 // Do not queue extra requests
@@ -131,11 +140,23 @@ builder.Services.AddSmtpEmailService(emailSettings);
 //    options.OnRejected = async (context, token) =>
 //    {
 //        context.HttpContext.Response.StatusCode = StatusCodes.Status429TooManyRequests;
-//        await context.HttpContext.Response.WriteAsync("Too many requests. Try again later.", token);
+//        await context.HttpContext.Response.WriteAsJsonAsync(new { message= "Too many requests. Try again later."}, token);
 //    };
 //});
 
 var app = builder.Build();
+//await app.RunDbMigrationAsync();
+
+//using (var scope = app.Services.CreateScope())
+//{
+//    var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+//    var pendingMigrations = await dbContext.Database.GetPendingMigrationsAsync();
+
+//    if (pendingMigrations.Any())
+//    {
+//        await dbContext.Database.MigrateAsync();
+//    }
+//}
 
 //fetched from UserSecrets
 List<UserRegisterModel> userSeeds = builder.Configuration.GetSection("UserSeeds").Get<List<UserRegisterModel>>() ?? new List<UserRegisterModel>();

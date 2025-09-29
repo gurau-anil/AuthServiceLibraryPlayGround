@@ -2,3 +2,7 @@
     position: absolute !important;
     top: 15%;
 }
+
+.tox-tinymce{
+    border-radius: 6px !important;
+}

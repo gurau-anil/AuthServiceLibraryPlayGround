@@ -8,7 +8,7 @@ interface MergeFieldModel {
 
 interface TinyEditorProps{
   initialContent?: string;
-  refresh?: boolean;
+  refreshToken?: string;
   height?: string;
   width?: string;
   mergeFields?: MergeFieldModel[];
@@ -51,9 +51,7 @@ const TinyEditor = ({initialContent = "", height = "50vh", width = "100%", merge
       registerImageOption(editor);
     },
     toolbar:
-      `undo redo | ${
-        mergeFields.length > 0 ? "mergefields" : ""
-      } field blocks fontsize | formatselect | bold italic | forecolor backcolor |` +
+      `undo redo  bold italic ${mergeFields.length > 0 ? "mergefields" : ""} | blocks fontsize| forecolor backcolor |` +
       `photo link table|` +
       "alignleft aligncenter alignright alignjustify | " +
       // "align | " +
@@ -116,7 +114,6 @@ const TinyEditor = ({initialContent = "", height = "50vh", width = "100%", merge
   function registerMergeTagOption(editor: any, mergeTags: MergeFieldModel[]) {
     editor.ui.registry.addMenuButton("mergefields", {
       text: "Merge Fields",
-      tooltip: "insert merge fields",
       fetch: (callback: any) => {
         const items = mergeTags.map((field: MergeFieldModel) => ({
           type: "menuitem",
@@ -144,9 +141,11 @@ const TinyEditor = ({initialContent = "", height = "50vh", width = "100%", merge
           },
         };
       });
-      // setTimeout(() => {
-      //   editorRef.current.setContent(initialContent);
-      // }, 200);
+
+      //optional
+      setTimeout(() => {
+        editorRef.current.setContent(initialContent);
+      }, 300);
     }
   }, [initialContent]);
 

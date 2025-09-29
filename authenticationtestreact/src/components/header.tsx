@@ -31,7 +31,7 @@ function Header({
 }) {
   return (
     <>
-      <Box bg={"white"} h="5rem">
+      <Box bg={"white"} h="5rem" position={"fixed"} top={0} w={"full"} zIndex={9}>
         <Flex
           alignItems={"center"}
           h={"100%"}
@@ -45,7 +45,7 @@ function Header({
                 <>
                     {isSideNavDefault && (
                         <IconButton variant={"ghost"} display={{base: "none", md: "block"}} onClick={onSideNavCollapseTriggered}>
-                            <Center>{sideNavCollapsed ? <RiMenuFold3Fill /> : <RiMenuFold4Fill />}</Center>
+                            <Center>{sideNavCollapsed ? <RiMenuFold4Fill /> : <RiMenuFold3Fill />}</Center>
                         </IconButton>
                     )}
 

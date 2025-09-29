@@ -5,6 +5,7 @@ import { FaCaretDown, FaCaretRight } from "react-icons/fa";
 import HoverBox from "./hover-box";
 // import { FiChevronRight, FiMinus, FiStopCircle } from "react-icons/fi";
 import { GoDot } from "react-icons/go";
+import { Tooltip } from "./ui/tooltip";
 
 export interface MenuItemModel {
     name: string, 
@@ -61,15 +62,16 @@ function AppMenuItem({ data,
   >
     {/* Menu Item when side nav bar is collapsed  */}
     <Show when={sideNavCollapsed}>
-        
         {/* Menu item with no submenu */}
         <Show when={!data.submenu || (data.submenu && data?.submenu?.length == 0)}>
-            <IconButton variant={"plain"} 
-                bg={data.isActive? activeBg :"unset"} 
-                _hover={{ bg: sideNavCollapsed ? hoverBackground : "unset" }} 
-                size={type=="submenu"? 'xs' : "lg"}>
-                <Icon as={data.icon?? GoDot } color={iconColor}/>
-            </IconButton>
+            <Tooltip content={data.name} contentProps={{ css: { "--tooltip-bg": "#555555" } }}>
+                <IconButton variant={"plain"} 
+                    bg={data.isActive? activeBg :"unset"} 
+                    _hover={{ bg: sideNavCollapsed ? hoverBackground : "unset" }} 
+                    size={type=="submenu"? 'xs' : "md"}>
+                    <Icon as={data.icon?? GoDot } color={iconColor}/>
+                </IconButton>
+            </Tooltip>
         </Show>
 
         {/* Menu item with submenu */}

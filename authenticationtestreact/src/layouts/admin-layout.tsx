@@ -56,7 +56,7 @@ function AdminLayout() {
     <>
     <AppLoader show={loading}/>
 
-      <Box h="100vh" bg={"gray.200"}>
+      <Box h="100vh">
       {/* header section */}
       <Header hasCollapseIcon={true} 
         isSideNavDefault={layoutPreference.defaultNavMode === "sidenav"}
@@ -88,7 +88,8 @@ function AdminLayout() {
           transition="margin 0.5s ease"
           ml={layoutPreference.defaultNavMode === 'sidenav' ? {base: 0, md: sideNavCollapsed? 20 : 60} : 0}
           p="4"
-          h="calc(100vh - 5rem)"
+          pt={"6rem"}
+          h={"full"}
         >
           <Outlet/>
         </Box>

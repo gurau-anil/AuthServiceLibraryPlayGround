@@ -11,8 +11,8 @@ import EmailConfirmationDialog from "../components/EmailConfirmationDialog";
 export default function LoginPage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const [userName, setUserName] = useState<string>("admin");
-  const [password, setPassword] = useState<string>("Dev@1234");
+  const [userName, setUserName] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
   const [error, setError] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
 
@@ -35,13 +35,15 @@ export default function LoginPage() {
       localStorage.setItem("authResult", JSON.stringify(response.data));
 
       toaster.create({ description: "Login Successful.", type: "success"});
-      const redirectURL = searchParams.get("redirectTo")?? "";
-      if(redirectURL.length == 0){
-        navigate(response.data.roles.some((c: any)=>c.toLowerCase() === "admin")? "/admin" : "/");
+      const redirectURL = searchParams.get("redirectTo")?? '/';
+
+      if(response.data.roles.some((c: any)=> c.toLowerCase() == 'admin')){
+        navigate(redirectURL== '/' ? '/admin': redirectURL)
       }
       else{
-        navigate(!response.data.roles.some((c: any)=>c.toLowerCase() === "admin")? "/" : redirectURL);
+        navigate(redirectURL?? '/')
       }
+
     } catch (err: any) {
       if(err?.response){
         OpenToast("error", err.response?.data?.errors[0]);

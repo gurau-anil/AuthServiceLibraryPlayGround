@@ -30,10 +30,6 @@ httpClient.interceptors.response.use(
       // Network error or API is down
       OpenToast("error", "Unable to connect to the server. Please try again later.");
     } 
-    // else {
-    //   const message = error.response?.data?.errors[0] || error.response.data?.message || "Something went wrong.";
-    //   OpenToast("error", message);
-    // }
     return Promise.reject(error);
   }
 );

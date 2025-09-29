@@ -1,4 +1,4 @@
-import { FiLayout, FiUsers, FiSettings, FiBriefcase, FiClock, FiEdit, FiMail } from "react-icons/fi";
+import { FiLayout, FiUsers, FiSettings, FiBriefcase, FiClock, FiMail } from "react-icons/fi";
 
 const GetMenuItemData = () => {
   return [
@@ -31,13 +31,14 @@ const GetMenuItemData = () => {
       icon: FiClock 
     },
     {
-      name: "Templates",
-      icon: FiMail
+      name: "Email Templates",
+      icon: FiMail,
+      link: "/admin/email-template"
     },
     {
       name: "Settings",
       icon: FiSettings,
-      submenu: [],
+      link: "/admin/settings"
     },
   ];
 };

@@ -22,6 +22,7 @@ function SideNav({ menuItem, sideNavCollapsed, background = "white", textColor= 
         h="full"
         pt={4}
         pos="fixed"
+        top={"5rem"}
         shadow="inset"
         display={{ base: "none", md: "block" }}
       > 

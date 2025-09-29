@@ -6,6 +6,7 @@ using AuthenticationTestApi;
 using AuthenticationTestApi.Data;
 using AuthenticationTestApi.Middlewares;
 using AuthenticationTestApi.Models;
+using AuthenticationTestApi.Services;
 using AuthServiceLibrary;
 using AuthServiceLibrary.Data;
 using AuthServiceLibrary.Models;
@@ -19,8 +20,18 @@ using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.RegisterServices(builder.Configuration);
-// Add services to the container.
+
 string connectionString = builder.Configuration.GetConnectionString("DefaultConnection")?? String.Empty;
+var provider = new DbConfigurationProvider(connectionString);
+builder.Services.AddSingleton<DbConfigurationProvider>(provider);
+
+//var dynamicSource = new DbConfigurationSource(connectionString, provider);
+
+builder.Configuration.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+                     .AddEnvironmentVariables()
+                      .Add(new DbConfigurationSource(connectionString, provider));
+
+// Add services to the container.
 builder.Services.AddJwtAuthentication(connectionString, options =>
 {
     options.Issuer = "Test";
@@ -46,8 +57,8 @@ passwordOptions =>
     passwordOptions.SignIn.RequireConfirmedEmail = true;
     passwordOptions.SignIn.RequireConfirmedAccount = true;
     passwordOptions.User.RequireUniqueEmail = true;
-    passwordOptions.Lockout.MaxFailedAccessAttempts = 3;
-    passwordOptions.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(2);
+    passwordOptions.Lockout.MaxFailedAccessAttempts = builder.Configuration.GetValue<int>("PasswordSettings:AccessAttempts");
+    passwordOptions.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(builder.Configuration.GetValue<int>("PasswordSettings:AccountLockoutMinutes"));
 });
 
 builder.Services.AddDbContext<AppDbContext>(options =>
@@ -103,13 +114,15 @@ builder.Services.AddSwaggerGen(options =>
 builder.Services.AddMemoryCache();
 
 
+builder.Services.AddScoped<IAppSettingService, AppSettingService>();
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("MyCorsPolicy", opt=>
     {
         opt.AllowAnyMethod();
         opt.AllowAnyHeader();
-        opt.WithOrigins("http://localhost:54646", "http://localhost:57113", "https://localhost:4200","https://auth.anilgurau.com");
+        opt.WithOrigins($"{builder.Configuration.GetValue<string>("ClientUrl")}");
         opt.AllowCredentials();
 
     } );
@@ -119,9 +132,7 @@ builder.Services.AddSpaStaticFiles(configuration =>
 {
     configuration.RootPath = "wwwroot";
 });
-
-EmailSettings? emailSettings = builder.Configuration.GetSection("EmailSettings").Get<EmailSettings>();
-builder.Services.AddSmtpEmailService(emailSettings);
+builder.Services.AddSmtpEmailService(builder.Configuration);
 
 //builder.Services.AddRateLimiter(options =>
 //{

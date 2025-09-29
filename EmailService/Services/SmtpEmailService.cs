@@ -13,7 +13,7 @@ namespace EmailService.Services
     {
         private EmailSettings _emailSettings;
         private const int MAX_FILE_SIZE = 10 * 1024 * 1024;  // 10MB in bytes
-        public SmtpEmailService(IOptions<EmailSettings> options)
+        public SmtpEmailService(IOptionsSnapshot<EmailSettings> options)
         {
             _emailSettings = options.Value;
         }

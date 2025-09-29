@@ -1,4 +1,9 @@
-﻿using AuthenticationTestApi.Models;
+﻿using AuthenticationTestApi.Entities;
+using AuthenticationTestApi.enums;
+using AuthenticationTestApi.Helpers;
+using AuthenticationTestApi.Models;
+using AuthenticationTestApi.Models.MergeField;
+using AuthenticationTestApi.Services;
 using AuthServiceLibrary.Models;
 using AuthServiceLibrary.Services.Interfaces;
 using AutoMapper;
@@ -19,16 +24,16 @@ namespace AuthenticationTestApi.Controllers
         private readonly IValidator<RegisterModel> _validator;
         private readonly IConfiguration _config;
         private readonly IEmailService _emailService;
-        private readonly IHostEnvironment _env;
+        private readonly IEmailTemplateService _emailTemplateService;
 
-        public UserManagementController(IUserManagementService userManagement, IMapper mapper, IValidator<RegisterModel> validator, IConfiguration config, IEmailService emailService, IHostEnvironment env)
+        public UserManagementController(IUserManagementService userManagement, IMapper mapper, IValidator<RegisterModel> validator, IConfiguration config, IEmailService emailService, IEmailTemplateService emailTemplateService)
         {
             _userManagement = userManagement;
             _mapper = mapper;
             _validator = validator;
             _config = config;
             _emailService = emailService;
-            _env = env;
+            _emailTemplateService = emailTemplateService;
         }
 
         [HttpPost]
@@ -39,13 +44,22 @@ namespace AuthenticationTestApi.Controllers
             var result = await _userManagement.RegisterUser(_mapper.Map<UserRegisterModel>(model));
 
             var emailConfirmationLink = $"{_config.GetValue<string>("ClientUrl")}/auth/confirm-email?email={model.Email}&token={result.Token}";
-            var emailBody = await GetEmailConfirmationEmailBody(new { EmailConfirmationLink = emailConfirmationLink });
+            
+            var emailTemplate = await _emailTemplateService.GetEmailTemplate(EmailType.UserRegisterEmailConfirmation);
+            emailTemplate.Body = MergeFieldHelper.PopulateMergeFields(emailTemplate.Body, new UserRegisterEmailConfirmationMergeField
+            {
+                EmailConfirmationLink = emailConfirmationLink,
+                FirstName = model.FirstName,
+                LastName = model.LastName
+            });
+
+
 
             BackgroundJob.Enqueue<IEmailService>(emailService => emailService.SendAsync(new EmailSendModel
             {
                 RecipientEmail = model.Email,
-                Subject = "Email Confirmation",
-                Body = emailBody
+                Subject = emailTemplate.Subject,
+                Body = emailTemplate.Body
             }));
 
             return Ok(@$"
@@ -61,13 +75,6 @@ namespace AuthenticationTestApi.Controllers
             UserModel user = await _userManagement.GetByUsernameAsync(username);
             await _userManagement.DeleteByUsernameAsync(username);
             return Ok($"User: {username} removed from the system");
-        }
-
-        private async Task<string> GetEmailConfirmationEmailBody(object model)
-        {
-            string emailTemplate = await System.IO.File.ReadAllTextAsync(Path.Combine(_env.ContentRootPath, "wwwroot", $"files/{Constants.EmailConfirmationTemplateFileName}"));
-            var template = Template.Parse(emailTemplate);
-            return template.Render(model);
         }
     }
 }

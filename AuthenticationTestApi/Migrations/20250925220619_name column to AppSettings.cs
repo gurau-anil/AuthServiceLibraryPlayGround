@@ -5,25 +5,25 @@
 namespace AuthenticationTestApi.Migrations
 {
     /// <inheritdoc />
-    public partial class IsDefault_colume_added_EmailTemplate : Migration
+    public partial class namecolumntoAppSettings : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AddColumn<bool>(
-                name: "IsDefault",
-                table: "EmailTemplates",
-                type: "bit",
+            migrationBuilder.AddColumn<string>(
+                name: "Name",
+                table: "AppSettings",
+                type: "nvarchar(max)",
                 nullable: false,
-                defaultValue: false);
+                defaultValue: "");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropColumn(
-                name: "IsDefault",
-                table: "EmailTemplates");
+                name: "Name",
+                table: "AppSettings");
         }
     }
 }

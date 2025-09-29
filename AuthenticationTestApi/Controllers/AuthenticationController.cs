@@ -1,4 +1,9 @@
-﻿using AuthenticationTestApi.Models;
+﻿using AuthenticationTestApi.Entities;
+using AuthenticationTestApi.enums;
+using AuthenticationTestApi.Helpers;
+using AuthenticationTestApi.Models;
+using AuthenticationTestApi.Models.MergeField;
+using AuthenticationTestApi.Services;
 using AuthServiceLibrary;
 using AuthServiceLibrary.Models;
 using AuthServiceLibrary.Services.Interfaces;
@@ -9,7 +14,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.WebUtilities;
 using Scriban;
 using System.Text;
-using static Org.BouncyCastle.Math.EC.ECCurve;
 
 namespace AuthenticationTestApi.Controllers
 {
@@ -19,15 +23,15 @@ namespace AuthenticationTestApi.Controllers
         private readonly IConfiguration _configuration;
         private readonly IConfigurationSection _jwtSettings;
         private readonly IAuthService _authService;
-        private readonly IHostEnvironment _env;
+        private readonly IEmailTemplateService _emailTemplateService;
         public AuthenticationController(IConfiguration configuration,
             IAuthService authService,
-            IHostEnvironment env)
+            IEmailTemplateService emailTemplateService)
         {
             _configuration = configuration;
             _jwtSettings = _configuration.GetSection("JwtSettings");
             _authService = authService;
-            _env = env;
+            _emailTemplateService = emailTemplateService;
         }
 
         [HttpPost]
@@ -55,15 +59,19 @@ namespace AuthenticationTestApi.Controllers
             var token = await _authService.GenerateEmailConfirmationTokenAsync(email);
             var encodedToken = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(token));
 
-            var emailConfirmationLink = $"{_configuration.GetValue<string>("ClientUrl")}/auth/confirm-email?email={email}&token={encodedToken}";
-            var emailBody = await GetEmailConfirmationEmailBody(new { EmailConfirmationLink = emailConfirmationLink });
+            var emailTemplate = await GetEmailTemplate(EmailType.EmailConfirmation);
+            emailTemplate.Body = MergeFieldHelper.PopulateMergeFields(emailTemplate.Body, 
+                new EmailConfirmationMergeField { 
+                    EmailConfirmationLink = $"{_configuration.GetValue<string>("ClientUrl")}/auth/confirm-email?email={email}&token={encodedToken}"
+                });
 
             BackgroundJob.Enqueue<IEmailService>(emailService => emailService.SendAsync(new EmailSendModel
-            {
-                RecipientEmail = email,
-                Subject = "Email Confirmation",
-                Body = emailBody
-            }));
+                {
+                    RecipientEmail = email,
+                    Subject = emailTemplate.Subject,
+                    Body = emailTemplate.Body
+                })
+            );
 
             return Ok($"Email Confirmation link has been sent to email: {email}");
         }
@@ -84,14 +92,17 @@ namespace AuthenticationTestApi.Controllers
             var token = await _authService.GeneratePasswordResetTokenAsync(email);
             var encodedToken = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(token));
 
-            var passwordResetLink = $"{_configuration.GetValue<string>("ClientUrl")}/auth/reset-password?token={encodedToken}&email={email}";
-            var emailBody = await GetPasswordResetEmailBody(new { PasswordResetLink = passwordResetLink });
+            var emailTemplate = await GetEmailTemplate(EmailType.PasswordReset);
+            emailTemplate.Body = MergeFieldHelper.PopulateMergeFields(emailTemplate.Body,
+                new PasswordResetMergeField { 
+                    PasswordResetLink = $"{_configuration.GetValue<string>("ClientUrl")}/auth/reset-password?token={encodedToken}&email={email}"
+                });
 
             BackgroundJob.Enqueue<IEmailService>(emailService => emailService.SendAsync(new EmailSendModel
             {
                 RecipientEmail = email,
-                Subject = "Reset your password.",
-                Body = emailBody
+                Subject = emailTemplate.Subject,
+                Body = emailTemplate.Body
             }));
 
             return Ok($"Password reset link has been sent to email: {email}");
@@ -136,18 +147,9 @@ namespace AuthenticationTestApi.Controllers
             });
         }
 
-        private async Task<string> GetPasswordResetEmailBody(object model)
+        private async Task<EmailTemplate> GetEmailTemplate(EmailType emailType)
         {
-            string emailTemplate = await System.IO.File.ReadAllTextAsync(Path.Combine(_env.ContentRootPath, "wwwroot", $"files/{Constants.PasswordResetTemplateFileName}"));
-            var template = Template.Parse(emailTemplate);
-            return template.Render(model);
-        }
-
-        private async Task<string> GetEmailConfirmationEmailBody(object model)
-        {
-            string emailTemplate = await System.IO.File.ReadAllTextAsync(Path.Combine(_env.ContentRootPath, "wwwroot", $"files/{Constants.EmailConfirmationTemplateFileName}"));
-            var template = Template.Parse(emailTemplate);
-            return template.Render(model);
+            return await _emailTemplateService.GetEmailTemplate(emailType);
         }
     }
 }

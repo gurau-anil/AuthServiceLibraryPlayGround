@@ -57,8 +57,8 @@ namespace AuthServiceLibrary
                 {
                     options.TokenValidationParameters = new TokenValidationParameters
                     {
-                        ValidateIssuer = false,
-                        ValidateAudience = false,
+                        ValidateIssuer = true,
+                        ValidateAudience = true,
                         ValidateLifetime = true,
                         ValidateIssuerSigningKey = true,
                         ValidIssuer = config.Jwt.Issuer,
@@ -169,7 +169,6 @@ namespace AuthServiceLibrary
 
             return services;
         }
-
 
         public static async Task SeedDbAsync(this WebApplication app, Action<List<UserRegisterModel>> registerUser)
         {

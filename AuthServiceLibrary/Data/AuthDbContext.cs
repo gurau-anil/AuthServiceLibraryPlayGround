@@ -10,7 +10,6 @@ namespace AuthServiceLibrary.Data
         public AuthDbContext(DbContextOptions<AuthDbContext> options) : base(options)
         {
         }
-
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
@@ -21,6 +20,7 @@ namespace AuthServiceLibrary.Data
                 entity.Property(e => e.FirstName).IsRequired(true);
                 entity.Property(e => e.LastName).IsRequired(true);
                 entity.Property(e => e.IsActive).HasDefaultValue(true);
+                entity.HasQueryFilter(c => c.IsActive);
             });
         }
     }

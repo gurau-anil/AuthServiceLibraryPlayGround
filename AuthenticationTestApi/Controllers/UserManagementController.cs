@@ -1,5 +1,4 @@
-﻿using AuthenticationTestApi.Entities;
-using AuthenticationTestApi.enums;
+﻿using AuthenticationTestApi.enums;
 using AuthenticationTestApi.Helpers;
 using AuthenticationTestApi.Models;
 using AuthenticationTestApi.Models.MergeField;
@@ -12,23 +11,23 @@ using EmailService.Services.Interfaces;
 using FluentValidation;
 using Hangfire;
 using Microsoft.AspNetCore.Mvc;
-using Scriban;
+using User = AuthenticationTestApi.Models.UserModel;
 
 namespace AuthenticationTestApi.Controllers
 {
     [Route("api/user")]
     public class UserManagementController : BaseApiController
     {
-        private readonly IUserManagementService _userManagement;
+        private readonly IUserManagementService _userManagementService;
         private readonly IMapper _mapper;
         private readonly IValidator<RegisterModel> _validator;
         private readonly IConfiguration _config;
         private readonly IEmailService _emailService;
         private readonly IEmailTemplateService _emailTemplateService;
 
-        public UserManagementController(IUserManagementService userManagement, IMapper mapper, IValidator<RegisterModel> validator, IConfiguration config, IEmailService emailService, IEmailTemplateService emailTemplateService)
+        public UserManagementController(IUserManagementService userManagementService, IMapper mapper, IValidator<RegisterModel> validator, IConfiguration config, IEmailService emailService, IEmailTemplateService emailTemplateService)
         {
-            _userManagement = userManagement;
+            _userManagementService = userManagementService;
             _mapper = mapper;
             _validator = validator;
             _config = config;
@@ -36,12 +35,21 @@ namespace AuthenticationTestApi.Controllers
             _emailTemplateService = emailTemplateService;
         }
 
+
+        [HttpGet]
+        [Route("")]
+        public async Task<IActionResult> GetUsersAsync()
+        {
+            IEnumerable<User> users = _mapper.Map<List<User>>(await _userManagementService.GetAllAsync());
+            return Ok(users);
+        }
+
         [HttpPost]
         [Route("register")]
         public async Task<IActionResult> RegisterAsync([FromBody] RegisterModel model)
         {
             await ValidateModelAsync(model, hasMultipleError: true);
-            var result = await _userManagement.RegisterUser(_mapper.Map<UserRegisterModel>(model));
+            var result = await _userManagementService.RegisterUser(_mapper.Map<UserRegisterModel>(model));
 
             var emailConfirmationLink = $"{_config.GetValue<string>("ClientUrl")}/auth/confirm-email?email={model.Email}&token={result.Token}";
             
@@ -72,8 +80,8 @@ namespace AuthenticationTestApi.Controllers
         [Route("{username}")]
         public async Task<IActionResult> DeleteAsync(string username)
         {
-            UserModel user = await _userManagement.GetByUsernameAsync(username);
-            await _userManagement.DeleteByUsernameAsync(username);
+            User user =_mapper.Map<User>(await _userManagementService.GetByUsernameAsync(username));
+            await _userManagementService.DeleteByUsernameAsync(username);
             return Ok($"User: {username} removed from the system");
         }
     }

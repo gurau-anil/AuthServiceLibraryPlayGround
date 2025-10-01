@@ -79,11 +79,11 @@ function AdminDashboard() {
         </SimpleGrid>
 
         <SimpleGrid mt={4} columns={{ base: 1, lg: 3 }} gap={4} w="full">
-          <GridItem bg={"white"} p={4} shadow={"xs"} height={"500px"}>
+          <GridItem bg={"white"} p={4} shadow={"xs"} height={"450px"}>
             <Heading>Users By Status</Heading>
             <ResponsivePie
               data={pieChartData}
-              margin={{ top: 65, right: 30, bottom: 65, left: 46 }}
+              margin={{ top: 60, right: 30, bottom: 60, left: 46 }}
               innerRadius={0.6}
               padAngle={0.6}
             //   cornerRadius={2}
@@ -102,7 +102,7 @@ function AdminDashboard() {
                   anchor: "left",
                   direction: "column",
                   translateX: -45,
-                  translateY: -160,
+                  translateY: -150,
                   itemWidth: 100,
                   itemHeight: 31,
                 },
@@ -114,7 +114,7 @@ function AdminDashboard() {
             p={4}
             shadow={"xs"}
             colSpan={{ base: 1, lg: 2 }}
-            height={"500px"}
+            height={"450px"}
           >
             <Heading>Users Registered By Date</Heading>
             <ResponsiveLine /* or Line for fixed dimensions */
@@ -143,15 +143,17 @@ function AdminDashboard() {
               axisLeft={{
                 legend: "Number of Users Registered",
                 legendOffset: -40,
+                tickValues: Array.from({ length: 100 }, (_, i) => i + 1),
               }}
-              pointColor={{ theme: "background" }}
-              pointBorderWidth={2}
+              pointColor={"#46c363"}
+              pointSize={8}
+              pointBorderWidth={0}
               pointBorderColor={{ from: "seriesColor" }}
               pointLabelYOffset={-12}
               enableTouchCrosshair={true}
               useMesh={false}
               enableGridX={true}
-              enablePointLabel={true}
+              enablePointLabel={false}
               //   legends={[
               //     {
               //       anchor: "bottom-right",

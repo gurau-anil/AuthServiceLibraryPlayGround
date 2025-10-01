@@ -1,9 +1,7 @@
-import { isAdminAuthenticated } from "../../auth-check";
+
 import httpClient from "../../axios.config";
 
-const DashboardLoader = async ({ request }: { request: Request }) => {
-//   isAdminAuthenticated(request);
-
+const DashboardLoader = async () => {
   try {
     let result = httpClient.get(`/api/dashboard`);
 

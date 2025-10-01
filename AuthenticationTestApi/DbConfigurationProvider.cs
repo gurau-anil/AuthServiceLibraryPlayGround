@@ -24,16 +24,16 @@ namespace AuthenticationTestApi
                     {
                         string key = reader.GetFieldValue<string>(0);
                         string? value = reader.IsDBNull(1) ? null : reader.GetFieldValue<string>(1) ;
-                        data[key] = value is not null? 
-                            key.ToLower().Contains("password")? CryptographyHelper.Decrypt(reader.GetFieldValue<string>(1), Environment.GetEnvironmentVariable("EncryptionSecretKey")) : value 
+                        data[key] = value is not null ?
+                            key.ToLower().EndsWith("password") ? CryptographyHelper.Decrypt(reader.GetFieldValue<string>(1), Environment.GetEnvironmentVariable("EncryptionSecretKey")) : value
                             : string.Empty;
                     }
                     Data = data;
                 }
-
             OnReload();
+
             }
-            catch (Exception)
+            catch (Exception ex)
             {
             }
         }
@@ -47,11 +47,9 @@ namespace AuthenticationTestApi
 
     public class DbConfigurationSource : IConfigurationSource
     {
-        private readonly string _connectionString;
         private readonly DbConfigurationProvider _provider;
-        public DbConfigurationSource(string connectionString, DbConfigurationProvider provider)
+        public DbConfigurationSource(DbConfigurationProvider provider)
         {
-            _connectionString = connectionString;
             _provider = provider;
         }
 

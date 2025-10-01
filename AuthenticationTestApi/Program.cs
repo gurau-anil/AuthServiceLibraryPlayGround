@@ -22,14 +22,15 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.RegisterServices(builder.Configuration);
 
 string connectionString = builder.Configuration.GetConnectionString("DefaultConnection")?? String.Empty;
+
 var provider = new DbConfigurationProvider(connectionString);
-builder.Services.AddSingleton<DbConfigurationProvider>(provider);
 
-//var dynamicSource = new DbConfigurationSource(connectionString, provider);
+builder.Configuration
+    .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+    .AddEnvironmentVariables()
+    .Add(new DbConfigurationSource(provider));
 
-builder.Configuration.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-                     .AddEnvironmentVariables()
-                      .Add(new DbConfigurationSource(connectionString, provider));
+builder.Services.AddSingleton(provider);
 
 // Add services to the container.
 builder.Services.AddJwtAuthentication(connectionString, options =>
@@ -115,6 +116,8 @@ builder.Services.AddMemoryCache();
 
 
 builder.Services.AddScoped<IAppSettingService, AppSettingService>();
+builder.Services.AddScoped<IDashboardService, DashboardService>();
+builder.Services.AddSingleton<IConnectionFactory, ConnectionFactory>();
 
 builder.Services.AddCors(options =>
 {
@@ -158,17 +161,6 @@ builder.Services.AddSmtpEmailService(builder.Configuration);
 var app = builder.Build();
 //await app.RunDbMigrationAsync();
 
-//using (var scope = app.Services.CreateScope())
-//{
-//    var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-//    var pendingMigrations = await dbContext.Database.GetPendingMigrationsAsync();
-
-//    if (pendingMigrations.Any())
-//    {
-//        await dbContext.Database.MigrateAsync();
-//    }
-//}
-
 //fetched from UserSecrets
 List<UserRegisterModel> userSeeds = builder.Configuration.GetSection("UserSeeds").Get<List<UserRegisterModel>>() ?? new List<UserRegisterModel>();
 if (userSeeds.Count > 0)
@@ -198,22 +190,10 @@ app.UseHangfireDashboard("/hangfire");
 app.MapControllers();
 // Serve SPA static files
 app.UseSpaStaticFiles();
-if (app.Environment.IsDevelopment())
-{
-    app.UseSpa(spa =>
-    {
-        spa.Options.SourcePath = "../../../ClientApp";
-        //spa.UseProxyToSpaDevelopmentServer("https://localhost:4200");
-    });
-}
-else
-{
-    app.UseSpa(spa =>
-    {
-        spa.Options.SourcePath = "wwwroot";
-    });
-}
 
-
+app.UseSpa(spa =>
+{
+    spa.Options.SourcePath = app.Environment.IsDevelopment()? "../../../ClientApp" : "wwwroot";
+});
 
 app.Run();

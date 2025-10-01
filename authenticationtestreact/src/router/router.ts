@@ -20,6 +20,7 @@ import { EmailType } from "../enums/email-type";
 import EmailTemplatePage from "../pages/EmailTemplatePage";
 import EmailSettingsPage from "../pages/admin/settings/email-settings";
 import { SettingsLoader } from "./loaders/SettingsLoader";
+import { DashboardLoader } from "./loaders/DashboardLoader";
 
 const AppLoader = async ({ request }: { request: Request }) => {
   isUserAuthenticated(request);
@@ -76,18 +77,12 @@ const router = createBrowserRouter([
         Component: AdminLayout,
         loader: async ({ request }: { request: Request }) => {
           isAdminAuthenticated(request);
-          try {
-            const result: any = await httpClient.get("api/role/all");
-
-            return result.data;
-          } catch (error: any) {
-            HandleError(error.status);
-          }
         },
         children: [
           {
             path: "",
             Component: AdminDashboard,
+            loader: DashboardLoader
           },
           {
             path: "user/home",

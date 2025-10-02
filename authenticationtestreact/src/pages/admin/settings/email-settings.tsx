@@ -1,10 +1,21 @@
-import {Box,Flex,GridItem,Heading,IconButton,SimpleGrid,VStack} from "@chakra-ui/react";
+import {
+  Box,
+  Flex,
+  Grid,
+  GridItem,
+  Heading,
+  IconButton,
+  SimpleGrid,
+  VStack,
+} from "@chakra-ui/react";
 import AppEditable from "../../../components/form/app-editable";
 import { useLoaderData } from "react-router";
 import AppCollapsible from "../../../components/app-collapsible";
 import { useState } from "react";
 import { FiChevronDown, FiChevronUp } from "react-icons/fi";
 import AppWrapper from "../../../components/content-wrapper";
+import httpClient from "../../../axios.config";
+import { OpenToast } from "../../../utilities/toast";
 
 interface AppSetting {
   name: string;
@@ -14,34 +25,46 @@ interface AppSetting {
 function EmailSettingsPage() {
   const appSettings: AppSetting[] = useLoaderData();
   const [emailSettingsOpen, setEmailSettingsOpen] = useState<boolean>(true);
-
+  const [passwordSettingsOpen, setPasswordSettingsOpen] =
+    useState<boolean>(true);
+  const [loading, setLoading] = useState<boolean>(false);
   const emailSettings: AppSetting[] = appSettings.filter((c) =>
     c.key.startsWith("EmailSettings:")
   );
 
+  const passwordSettings: AppSetting[] = appSettings.filter((c) =>
+    c.key.startsWith("PasswordSettings:")
+  );
   const half = Math.ceil(appSettings.length / 2);
   const leftEmailSettings: AppSetting[] = emailSettings.slice(0, half);
   const rightEmailSettings: AppSetting[] = emailSettings.slice(half);
 
-
-  function handleSubmit(data: AppSetting){
-    console.log(data);
+  async function handleSubmit(data: AppSetting) {
+    try {
+      setLoading(true);
+      const result = await httpClient.put(
+        `/api/settings?key=${data.key}`,
+        data
+      );
+      OpenToast("success", "Setting Updated Successfully.");
+    } catch (error) {
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
     <>
       <AppWrapper>
-
         <SimpleGrid
-        columns={{ base: 1, sm: 2, md: 2, lg: 3 }} // breakpoint columns
-        gap={4} // gap between blocks
-        w="full" // take full width
-      >
-        
-        <GridItem colSpan={{ base: 1, md: 2 }}>
-          <Box pt={6} px={6} bg={"white"}>
-            <Flex justifyContent={"space-between"}>
-              <Heading display={"inline-block"}>Email Settings</Heading>
+          columns={{ base: 1, md: 1, lg: 4 }}
+          gap={4}
+          w={{ base: "full" }}
+          alignItems={"start"}
+        >
+          <GridItem bg={"white"} p={4}>
+            <Flex alignItems={"center"} justifyContent={"space-between"}>
+              <Heading>Email Settings</Heading>
 
               <IconButton
                 variant="subtle"
@@ -53,68 +76,104 @@ function EmailSettingsPage() {
                 {emailSettingsOpen ? <FiChevronUp /> : <FiChevronDown />}
               </IconButton>
             </Flex>
-            <AppCollapsible
-              isOpen={emailSettingsOpen}
-              setOpen={setEmailSettingsOpen}
-            >
-              <Flex
-                gap={4}
-                mb={10}
-                direction={{ base: "column", sm: "column", md: "row" }}
-                justifyContent={"space-between"}
+            {emailSettingsOpen && (
+              <AppCollapsible
+                isOpen={emailSettingsOpen}
+                setOpen={setEmailSettingsOpen}
               >
-                <Flex direction={"column"} gap={4} flex={1}>
-                  {leftEmailSettings?.map(
+                <SimpleGrid
+                  columns={1}
+                  gap={4}
+                  w={{ base: "full" }}
+                >
+                  {emailSettings?.map(
                     (setting: {
                       name: string;
                       value?: string;
                       key: string;
                     }) => (
-                        <VStack gap={1} align={"start"} key={setting.key}>
+                      <GridItem>
                           {setting.name}
                           <AppEditable
                             defaultVal={setting.value}
                             type={
-                              setting.key.toLowerCase().includes("password")
+                              setting.key.toLowerCase().endsWith("password")
                                 ? "password"
+                                : setting.value == "true" ||
+                                  setting.value == "false"
+                                ? "yesno"
                                 : "text"
                             }
-                            onSubmitted={(val: any)=>{
-                                handleSubmit({key: setting.key, value: val, name: setting.name})
+                            onSubmitted={async (val: any) => {
+                              handleSubmit({
+                                key: setting.key,
+                                value: val,
+                                name: setting.name,
+                              });
                             }}
-                          ></AppEditable>
-                        </VStack>
+                          />
+                      </GridItem>
                     )
                   )}
-                </Flex>
+                </SimpleGrid>
+              </AppCollapsible>
+            )}
+          </GridItem>
 
-                <Flex direction={"column"} gap={4} flex={1}>
-                  {rightEmailSettings?.map(
+          <GridItem bg={"white"} p={4}>
+            <Flex alignItems={"center"} justifyContent={"space-between"}>
+              <Heading display={"inline-block"}>Password Settings</Heading>
+
+              <IconButton
+                variant="subtle"
+                size={"xs"}
+                onClick={() => {
+                  setPasswordSettingsOpen(!passwordSettingsOpen);
+                }}
+              >
+                {passwordSettingsOpen ? <FiChevronUp /> : <FiChevronDown />}
+              </IconButton>
+            </Flex>
+            {passwordSettingsOpen && (
+              <AppCollapsible
+                isOpen={passwordSettingsOpen}
+                setOpen={setPasswordSettingsOpen}
+              >
+                <SimpleGrid columns={1} gap={4} w={{ base: "full" }}>
+                  {passwordSettings?.map(
                     (setting: {
                       name: string;
                       value?: string;
                       key: string;
                     }) => (
-                        <VStack gap={1} align={"start"} key={setting.key}>
+                      <GridItem>
                           {setting.name}
                           <AppEditable
                             defaultVal={setting.value}
                             type={
-                              setting.key.toLowerCase().includes("password")
+                              setting.key.toLowerCase().endsWith("password")
                                 ? "password"
+                                : setting.value == "true" ||
+                                  setting.value == "false"
+                                ? "yesno"
                                 : "text"
                             }
-                          ></AppEditable>
-                        </VStack>
+                            onSubmitted={async (val: any) => {
+                              handleSubmit({
+                                key: setting.key,
+                                value: val,
+                                name: setting.name,
+                              });
+                            }}
+                          />
+                      </GridItem>
                     )
                   )}
-                </Flex>
-              </Flex>
-            </AppCollapsible>
-          </Box>
-        </GridItem>
-      </SimpleGrid>
-        
+                </SimpleGrid>
+              </AppCollapsible>
+            )}
+          </GridItem>
+        </SimpleGrid>
       </AppWrapper>
     </>
   );

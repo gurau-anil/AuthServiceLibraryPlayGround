@@ -143,7 +143,7 @@ function AdminDashboard() {
               axisLeft={{
                 legend: "Number of Users Registered",
                 legendOffset: -40,
-                tickValues: Array.from({ length: 100 }, (_, i) => i + 1),
+                tickValues: Array.from({ length: 100 }, (_, i) => i++),
               }}
               pointColor={"#46c363"}
               pointSize={8}

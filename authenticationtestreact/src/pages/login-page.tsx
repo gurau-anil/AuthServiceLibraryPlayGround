@@ -71,7 +71,7 @@ export default function LoginPage() {
     <>
       <Container paddingTop="50px">
         <Flex justifyContent={"center"}>
-          <Box width={{ base: "100%", sm: "50%", lg: "28%" }} p={10} bg="white">
+          <Box width={{ base: "100%", sm: "50%", md: "50%", lg: "28%" }} p={10} bg="white">
             
             <Center marginBottom="20px">
               <img src='/logo.svg' style={{ height: "100px" }} alt="logo"/>

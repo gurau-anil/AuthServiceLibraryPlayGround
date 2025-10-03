@@ -21,6 +21,7 @@ import EmailTemplatePage from "../pages/EmailTemplatePage";
 import EmailSettingsPage from "../pages/admin/settings/email-settings";
 import { SettingsLoader } from "./loaders/SettingsLoader";
 import { DashboardLoader } from "./loaders/DashboardLoader";
+import TwoFactorAuth from "../pages/two-factor-auth";
 
 const AppLoader = async ({ request }: { request: Request }) => {
   isUserAuthenticated(request);
@@ -127,6 +128,10 @@ const router = createBrowserRouter([
           {
             path: "login",
             Component: LoginPage,
+          },
+          {
+            path: "two-factor-auth",
+            Component: TwoFactorAuth,
           },
           {
             path: "register",

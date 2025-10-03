@@ -68,12 +68,16 @@ function EmailTemplatePage() {
         value: EmailType.EmailConfirmation.toString(),
       },
       {
-        label: "Password Reset",
+        label: "Password Reset Email",
         value: EmailType.PasswordReset.toString(),
       },
       {
         label: "User Register Email Confirmation",
         value: EmailType.UserRegisterEmailConfirm.toString(),
+      },
+      {
+        label: "Two Factor Authentication Email",
+        value: EmailType.TwoFactorAuuthentication.toString(),
       },
     ],
   });

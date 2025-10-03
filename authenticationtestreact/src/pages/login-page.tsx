@@ -8,6 +8,14 @@ import { toaster } from "../components/ui/toaster";
 import { OpenToast } from "../utilities/toast";
 import EmailConfirmationDialog from "../components/EmailConfirmationDialog";
 
+
+interface AuthResult{
+  isTwoFAuthEnabled: boolean, 
+  isAuthenticated: boolean, 
+  token: string, 
+  roles: string[], 
+  expiresAt: Date;
+}
 export default function LoginPage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -32,12 +40,19 @@ export default function LoginPage() {
         userName,
         password,
       });
-      localStorage.setItem("authResult", JSON.stringify(response.data));
+
+      const authResult: AuthResult = response.data;
+      const redirectURL = searchParams.get("redirectTo")?? '/';
+      if(!authResult.isAuthenticated && authResult.isTwoFAuthEnabled){
+        OpenToast("info",`Login code has been emailed for user: ${userName}.`,'',5000);
+        navigate(`/auth/two-factor-auth?redirectTo=${redirectURL}&userName=${userName}`);
+        return;
+      }
+      localStorage.setItem("authResult", JSON.stringify(authResult));
 
       toaster.create({ description: "Login Successful.", type: "success"});
-      const redirectURL = searchParams.get("redirectTo")?? '/';
 
-      if(response.data.roles.some((c: any)=> c.toLowerCase() == 'admin')){
+      if(authResult.roles.some((c: any)=> c.toLowerCase() == 'admin')){
         navigate(redirectURL== '/' ? '/admin': redirectURL)
       }
       else{

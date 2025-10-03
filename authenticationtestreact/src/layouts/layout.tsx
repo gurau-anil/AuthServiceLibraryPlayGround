@@ -41,7 +41,7 @@ function Layout() {
           bg={"ghostwhite"}
           transition="margin 0.8s ease"
           p="4"
-          h="calc(100vh - 5rem)"
+          h="calc(100vh)"
         >
           <Container fluid>
             <Outlet></Outlet>

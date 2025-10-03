@@ -3,7 +3,7 @@ using System;
 
 namespace AuthenticationTestApi.Models
 {
-    public class RegisterModel
+    public class RegisterDTO
     {
         public string Username { get; set; } = string.Empty;
         public string FirstName { get; set; } = string.Empty;
@@ -14,7 +14,7 @@ namespace AuthenticationTestApi.Models
         public List<string> Roles { get; set; } = new List<string>();
     }
 
-    public class RegisterModelValidator : AbstractValidator<RegisterModel>
+    public class RegisterModelValidator : AbstractValidator<RegisterDTO>
     {
         public RegisterModelValidator()
         {

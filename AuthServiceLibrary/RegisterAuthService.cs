@@ -44,6 +44,7 @@ namespace AuthServiceLibrary
             // Add Identity
             services.AddIdentity<ApplicationUser, ApplicationRole>(identityOptions)
             .AddEntityFrameworkStores<AuthDbContext>()
+            .AddTokenProvider<EmailTokenProvider<ApplicationUser>>("Email")
             .AddDefaultTokenProviders();
 
 

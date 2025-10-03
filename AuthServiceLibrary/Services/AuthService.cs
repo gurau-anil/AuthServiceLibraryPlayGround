@@ -47,27 +47,62 @@ namespace AuthServiceLibrary.Services
 
         public async Task<AuthResult> LoginAsync(UserLoginModel model)
         {
-            var user = await _userManager.FindByNameAsync(model.Username);
-            if (user == null)
-            {
-                user = await _userManager.FindByEmailAsync(model.Username);
-                if (user == null)
-                {
-                    throw new NotFoundException($"User not found in the system.");
-                }
-            }
+            ApplicationUser user = await FindUserAsync(model.Username);
             if (!await _userManager.IsEmailConfirmedAsync(user))
             {
                 throw new InvalidException("Email is not confirmed. Please confirm your email and try again.");
             }
-
-            var result = await _signInManager.CheckPasswordSignInAsync(user, model.Password, _identityOptions.SignIn.RequireConfirmedEmail || _identityOptions.SignIn.RequireConfirmedPhoneNumber || _identityOptions.SignIn.RequireConfirmedAccount);
+            var result = await _signInManager.PasswordSignInAsync(user, model.Password, true, _identityOptions.SignIn.RequireConfirmedEmail || _identityOptions.SignIn.RequireConfirmedPhoneNumber || _identityOptions.SignIn.RequireConfirmedAccount);
+            //var result = await _signInManager.CheckPasswordSignInAsync(user, model.Password, _identityOptions.SignIn.RequireConfirmedEmail || _identityOptions.SignIn.RequireConfirmedPhoneNumber || _identityOptions.SignIn.RequireConfirmedAccount);
             if (!result.Succeeded)
             {
-                double lockoutMinutes = _identityOptions.Lockout.DefaultLockoutTimeSpan.TotalMinutes;
-                throw new UnauthorizedAccessException(result.IsLockedOut ? @$"Account Locked! Please try again after {lockoutMinutes} " + (lockoutMinutes > 1 ? "minutes." : "minute.") : "Failed to Login. Please check the password and try again.");
+                if (result.RequiresTwoFactor)
+                {
+                    return new AuthResult
+                    {
+                        Succeeded = false,
+                        IsTwoFAuthEnabled = true,
+                        TwoFAuthToken = await GenerateTwoFAuthTokenAsync(user),
+                        User = user
+                    };
+                }
+                else
+                {
+                    double lockoutMinutes = _identityOptions.Lockout.DefaultLockoutTimeSpan.TotalMinutes;
+                    throw new UnauthorizedAccessException(result.IsLockedOut ? @$"Account Locked! Please try again after {lockoutMinutes} " + (lockoutMinutes > 1 ? "minutes." : "minute.") : "Failed to Login. Please check the password and try again.");
+                }
             }
 
+            return await GetAuthResultAsync(user);
+        }
+
+        public async Task<AuthResult> TwoFactorLoginAsync(string userName, string token)
+        {
+
+            ApplicationUser user = await FindUserAsync(userName);
+
+            bool result = await _userManager.VerifyTwoFactorTokenAsync(user, TokenOptions.DefaultEmailProvider, token);
+            if (!result)
+            {
+                throw new InvalidException("Invalid Token");
+            }
+
+            return await GetAuthResultAsync(user);
+
+        }
+
+        public async Task<AuthResult> GetTwoFactorAuthTokenAsync(string userName)
+        {
+            ApplicationUser user = await FindUserAsync(userName);
+            return new AuthResult
+            {
+                User = user,
+                TwoFAuthToken = await GenerateTwoFAuthTokenAsync(user)
+            };
+        }
+
+        private async Task<AuthResult> GetAuthResultAsync(ApplicationUser user)
+        {
             user.LastLogin = DateTime.UtcNow;
             await _userManager.UpdateAsync(user);
 
@@ -78,7 +113,8 @@ namespace AuthServiceLibrary.Services
             {
                 Succeeded = true,
                 Roles = roles,
-                ClaimsPrincipal = claimsPrincipal
+                ClaimsPrincipal = claimsPrincipal,
+                User = user
             };
 
 
@@ -119,16 +155,24 @@ namespace AuthServiceLibrary.Services
             return authResult;
         }
 
+        private async Task<string> GenerateTwoFAuthTokenAsync(ApplicationUser user)
+        {
+            await _userManager.UpdateSecurityStampAsync(user);
+            return await _userManager.GenerateTwoFactorTokenAsync(user, TokenOptions.DefaultEmailProvider);
+
+        }
+
 
         public async Task<string> GeneratePasswordResetTokenAsync(string email)
         {
             ApplicationUser? user = await _userManager.FindByEmailAsync(email);
-            if(user is not null)
+            if (user is not null)
             {
                 if (!await _userManager.IsEmailConfirmedAsync(user))
                 {
                     throw new InvalidException("Email is not confirmed. Please confirm your email and try again.");
                 }
+                await _userManager.UpdateSecurityStampAsync(user);
                 return (user is not null) ? await _userManager.GeneratePasswordResetTokenAsync(user) : null;
             }
             throw new NotFoundException("User not found in the system.");
@@ -167,7 +211,7 @@ namespace AuthServiceLibrary.Services
                 throw new NotFoundException("User not found in the system");
             }
 
-            if(await _userManager.IsEmailConfirmedAsync(user))
+            if (await _userManager.IsEmailConfirmedAsync(user))
             {
                 throw new InvalidException("Email is already confirmed.");
             }
@@ -251,6 +295,22 @@ namespace AuthServiceLibrary.Services
         }
 
 
+        private async Task<ApplicationUser> FindUserAsync(string userName)
+        {
+            ApplicationUser? user = await _userManager.FindByNameAsync(userName);
+            if (user == null)
+            {
+                user = await _userManager.FindByEmailAsync(userName);
+                if (user == null)
+                {
+                    throw new NotFoundException($"User not found in the system.");
+                }
+            }
+
+            return user;
+        }
+
+        
         #endregion
 
     }

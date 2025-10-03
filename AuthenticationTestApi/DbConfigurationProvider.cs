@@ -1,5 +1,9 @@
-﻿using AuthenticationTestApi.Helpers;
+﻿using AuthenticationTestApi.Entities;
+using AuthenticationTestApi.Helpers;
+using Dapper;
 using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Newtonsoft.Json.Linq;
 
 namespace AuthenticationTestApi
 {
@@ -14,21 +18,19 @@ namespace AuthenticationTestApi
         {
             try
             {
-                using (var connection = new SqlConnection(_connectionString))
+                using (var conn = new SqlConnection(_connectionString))
                 {
-                    connection.Open();
-                    var command = new SqlCommand("SELECT [Key], [Value] FROM AppSettings", connection);
-                    var reader = command.ExecuteReader();
-                    var data = new Dictionary<string, string>();
-                    while (reader.Read())
-                    {
-                        string key = reader.GetFieldValue<string>(0);
-                        string? value = reader.IsDBNull(1) ? null : reader.GetFieldValue<string>(1) ;
-                        data[key] = value is not null ?
-                            key.ToLower().EndsWith("password") ? CryptographyHelper.Decrypt(reader.GetFieldValue<string>(1), Environment.GetEnvironmentVariable("EncryptionSecretKey")) : value
-                            : string.Empty;
-                    }
+                    conn.Open();
+                    Dictionary<string, string> data = conn.Query<AppSettings>("SELECT [Key], [Value] FROM AppSettings").ToDictionary(
+                        x => x.Key,
+                        y => y.Value is not null ?
+                        y.Key.ToLower().EndsWith("password") ?
+                        Decrypt(y.Value) :
+                        y.Value :
+                        string.Empty
+                        );
                     Data = data;
+                    conn.Close();
                 }
             OnReload();
 
@@ -41,6 +43,11 @@ namespace AuthenticationTestApi
         public void RefreshConfiguration()
         {
             Load();
+        }
+
+        private string Decrypt(string value)
+        {
+            return CryptographyHelper.Decrypt(value, Environment.GetEnvironmentVariable("EncryptionSecretKey"));
         }
     }
 

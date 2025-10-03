@@ -11,7 +11,6 @@ using EmailService.Services.Interfaces;
 using FluentValidation;
 using Hangfire;
 using Microsoft.AspNetCore.Mvc;
-using User = AuthenticationTestApi.Models.UserModel;
 
 namespace AuthenticationTestApi.Controllers
 {
@@ -20,12 +19,12 @@ namespace AuthenticationTestApi.Controllers
     {
         private readonly IUserManagementService _userManagementService;
         private readonly IMapper _mapper;
-        private readonly IValidator<RegisterModel> _validator;
+        private readonly IValidator<RegisterDTO> _validator;
         private readonly IConfiguration _config;
         private readonly IEmailService _emailService;
         private readonly IEmailTemplateService _emailTemplateService;
 
-        public UserManagementController(IUserManagementService userManagementService, IMapper mapper, IValidator<RegisterModel> validator, IConfiguration config, IEmailService emailService, IEmailTemplateService emailTemplateService)
+        public UserManagementController(IUserManagementService userManagementService, IMapper mapper, IValidator<RegisterDTO> validator, IConfiguration config, IEmailService emailService, IEmailTemplateService emailTemplateService)
         {
             _userManagementService = userManagementService;
             _mapper = mapper;
@@ -40,20 +39,20 @@ namespace AuthenticationTestApi.Controllers
         [Route("")]
         public async Task<IActionResult> GetUsersAsync()
         {
-            IEnumerable<User> users = _mapper.Map<List<User>>(await _userManagementService.GetAllAsync());
+            IEnumerable<UserDTO> users = _mapper.Map<List<UserDTO>>(await _userManagementService.GetAllAsync());
             return Ok(users);
         }
 
         [HttpPost]
         [Route("register")]
-        public async Task<IActionResult> RegisterAsync([FromBody] RegisterModel model)
+        public async Task<IActionResult> RegisterAsync([FromBody] RegisterDTO model)
         {
             await ValidateModelAsync(model, hasMultipleError: true);
             var result = await _userManagementService.RegisterUser(_mapper.Map<UserRegisterModel>(model));
 
             var emailConfirmationLink = $"{_config.GetValue<string>("ClientUrl")}/auth/confirm-email?email={model.Email}&token={result.Token}";
             
-            var emailTemplate = await _emailTemplateService.GetEmailTemplate(EmailType.UserRegisterEmailConfirmation);
+            var emailTemplate = await _emailTemplateService.GetEmailTemplateAsync(EmailType.UserRegisterEmailConfirmation);
             emailTemplate.Body = MergeFieldHelper.PopulateMergeFields(emailTemplate.Body, new UserRegisterEmailConfirmationMergeField
             {
                 EmailConfirmationLink = emailConfirmationLink,
@@ -80,7 +79,7 @@ namespace AuthenticationTestApi.Controllers
         [Route("{username}")]
         public async Task<IActionResult> DeleteAsync(string username)
         {
-            User user =_mapper.Map<User>(await _userManagementService.GetByUsernameAsync(username));
+            UserDTO user =_mapper.Map<UserDTO>(await _userManagementService.GetByUsernameAsync(username));
             await _userManagementService.DeleteByUsernameAsync(username);
             return Ok($"User: {username} removed from the system");
         }

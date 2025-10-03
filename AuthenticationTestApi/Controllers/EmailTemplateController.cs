@@ -21,7 +21,7 @@ namespace AuthenticationTestApi.Controllers
         [Route("")]
         public async Task<IActionResult> GetEmailTemplateAsync(EmailType emailType)
         {
-            var emailTemplate = await _emailTemplateService.GetEmailTemplate(emailType);
+            var emailTemplate = await _emailTemplateService.GetEmailTemplateAsync(emailType);
             return Ok(emailTemplate);
             
         }
@@ -30,11 +30,11 @@ namespace AuthenticationTestApi.Controllers
         [Route("")]
         public async Task<IActionResult> SetEmailTemplateAsync([FromQuery] EmailType emailType, EmailTemplate template)
         {
-            var emailTemplate = await _emailTemplateService.GetEmailTemplate(emailType);
+            var emailTemplate = await _emailTemplateService.GetEmailTemplateAsync(emailType);
             emailTemplate.Body = template.Body;
             emailTemplate.Subject = template.Subject;
 
-            await _emailTemplateService.UpdateEmailTemplate(emailTemplate);
+            await _emailTemplateService.UpdateEmailTemplateAsync(emailTemplate);
 
             return Ok("Email template saved sucessfully");
 

@@ -2,7 +2,7 @@
 
 namespace AuthenticationTestApi.Models
 {
-    public class ResetPasswordModel
+    public class ResetPasswordDTO
     {
         public string Email { get; set; } = string.Empty;
         public string Token { get; set; } = string.Empty;
@@ -10,7 +10,7 @@ namespace AuthenticationTestApi.Models
         public string ConfirmPassword { get; set; } = string.Empty;
     }
 
-    public class ResetPasswordModelValidator : AbstractValidator<ResetPasswordModel>
+    public class ResetPasswordModelValidator : AbstractValidator<ResetPasswordDTO>
     {
         public ResetPasswordModelValidator()
         {

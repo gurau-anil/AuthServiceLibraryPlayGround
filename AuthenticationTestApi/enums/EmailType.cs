@@ -5,5 +5,6 @@
         EmailConfirmation,
         PasswordReset,
         UserRegisterEmailConfirmation,
+        TwoFactorAuthentication,
     }
 }

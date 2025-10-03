@@ -7,8 +7,8 @@ namespace AuthenticationTestApi.Services
 {
     public interface IEmailTemplateService
     {
-        Task<EmailTemplate> GetEmailTemplate(EmailType emailType);
-        Task UpdateEmailTemplate(EmailTemplate model);
+        Task<EmailTemplate> GetEmailTemplateAsync(EmailType emailType);
+        Task UpdateEmailTemplateAsync(EmailTemplate model);
     }
     public class EmailTemplateService: IEmailTemplateService
     {
@@ -18,13 +18,13 @@ namespace AuthenticationTestApi.Services
             _context = context;
         }
 
-        public async Task<EmailTemplate> GetEmailTemplate(EmailType emailType)
+        public async Task<EmailTemplate> GetEmailTemplateAsync(EmailType emailType)
         {
             var emailTemplate = await _context.EmailTemplates.FirstOrDefaultAsync(t => t.Id == (int)emailType);
             return emailTemplate;
         }
 
-        public async Task UpdateEmailTemplate(EmailTemplate model)
+        public async Task UpdateEmailTemplateAsync(EmailTemplate model)
         {
            _context.EmailTemplates.Update(model);
             await _context.SaveChangesAsync();

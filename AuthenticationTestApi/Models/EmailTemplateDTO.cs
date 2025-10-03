@@ -1,6 +1,6 @@
 ﻿namespace AuthenticationTestApi.Models
 {
-    public class EmailTemplateModel
+    public class EmailTemplateDTO
     {
         public string Content { get; set; }
     }

@@ -36,12 +36,43 @@ namespace AuthenticationTestApi.Controllers
 
         [HttpPost]
         [Route("login")]
-        public async Task<IActionResult> LoginAsync([FromBody] LoginModel model)
+        public async Task<IActionResult> LoginAsync([FromBody] LoginDTO model)
         {
             await ValidateModelAsync(model, hasMultipleError: true);
             AuthResult result = await _authService.LoginAsync(new UserLoginModel { Username = model.UserName, Password = model.Password });
-            IssueAccessTokenCookie(HttpContext, result);
-            return Ok(new { IsAuthenticated = true, Token = result.Token, Roles = result.Roles, ExpiresAt = result.ExpiresAt });
+            if (result.IsTwoFAuthEnabled && result.User is not null)
+            {
+                await SendTwoFactorAuthenticationEmailAsync(result.TwoFAuthToken, result.User.Email);
+            }
+            if (result.Succeeded)
+            {
+                IssueAccessTokenCookie(HttpContext, result);
+            }
+            return Ok(new { IsTwoFAuthEnabled = result.IsTwoFAuthEnabled, IsAuthenticated = result.Succeeded, Token = result.Token, Roles = result.Roles, ExpiresAt = result.ExpiresAt });
+        }
+
+        [HttpPost]
+        [Route("two-factor-login")]
+        public async Task<IActionResult> TwoFactorLoginAsync([FromBody] TwoFactorAuthDTO model)
+        {
+            await ValidateModelAsync(model, hasMultipleError: true);
+            AuthResult result = await _authService.TwoFactorLoginAsync(model.Username, model.Token);
+            if (result.Succeeded)
+            {
+                IssueAccessTokenCookie(HttpContext, result);
+            }
+            return Ok(new { IsTwoFAuthEnabled = result.IsTwoFAuthEnabled, IsAuthenticated = result.Succeeded, Token = result.Token, Roles = result.Roles, ExpiresAt = result.ExpiresAt });
+        }
+
+        [HttpPost]
+        [Route("get-two-factor-auth-token")]
+        public async Task<IActionResult> GetTwoFactorAuthTokenAsync(string username)
+        {
+            AuthResult result =  await _authService.GetTwoFactorAuthTokenAsync(username);
+
+            await SendTwoFactorAuthenticationEmailAsync(result.TwoFAuthToken, result.User.Email);
+
+            return Ok($"New Code sent for user:{username}");
         }
 
         [HttpGet]
@@ -59,18 +90,19 @@ namespace AuthenticationTestApi.Controllers
             var token = await _authService.GenerateEmailConfirmationTokenAsync(email);
             var encodedToken = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(token));
 
-            var emailTemplate = await GetEmailTemplate(EmailType.EmailConfirmation);
-            emailTemplate.Body = MergeFieldHelper.PopulateMergeFields(emailTemplate.Body, 
-                new EmailConfirmationMergeField { 
+            var emailTemplate = await GetEmailTemplateAsync(EmailType.EmailConfirmation);
+            emailTemplate.Body = MergeFieldHelper.PopulateMergeFields(emailTemplate.Body,
+                new EmailConfirmationMergeField
+                {
                     EmailConfirmationLink = $"{_configuration.GetValue<string>("ClientUrl")}/auth/confirm-email?email={email}&token={encodedToken}"
                 });
 
             BackgroundJob.Enqueue<IEmailService>(emailService => emailService.SendAsync(new EmailSendModel
-                {
-                    RecipientEmail = email,
-                    Subject = emailTemplate.Subject,
-                    Body = emailTemplate.Body
-                })
+            {
+                RecipientEmail = email,
+                Subject = emailTemplate.Subject,
+                Body = emailTemplate.Body
+            })
             );
 
             return Ok($"Email Confirmation link has been sent to email: {email}");
@@ -92,9 +124,10 @@ namespace AuthenticationTestApi.Controllers
             var token = await _authService.GeneratePasswordResetTokenAsync(email);
             var encodedToken = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(token));
 
-            var emailTemplate = await GetEmailTemplate(EmailType.PasswordReset);
+            var emailTemplate = await GetEmailTemplateAsync(EmailType.PasswordReset);
             emailTemplate.Body = MergeFieldHelper.PopulateMergeFields(emailTemplate.Body,
-                new PasswordResetMergeField { 
+                new PasswordResetMergeField
+                {
                     PasswordResetLink = $"{_configuration.GetValue<string>("ClientUrl")}/auth/reset-password?token={encodedToken}&email={email}"
                 });
 
@@ -110,7 +143,7 @@ namespace AuthenticationTestApi.Controllers
 
         [HttpPost]
         [Route("reset-password")]
-        public async Task<IActionResult> ResetPasswordAsync(ResetPasswordModel model)
+        public async Task<IActionResult> ResetPasswordAsync(ResetPasswordDTO model)
         {
             await ValidateModelAsync(model, hasMultipleError: true);
             var token = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(model.Token));
@@ -147,9 +180,25 @@ namespace AuthenticationTestApi.Controllers
             });
         }
 
-        private async Task<EmailTemplate> GetEmailTemplate(EmailType emailType)
+        private async Task<EmailTemplate> GetEmailTemplateAsync(EmailType emailType)
         {
-            return await _emailTemplateService.GetEmailTemplate(emailType);
+            return await _emailTemplateService.GetEmailTemplateAsync(emailType);
+        }
+
+        private async Task SendTwoFactorAuthenticationEmailAsync(string token, string email)
+        {
+            var emailTemplate = await GetEmailTemplateAsync(EmailType.TwoFactorAuthentication);
+            emailTemplate.Body = MergeFieldHelper.PopulateMergeFields(emailTemplate.Body,
+            new TwoFactorAuthenticationMergeField
+            {
+                Token = token
+            });
+            BackgroundJob.Enqueue<IEmailService>(emailService => emailService.SendAsync(new EmailSendModel
+            {
+                RecipientEmail = email,
+                Subject = emailTemplate.Subject,
+                Body = emailTemplate.Body
+            }));
         }
     }
 }

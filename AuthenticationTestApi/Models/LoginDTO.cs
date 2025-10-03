@@ -2,13 +2,13 @@
 
 namespace AuthenticationTestApi.Models
 {
-    public class LoginModel
+    public class LoginDTO
     {
         public string UserName { get; set; }
         public string Password { get; set; }
     }
 
-    public class LoginModelValidator : AbstractValidator<LoginModel>
+    public class LoginModelValidator : AbstractValidator<LoginDTO>
     {
         public LoginModelValidator()
         {

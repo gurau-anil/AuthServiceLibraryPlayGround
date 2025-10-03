@@ -27,10 +27,13 @@ namespace AuthenticationTestApi.Controllers
                 case EmailType.UserRegisterEmailConfirmation:
                     type = typeof(UserRegisterEmailConfirmationMergeField);
                     break;
+                case EmailType.TwoFactorAuthentication:
+                    type = typeof(TwoFactorAuthenticationMergeField);
+                    break;
                 default:
                     break;
             }
-            List<MergeFieldModel> mergeFields= type is not null? new MergeFieldModel().Get(type): new List<MergeFieldModel>();
+            List<MergeFieldDTO> mergeFields= type is not null? new MergeFieldDTO().Get(type): new List<MergeFieldDTO>();
 
             return Ok(mergeFields);
         }

@@ -29,14 +29,12 @@ namespace AuthenticationTestApi.Controllers
         [Route("")]
         public async Task<IActionResult> GetAppSettings()
         {
-            var test = _config.GetValue<string>("PasswordSettings:AccountLockoutMinutes");
-            var emailSettings = _config.GetSection("EmailSettings").Get<EmailSettings>();
             return Ok(await _appSettingsService.GetAppSettings());
         }
 
         [HttpPut]
         [Route("")]
-        public async Task<IActionResult> UpdateAppSettings(string key, AppSettingsModel model)
+        public async Task<IActionResult> UpdateAppSettings([FromQuery]string key, AppSettingsUpdateDTO model)
         {
             await _appSettingsService.UpdateAppSetting(model);
             return Ok("Updated");

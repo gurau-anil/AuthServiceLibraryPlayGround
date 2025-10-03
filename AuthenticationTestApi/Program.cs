@@ -1,25 +1,13 @@
-using System.Collections.Generic;
-using System.IO;
-using System.Reflection;
-using System.Threading.RateLimiting;
 using AuthenticationTestApi;
 using AuthenticationTestApi.Data;
 using AuthenticationTestApi.Middlewares;
-using AuthenticationTestApi.Models;
-using AuthenticationTestApi.Services;
 using AuthServiceLibrary;
-using AuthServiceLibrary.Data;
 using AuthServiceLibrary.Models;
-using EmailService;
-using EmailService.Model;
-using FluentValidation;
 using Hangfire;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
-builder.Services.RegisterServices(builder.Configuration);
 
 string connectionString = builder.Configuration.GetConnectionString("DefaultConnection")?? String.Empty;
 
@@ -48,6 +36,7 @@ authOptions =>
 },
 passwordOptions =>
 {
+    passwordOptions.Tokens.EmailConfirmationTokenProvider = TokenOptions.DefaultEmailProvider;
     passwordOptions.Password = new PasswordOptions
     {
         RequireDigit = true,
@@ -67,75 +56,8 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(connectionString);
 });
 
-builder.Services.AddHangfire(configuration => configuration
-                .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
-                .UseSimpleAssemblyNameTypeSerializer()
-                .UseRecommendedSerializerSettings()
-                .UseSqlServerStorage(builder.Configuration.GetConnectionString("HangfireConnection") ?? String.Empty));
-builder.Services.AddHangfireServer();
 
-builder.Services.AddAutoMapper(Assembly.GetExecutingAssembly());
-
-builder.Services.AddScoped<IValidator<RegisterModel>, RegisterModelValidator>();
-builder.Services.AddScoped<IValidator<LoginModel>, LoginModelValidator>();
-builder.Services.AddScoped<IValidator<ResetPasswordModel>, ResetPasswordModelValidator>();
-
-builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(options =>
-{
-    options.SwaggerDoc("api-docs", new OpenApiInfo { Title = "JWT API", Version = "1.0" });
-
-    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
-    {
-        Name = "Authorization",
-        Type = SecuritySchemeType.ApiKey,
-        Scheme = "Bearer",
-        BearerFormat = "JWT",
-        In = ParameterLocation.Header,
-        Description = "Enter 'Bearer' followed by JWT token. Example : Bearer {token}"
-    });
-
-    options.AddSecurityRequirement(new OpenApiSecurityRequirement
-    {
-        {
-            new OpenApiSecurityScheme
-            {
-                Reference = new OpenApiReference
-                {
-                    Type = ReferenceType.SecurityScheme,
-                    Id = "Bearer"
-                }
-            },
-            Array.Empty<string>()
-        }
-    });
-});
-builder.Services.AddMemoryCache();
-
-
-builder.Services.AddScoped<IAppSettingService, AppSettingService>();
-builder.Services.AddScoped<IDashboardService, DashboardService>();
-builder.Services.AddSingleton<IConnectionFactory, ConnectionFactory>();
-
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("MyCorsPolicy", opt=>
-    {
-        opt.AllowAnyMethod();
-        opt.AllowAnyHeader();
-        opt.WithOrigins($"{builder.Configuration.GetValue<string>("ClientUrl")}");
-        opt.AllowCredentials();
-
-    } );
-});
-
-builder.Services.AddSpaStaticFiles(configuration =>
-{
-    configuration.RootPath = "wwwroot";
-});
-builder.Services.AddSmtpEmailService(builder.Configuration);
+builder.Services.RegisterServices(builder.Configuration);
 
 //builder.Services.AddRateLimiter(options =>
 //{

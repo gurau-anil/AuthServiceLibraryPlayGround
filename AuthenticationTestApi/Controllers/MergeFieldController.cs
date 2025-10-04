@@ -1,6 +1,7 @@
 ﻿using AuthenticationTestApi.enums;
 using AuthenticationTestApi.Models.MergeField;
 using AuthenticationTestApi.Models.MergeFields;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -13,6 +14,7 @@ namespace AuthenticationTestApi.Controllers
 
         [HttpGet]
         [Route("")]
+        [Authorize(Roles="Admin")]
         public async Task<IActionResult> GetAsync(EmailType emailType)
         {
             Type type = null;

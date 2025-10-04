@@ -1,4 +1,15 @@
-import { Container, Flex, Box, Center, HStack, Separator, Heading, Stack, PinInput} from "@chakra-ui/react";
+import {
+  Container,
+  Flex,
+  Box,
+  Center,
+  HStack,
+  Separator,
+  Heading,
+  Stack,
+  PinInput,
+  Button,
+} from "@chakra-ui/react";
 import "./styles/two-fact-auth.css";
 import { useNavigate, useSearchParams } from "react-router";
 import httpClient from "../axios.config";
@@ -27,21 +38,19 @@ function TwoFactorAuth() {
         token: data.valueAsString,
       });
 
-      setValue(["", "", "", "", "", ""]);
       const redirectURL = searchParams.get("redirectTo") ?? "/";
       localStorage.setItem("authResult", JSON.stringify(response.data));
-
       toaster.create({ description: "Login Successful.", type: "success" });
-
+      
       if (response.data.roles.some((c: any) => c.toLowerCase() == "admin")) {
-        navigate(redirectURL == "/" ? "/admin" : redirectURL);
-      } else {
-        navigate(redirectURL ?? "/");
-      }
+          navigate(redirectURL == "/" ? "/admin" : redirectURL);
+        } else {
+            navigate(redirectURL ?? "/");
+        }
     } catch (error: any) {
-      setValue(["", "", "", "", "", ""]);
-      OpenToast("error", error?.response?.data?.errors[0]);
+        OpenToast("error", error?.response?.data?.errors[0]);
     } finally {
+      setValue(["", "", "", "", "", ""]);
       setLoading(false);
       startCounter();
     }
@@ -50,28 +59,27 @@ function TwoFactorAuth() {
   async function requestNewCode(e: any) {
     e.preventDefault();
     try {
-        setLoading(true);
-        const response = await httpClient.post(`api/auth/get-two-factor-auth-token?username=${userName}`);
-        OpenToast("success", response.data);
-        
-    } catch (error:any) {
-        OpenToast("error", error?.response?.data.errors[0]);
-    }
-    finally{
-        setLoading(false);
-        startCounter();
+      setLoading(true);
+      const response = await httpClient.post(
+        `api/auth/get-two-factor-auth-token?username=${userName}`
+      );
+      OpenToast("success", response.data);
+    } catch (error: any) {
+      OpenToast("error", error?.response?.data.errors[0]);
+    } finally {
+      setLoading(false);
+      startCounter();
     }
   }
 
-
-  function startCounter(){
+  function startCounter() {
     setRequestCode(true);
     setCounter(30);
     const timer = setInterval(() => {
       setCounter((prev) => {
         if (prev <= 1) {
           clearInterval(timer);
-          
+
           return 0;
         }
         return prev - 1;
@@ -81,7 +89,7 @@ function TwoFactorAuth() {
 
   return (
     <>
-      <AppLoader show={loading}/>
+      <AppLoader show={loading} />
       <Container paddingTop="50px">
         <Flex justifyContent={"center"}>
           <Box
@@ -90,8 +98,11 @@ function TwoFactorAuth() {
             bg="white"
             shadow={"xs"}
           >
+            <Center marginBottom="20px">
+              <img src="/logo.svg" style={{ height: "100px" }} alt="logo" />
+            </Center>
             <Center marginBottom="30px">
-              <Heading>Enter Code</Heading>
+              <Heading>Verification code</Heading>
             </Center>
             <Stack gap={6}>
               <Flex justifyContent={"center"}>
@@ -99,7 +110,7 @@ function TwoFactorAuth() {
                   size={{ base: "sm", md: "md", lg: "lg" }}
                   autoFocus={true}
                   blurOnComplete={true}
-                  onValueComplete={handleSubmit}
+                //   onValueComplete={handleSubmit}
                   value={value}
                   onValueChange={(e) => setValue(e.value)}
                   disabled={loading}
@@ -115,6 +126,17 @@ function TwoFactorAuth() {
                   </PinInput.Control>
                 </PinInput.Root>
               </Flex>
+              <Button
+                onClick={()=> handleSubmit({
+                    valueAsString: value.join(''),
+                    value: value
+                })}
+                bg="green.600"
+                disabled={loading || value.some(c=>c.length == 0)}
+                _hover={{ background: "green.500" }}
+              >
+                {loading ? "Verifying code..." : "Verify Code"}
+              </Button>
               <Flex justifyContent={"center"}>
                 {requestCode && (
                   <a

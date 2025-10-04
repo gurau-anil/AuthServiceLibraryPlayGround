@@ -6,7 +6,7 @@ function OpenToast(type: 'success' | 'info' | 'error' | 'warning', message: stri
         type: type,
         description: description,
         duration: duration,
-        closable: closable
+        closable: closable,
       });
 }
 

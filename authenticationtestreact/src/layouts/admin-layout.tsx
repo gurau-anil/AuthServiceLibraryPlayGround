@@ -3,7 +3,7 @@ import httpClient from "../axios.config";
 import "./layout.css";
 import { useState } from "react";
 import { OpenToast } from "../utilities/toast";
-import {Box} from "@chakra-ui/react";
+import { Box, Button, HStack, Menu } from "@chakra-ui/react";
 import Header from "../components/header";
 import SideNav from "../components/sidenav";
 import AppLoader from "../components/app-loader";
@@ -12,6 +12,7 @@ import AppMenu from "../components/menu";
 import AppDrawer from "../components/app-drawer";
 import layoutPreference, { type layoutPreferenceType } from "./layout-consts";
 import type { MenuItemModel } from "../components/menu-item3";
+import { FiBriefcase, FiSettings, FiPower } from "react-icons/fi";
 
 function AdminLayout() {
   const navigate = useNavigate();
@@ -27,11 +28,12 @@ function AdminLayout() {
     return false;
   });
   const [showDrawer, setShowDrawer] = useState<boolean>(false);
-//   const isDesktop = useBreakpointValue({ base: false, md: true });
+  const [showSecondaryDrawer, setShowSecondaryDrawer] = useState<boolean>(false);
+  //   const isDesktop = useBreakpointValue({ base: false, md: true });
 
-//   useEffect(() => {
-//     setSideNavCollapsed(!isDesktop);
-//   }, [isDesktop]);
+  //   useEffect(() => {
+  //     setSideNavCollapsed(!isDesktop);
+  //   }, [isDesktop]);
 
   async function logout() {
     try {
@@ -45,57 +47,102 @@ function AdminLayout() {
     }
   }
 
-  async function handleMenuItemClick(data: MenuItemModel){
-    if(data.link){
-        setShowDrawer(false);
-        navigate(data.link);
+  async function handleMenuItemClick(data: MenuItemModel) {
+    if (data.link) {
+      setShowDrawer(false);
+      navigate(data.link);
     }
   }
   const menuItemData = GetMenuItemData();
   return (
     <>
-    <AppLoader show={loading}/>
+      <AppLoader show={loading} />
 
       <Box h="100vh">
-      {/* header section */}
-      <Header hasCollapseIcon={true} 
-        isSideNavDefault={layoutPreference.defaultNavMode === "sidenav"}
-        sideNavCollapsed={sideNavCollapsed} 
-        onSideNavCollapseTriggered={()=> {
+        {/* header section */}
+        <Header
+          hasCollapseIcon={true}
+          isSideNavDefault={layoutPreference.defaultNavMode === "sidenav"}
+          sideNavCollapsed={sideNavCollapsed}
+          onSideNavCollapseTriggered={() => {
             setSideNavCollapsed(!sideNavCollapsed);
 
             setTimeout(() => {
-                layoutPreference.sideNav.isCollapsed = !sideNavCollapsed;
-                localStorage.setItem("preference", JSON.stringify(layoutPreference));
+              layoutPreference.sideNav.isCollapsed = !sideNavCollapsed;
+              localStorage.setItem(
+                "preference",
+                JSON.stringify(layoutPreference)
+              );
             });
-        }}
-        onDrawerTriggered={()=> setShowDrawer(!showDrawer)} 
-        onLogOutAction={logout}/>
+          }}
+          onDrawerTriggered={() => setShowDrawer(!showDrawer)}
+          onLogOutAction={logout}
+        >
+          <Menu.Item value="account" p={3} onClick={()=> setShowSecondaryDrawer(true)}>
+            <HStack gap={4}>
+              <FiBriefcase />
+              Account
+            </HStack>
+          </Menu.Item>
+          <Menu.Item value="settings" p={3}>
+            <HStack gap={4}>
+              <FiSettings />
+              Settings
+            </HStack>
+          </Menu.Item>
+        </Header>
 
-      {/* side nav */}
-      {layoutPreference.defaultNavMode === "sidenav" && (
-          <SideNav menuItem={menuItemData} 
-          sideNavCollapsed={sideNavCollapsed} 
-          background={layoutPreference?.sideNav?.background}
-          textColor={layoutPreference?.sideNav?.textColor}
-          onMenuItemClicked={handleMenuItemClick}
+        {/* side nav */}
+        {layoutPreference.defaultNavMode === "sidenav" && (
+          <SideNav
+            menuItem={menuItemData}
+            sideNavCollapsed={sideNavCollapsed}
+            background={layoutPreference?.sideNav?.background}
+            textColor={layoutPreference?.sideNav?.textColor}
+            onMenuItemClicked={handleMenuItemClick}
           />
-      )}
-      
+        )}
+
         {/* Body content */}
         <Box
           bg={"ghostwhite"}
           transition="margin 0.5s ease"
-          ml={layoutPreference.defaultNavMode === 'sidenav' ? {base: 0, md: sideNavCollapsed? 20 : 60} : 0}
+          ml={
+            layoutPreference.defaultNavMode === "sidenav"
+              ? { base: 0, md: sideNavCollapsed ? 20 : 60 }
+              : 0
+          }
           p="4"
           pt={"6rem"}
           h={"full"}
         >
-          <Outlet/>
+          <Outlet />
         </Box>
 
-        <AppDrawer onOpenChanged={(data: boolean)=> setShowDrawer(data)} show={showDrawer} title="App Menu">
-            <AppMenu data={menuItemData} sideNavCollapsed={false} onMenuItemClicked={handleMenuItemClick}/>
+        <AppDrawer
+          onOpenChanged={(data: boolean) => setShowDrawer(data)}
+          show={showDrawer}
+          title="App Menu"
+        >
+          <AppMenu
+            data={menuItemData}
+            sideNavCollapsed={false}
+            onMenuItemClicked={handleMenuItemClick}
+          />
+        </AppDrawer>
+
+        <AppDrawer
+          onOpenChanged={(data: boolean) => setShowSecondaryDrawer(data)}
+          show={showSecondaryDrawer}
+          title="Profile"
+          placement="end"
+          size={{base:"full", md:'sm'}}
+        >
+          {/* <AppMenu
+            data={menuItemData}
+            sideNavCollapsed={false}
+            onMenuItemClicked={handleMenuItemClick}
+          /> */}
         </AppDrawer>
       </Box>
     </>

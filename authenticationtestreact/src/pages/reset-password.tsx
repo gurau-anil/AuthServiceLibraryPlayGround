@@ -60,19 +60,11 @@ function ResetPassword() {
   return (
     <>
       <Container paddingTop="50px">
-        {/* <small>
-          <a
-            href="#"
-            onClick={(evt: any) => {
-              evt.preventDefault();
-              window.history.back();
-            }}
-          >
-            Go back
-          </a>
-        </small> */}
         <Flex justifyContent={"center"}>
           <Box width={{ base: "100%", sm: "50%", lg: "28%" }} p={10} bg="white">
+            <Center marginBottom="20px">
+              <img src='/logo.svg' style={{ height: "100px" }} alt="logo"/>
+            </Center>
             <Center marginBottom="30px">
               <Heading>Reset Password</Heading>
             </Center>

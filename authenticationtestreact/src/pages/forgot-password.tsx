@@ -41,6 +41,9 @@ function ForgotPassword() {
         </small> */}
         <Flex justifyContent={"center"}>
           <Box width={{ base: "100%", sm: "50%", lg: "28%" }} p={10} bg="white">
+            <Center marginBottom="20px">
+              <img src='/logo.svg' style={{ height: "100px" }} alt="logo"/>
+            </Center>
           <Center marginBottom="30px"><Heading>Forgot Password?</Heading></Center>
             <form onSubmit={handleSubmit} noValidate>
               <Stack gap={6}>

@@ -13,6 +13,7 @@ import { RiMenuFold3Fill, RiMenuFold4Fill } from "react-icons/ri";
 import logo from "../../public/logo.svg";
 import { FiBriefcase, FiPower, FiSettings, FiUser } from "react-icons/fi";
 import { IoMdMenu } from "react-icons/io";
+import type { ReactNode } from "react";
 
 function Header({
   sideNavCollapsed,
@@ -21,6 +22,7 @@ function Header({
   onSideNavCollapseTriggered,
   onDrawerTriggered,
   onLogOutAction,
+  children
 }: {
   sideNavCollapsed: boolean;
   hasCollapseIcon?: boolean;
@@ -28,6 +30,7 @@ function Header({
   onSideNavCollapseTriggered: () => void;
   onDrawerTriggered?: () => void;
   onLogOutAction?: () => void;
+  children?: ReactNode
 }) {
   return (
     <>
@@ -69,18 +72,7 @@ function Header({
             <Portal>
               <Menu.Positioner>
                 <Menu.Content w={"200px"}>
-                  <Menu.Item value="account" p={3}>
-                    <HStack gap={4}>
-                      <FiBriefcase />
-                      Account
-                    </HStack>
-                  </Menu.Item>
-                  <Menu.Item value="settings" p={3}>
-                    <HStack gap={4}>
-                      <FiSettings />
-                      Settings
-                    </HStack>
-                  </Menu.Item>
+                    {children}
                   <Menu.Item
                     value="delete"
                     color="fg.error"

@@ -1,12 +1,20 @@
 "use client"
 
-import { CloseButton, Drawer, Portal } from "@chakra-ui/react"
+import { CloseButton, Drawer, Portal, type ConditionalValue } from "@chakra-ui/react"
 import { type ReactNode } from "react"
 
-export default function AppDrawer({title, show = false, children, onOpenChanged}: {title: string, show: boolean, children: ReactNode, onOpenChanged: (data: boolean)=> void}) {
+export default function AppDrawer({title, show = false, children, onOpenChanged, placement="start", size}: 
+  {title: string, 
+    show: boolean, 
+    children?: ReactNode, 
+    onOpenChanged: (data: boolean)=> void,
+    placement?: 'start' | 'end',
+    size?: ConditionalValue<"sm" | "md" | "lg" | "xl" | "full" | "xs" | undefined>
+  }
+  ) {
 
   return (
-    <Drawer.Root open={show} onOpenChange={(e)=> onOpenChanged(e.open)} placement="start">
+    <Drawer.Root open={show} onOpenChange={(e)=> onOpenChanged(e.open)} placement={placement} size={size}>
       <Portal>
         <Drawer.Backdrop />
         <Drawer.Positioner>

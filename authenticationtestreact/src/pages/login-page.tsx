@@ -44,7 +44,7 @@ export default function LoginPage() {
       const authResult: AuthResult = response.data;
       const redirectURL = searchParams.get("redirectTo")?? '/';
       if(!authResult.isAuthenticated && authResult.isTwoFAuthEnabled){
-        OpenToast("info",`Login code has been emailed for user: ${userName}.`,'',5000);
+        OpenToast("warning",`Login code has been emailed for user: ${userName}.`,'',5000);
         navigate(`/auth/two-factor-auth?redirectTo=${redirectURL}&userName=${userName}`);
         return;
       }

@@ -58,6 +58,8 @@ namespace AuthServiceLibrary.Services
             {
                 if (result.RequiresTwoFactor)
                 {
+                    //since login attempt failed because of the two factor authentication so we have to reset the Accessfailed Count.
+                    await _userManager.ResetAccessFailedCountAsync(user);
                     return new AuthResult
                     {
                         Succeeded = false,
@@ -80,13 +82,18 @@ namespace AuthServiceLibrary.Services
         {
 
             ApplicationUser user = await FindUserAsync(userName);
-
+            if(await _userManager.IsLockedOutAsync(user))
+            {
+                double lockoutMinutes = _identityOptions.Lockout.DefaultLockoutTimeSpan.TotalMinutes;
+                throw new UnauthorizedAccessException($"Account Locked! Please try again after {lockoutMinutes} " + (lockoutMinutes > 1 ? "minutes." : "minute."));
+            }
             bool result = await _userManager.VerifyTwoFactorTokenAsync(user, TokenOptions.DefaultEmailProvider, token);
             if (!result)
             {
+                await _userManager.AccessFailedAsync(user);
                 throw new InvalidException("Invalid Token");
             }
-
+            await _userManager.ResetAccessFailedCountAsync(user);
             return await GetAuthResultAsync(user);
 
         }

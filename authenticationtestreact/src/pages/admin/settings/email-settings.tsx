@@ -1,12 +1,9 @@
 import {
-  Box,
   Flex,
-  Grid,
   GridItem,
   Heading,
   IconButton,
   SimpleGrid,
-  VStack,
 } from "@chakra-ui/react";
 import AppEditable from "../../../components/form/app-editable";
 import { useLoaderData } from "react-router";
@@ -16,6 +13,7 @@ import { FiChevronDown, FiChevronUp } from "react-icons/fi";
 import AppWrapper from "../../../components/content-wrapper";
 import httpClient from "../../../axios.config";
 import { OpenToast } from "../../../utilities/toast";
+import AppLoader from "../../../components/app-loader";
 
 interface AppSetting {
   name: string;
@@ -35,9 +33,6 @@ function EmailSettingsPage() {
   const passwordSettings: AppSetting[] = appSettings.filter((c) =>
     c.key.startsWith("PasswordSettings:")
   );
-  const half = Math.ceil(appSettings.length / 2);
-  const leftEmailSettings: AppSetting[] = emailSettings.slice(0, half);
-  const rightEmailSettings: AppSetting[] = emailSettings.slice(half);
 
   async function handleSubmit(data: AppSetting) {
     try {
@@ -46,7 +41,7 @@ function EmailSettingsPage() {
         `/api/settings?key=${data.key}`,
         data
       );
-      OpenToast("success", "Setting Updated Successfully.");
+      OpenToast("success", result.data);
     } catch (error) {
     } finally {
       setLoading(false);
@@ -55,6 +50,7 @@ function EmailSettingsPage() {
 
   return (
     <>
+    <AppLoader show={loading}/>
       <AppWrapper>
         <SimpleGrid
           columns={{ base: 1, md: 1, lg: 4 }}

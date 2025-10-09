@@ -30,7 +30,8 @@ namespace AuthServiceLibrary.Services
             var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
 
             List<Claim> claims = (await _userManager.GetClaimsAsync(user)).ToList();
-
+            claims.Add(new Claim(ClaimTypes.Name, user.UserName));
+            claims.Add(new Claim(ClaimTypes.Email, user.Email));
             List<string> roles = (List<string>)await _userManager.GetRolesAsync(user);
 
             IList<Claim> roleClaims;

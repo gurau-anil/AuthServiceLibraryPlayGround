@@ -148,8 +148,10 @@ namespace AuthServiceLibrary.Services
             var claims = new List<Claim>
             {
                 new(ClaimTypes.NameIdentifier, user.Id.ToString()),
-                new(ClaimTypes.Name, user.UserName ?? string.Empty),
-                new(ClaimTypes.Email, user.Email ?? string.Empty)
+                new(ClaimTypes.Name, user.UserName),
+                new("FirstName", user.FirstName),
+                new("LastName", user.LastName),
+                new(ClaimTypes.Email, user.Email)
             };
             if (roles is not null && roles.Count > 0)
                 claims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role)));

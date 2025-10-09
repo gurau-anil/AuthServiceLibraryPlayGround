@@ -83,8 +83,13 @@ builder.Services.RegisterServices(builder.Configuration);
 var app = builder.Build();
 //await app.RunDbMigrationAsync();
 
-//fetched from UserSecrets
-List<UserRegisterModel> userSeeds = builder.Configuration.GetSection("UserSeeds").Get<List<UserRegisterModel>>() ?? new List<UserRegisterModel>();
+//using (var scope = app.Services.CreateScope())
+//{
+//    await scope.ServiceProvider.GetRequiredService<AppDbContext>().Database.MigrateAsync();
+//}
+
+    //fetched from UserSecrets
+    List<UserRegisterModel> userSeeds = builder.Configuration.GetSection("UserSeeds").Get<List<UserRegisterModel>>() ?? new List<UserRegisterModel>();
 if (userSeeds.Count > 0)
 {
     //Seed Database with initial users
@@ -95,7 +100,7 @@ if (userSeeds.Count > 0)
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/api-docs/swagger.json", "JWT API 1.0"));
+    app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/api-docs/swagger.json", "Shield API 1.0"));
 }
 //app.UseRateLimiter();
 

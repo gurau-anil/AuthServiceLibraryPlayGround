@@ -42,6 +42,7 @@ function Layout() {
           transition="margin 0.8s ease"
           p="4"
           h="calc(100vh)"
+          pt={"6rem"}
         >
           <Container fluid>
             <Outlet></Outlet>

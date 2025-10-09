@@ -2,18 +2,17 @@ import { useState, type FormEvent } from "react";
 import httpClient from "../axios.config";
 import { useNavigate, useSearchParams } from "react-router";
 import "./styles/login.css";
-import {Alert, Box,Button,Center,Container,Field,Flex,HStack,Input,Separator,Show,Stack} from "@chakra-ui/react";
-import {PasswordInput} from "../components/ui/password-input";
+import {Alert,Box,Button,Center,Container,Field,Flex,HStack,Input,Separator,Show,Stack} from "@chakra-ui/react";
+import { PasswordInput } from "../components/ui/password-input";
 import { toaster } from "../components/ui/toaster";
 import { OpenToast } from "../utilities/toast";
 import EmailConfirmationDialog from "../components/EmailConfirmationDialog";
 
-
-interface AuthResult{
-  isTwoFAuthEnabled: boolean, 
-  isAuthenticated: boolean, 
-  token: string, 
-  roles: string[], 
+interface AuthResult {
+  isTwoFAuthEnabled: boolean;
+  isAuthenticated: boolean;
+  token: string;
+  roles: string[];
   expiresAt: Date;
 }
 export default function LoginPage() {
@@ -33,7 +32,7 @@ export default function LoginPage() {
     setError("");
 
     try {
-      if(!validateForm()){
+      if (!validateForm()) {
         return;
       }
       let response = await httpClient.post("api/auth/login", {
@@ -42,25 +41,30 @@ export default function LoginPage() {
       });
 
       const authResult: AuthResult = response.data;
-      const redirectURL = searchParams.get("redirectTo")?? '/';
-      if(!authResult.isAuthenticated && authResult.isTwoFAuthEnabled){
-        OpenToast("warning",`Login code has been emailed for user: ${userName}.`,'',5000);
-        navigate(`/auth/two-factor-auth?redirectTo=${redirectURL}&userName=${userName}`);
+      const redirectURL = searchParams.get("redirectTo") ?? "/";
+      if (!authResult.isAuthenticated && authResult.isTwoFAuthEnabled) {
+        OpenToast(
+          "warning",
+          `Login code has been emailed for user: ${userName}.`,
+          "",
+          5000
+        );
+        navigate(
+          `/auth/two-factor-auth?redirectTo=${redirectURL}&userName=${userName}`
+        );
         return;
       }
       localStorage.setItem("authResult", JSON.stringify(authResult));
 
-      toaster.create({ description: "Login Successful.", type: "success"});
+      toaster.create({ description: "Login Successful.", type: "success" });
 
-      if(authResult.roles.some((c: any)=> c.toLowerCase() == 'admin')){
-        navigate(redirectURL== '/' ? '/admin': redirectURL)
+      if (authResult.roles.some((c: any) => c.toLowerCase() == "admin")) {
+        navigate(redirectURL == "/" ? "/admin" : redirectURL);
+      } else {
+        navigate(redirectURL ?? "/");
       }
-      else{
-        navigate(redirectURL?? '/')
-      }
-
     } catch (err: any) {
-      if(err?.response){
+      if (err?.response) {
         OpenToast("error", err.response?.data?.errors[0]);
         setError(err.response?.data?.errors[0] || "Login failed");
       }
@@ -69,8 +73,8 @@ export default function LoginPage() {
     }
   };
 
-  function validateForm(){
-    if(userName.length == 0 && password.length == 0){
+  function validateForm() {
+    if (userName.length == 0 && password.length == 0) {
       OpenToast("error", "Invalid Form");
       return false;
     }
@@ -86,10 +90,14 @@ export default function LoginPage() {
     <>
       <Container paddingTop="50px">
         <Flex justifyContent={"center"}>
-          <Box width={{ base: "100%", sm: "50%", md: "50%", lg: "28%" }} p={10} bg="white" shadow={"xs"}>
-            
+          <Box
+            width={{ base: "100%", sm: "50%", md: "50%", lg: "28%" }}
+            p={10}
+            bg="white"
+            shadow={"xs"}
+          >
             <Center marginBottom="20px">
-              <img src='/logo.svg' style={{ height: "100px" }} alt="logo"/>
+              <img src="/logo.svg" style={{ height: "100px" }} alt="logo" />
             </Center>
 
             <form onSubmit={handleSubmit} noValidate>
@@ -161,15 +169,15 @@ export default function LoginPage() {
                 <Alert.Title>
                   {error}
                   {error.includes("confirmed") && (
-                    <div style={{marginTop: "10px"}}>
-                    <EmailConfirmationDialog onEmailConfirmationRequested={()=>{
-                      setError("");
-                    }}></EmailConfirmationDialog>
-                  </div>
+                    <div style={{ marginTop: "10px" }}>
+                      <EmailConfirmationDialog
+                        onEmailConfirmationRequested={() => {
+                          setError("");
+                        }}
+                      ></EmailConfirmationDialog>
+                    </div>
                   )}
-                  
-                  </Alert.Title>
-                  
+                </Alert.Title>
               </Alert.Root>
             </Show>
           </Box>

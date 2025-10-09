@@ -56,7 +56,7 @@ namespace AuthenticationTestApi
             services.AddEndpointsApiExplorer();
             services.AddSwaggerGen(options =>
             {
-                options.SwaggerDoc("api-docs", new OpenApiInfo { Title = "JWT API", Version = "1.0" });
+                options.SwaggerDoc("api-docs", new OpenApiInfo { Title = "Shield API", Version = "1.0" });
 
                 options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
                 {

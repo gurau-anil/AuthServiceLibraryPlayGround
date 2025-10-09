@@ -1,6 +1,10 @@
+import AppDataGrid from "../components/data-grid";
+
 function AboutPage() {
     
-    return (<>This is an about page.</> );
+    return (<>
+    <AppDataGrid></AppDataGrid>
+    </> );
 }
 
 export default AboutPage;

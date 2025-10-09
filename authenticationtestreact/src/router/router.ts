@@ -68,7 +68,7 @@ const router = createBrowserRouter([
             path: "about",
             Component: AboutPage,
             loader: async ({ request }: { request: Request }) => {
-              isUserAuthenticated(request);
+              // isUserAuthenticated(request);
             },
           },
         ],

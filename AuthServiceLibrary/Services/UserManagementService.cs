@@ -47,7 +47,7 @@ namespace AuthServiceLibrary.Services
         {
             try
             {
-                var result = await _userManager.Users.ToListAsync();
+                List<ApplicationUser> result = await _userManager.Users.ToListAsync();
                 return _mapper.Map<IEnumerable<UserModel>>(result);
             }
             catch (Exception ex)

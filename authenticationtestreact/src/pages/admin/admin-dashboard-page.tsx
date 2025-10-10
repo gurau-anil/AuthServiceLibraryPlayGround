@@ -7,7 +7,7 @@ import { ResponsiveLine } from "@nivo/line";
 import { ResponsivePie } from "@nivo/pie";
 import { useLoaderData } from "react-router";
 
-function AdminDashboard() {
+export default function AdminDashboardPage() {
   const summaryData: {
     totalUsers: number;
     activeUsers: number;
@@ -172,4 +172,3 @@ function AdminDashboard() {
   );
 }
 
-export default AdminDashboard;

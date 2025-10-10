@@ -11,9 +11,7 @@ function AppWrapper({title, children}:{title?: string, children?: ReactNode}) {
             </Box>
             }
             
-            <Box>
                 {children}
-            </Box>
         </Flex>
     </> 
     );

@@ -20,7 +20,7 @@ namespace AuthServiceLibrary.Data
                 entity.Property(e => e.FirstName).IsRequired(true);
                 entity.Property(e => e.LastName).IsRequired(true);
                 entity.Property(e => e.IsActive).HasDefaultValue(true);
-                entity.HasQueryFilter(c => c.IsActive);
+                //entity.HasQueryFilter(c => c.IsActive);
             });
         }
     }

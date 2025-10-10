@@ -11,7 +11,7 @@ import {
 } from "@chakra-ui/react";
 import { RiMenuFold3Fill, RiMenuFold4Fill } from "react-icons/ri";
 import logo from "../../public/logo.svg";
-import { FiBriefcase, FiPower, FiSettings, FiUser } from "react-icons/fi";
+import { FiPower, FiUser } from "react-icons/fi";
 import { IoMdMenu } from "react-icons/io";
 import type { ReactNode } from "react";
 

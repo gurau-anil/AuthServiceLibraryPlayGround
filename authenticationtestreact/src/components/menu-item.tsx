@@ -47,6 +47,12 @@ function AppMenuItem({ data,
     const isSubmenuActive = data?.submenu?.some(c=>c.isActive);
     const isSubmenu = type === 'submenu' ;
     const hasActiveBg = !sideNavCollapsed? data.isActive && !(data.submenu && data.expanded): false;
+
+    function toggleMenuExpansion(){
+        if(!sideNavCollapsed && data.submenu && data.submenu.length > 0){
+            onExpandToggle?.({name: data.name})
+        }
+    }
   return (
   <>
   <Menu.Item 
@@ -58,7 +64,10 @@ function AppMenuItem({ data,
   whiteSpace="nowrap"
   overflow='hidden'
   _hover={{ bg: sideNavCollapsed ? "unset" : hoverBackground }} 
-  onClick={()=>onMenuItemClicked?.(data)}
+  onClick={()=>{
+    toggleMenuExpansion();
+    onMenuItemClicked?.(data)
+}}
   >
     {/* Menu Item when side nav bar is collapsed  */}
     <Show when={sideNavCollapsed}>
@@ -120,7 +129,8 @@ function AppMenuItem({ data,
             _hover={{ color: "white" }}
             onClick={(e: any)=> {
                 e.stopPropagation();
-                onExpandToggle?.({name: data.name})
+                toggleMenuExpansion();
+                // onExpandToggle?.({name: data.name})
             }}>
                     <Icon as={data.expanded ? FaCaretDown : FaCaretRight} />
             </Box>
@@ -137,7 +147,7 @@ function AppMenuItem({ data,
                 <Collapsible.Content bg={"ghostwhite"} ml={6}>
                         <AppMenuItem key={sub.name+index} data={sub} sideNavCollapsed={sideNavCollapsed} type={"submenu"} 
                         onMenuItemClicked={onMenuItemClicked} 
-                        onExpandToggle = {onExpandToggle}
+                        // onExpandToggle = {onExpandToggle}
                         value={sub.name+index}/>
                 </Collapsible.Content>
             </Collapsible.Root>

@@ -11,6 +11,7 @@ using EmailService.Services.Interfaces;
 using FluentValidation;
 using Hangfire;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace AuthenticationTestApi.Controllers
 {
@@ -36,11 +37,20 @@ namespace AuthenticationTestApi.Controllers
 
 
         [HttpGet]
-        [Route("")]
+        [Route("get-all")]
         public async Task<IActionResult> GetUsersAsync()
         {
             IEnumerable<UserDTO> users = _mapper.Map<List<UserDTO>>(await _userManagementService.GetAllAsync());
             return Ok(users);
+        }
+
+        [HttpGet]
+        [Route("logged-in")]
+        public async Task<IActionResult> GetLoggedInAsync()
+        {
+            var username = HttpContext.User.Claims.Where(c=>c.Type == ClaimTypes.Name).Select(c=>c.Value).First();
+            UserModel user = await _userManagementService.GetByUsernameAsync(username);
+            return Ok(user);
         }
 
         [HttpPost]

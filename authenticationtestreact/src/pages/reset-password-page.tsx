@@ -16,7 +16,7 @@ import {
 import { PasswordInput } from "../components/ui/password-input";
 import { OpenToast } from "../utilities/toast";
 
-function ResetPassword() {
+export default function ResetPasswordPage() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const [password, setPassword] = useState<string>("");
@@ -131,5 +131,3 @@ function ResetPassword() {
     </>
   );
 }
-
-export default ResetPassword;

@@ -5,10 +5,11 @@ import {
   CloseButton,
   Show,
   Alert,
+  type ConditionalValue,
 } from "@chakra-ui/react";
 import type { ReactNode } from "react";
 import AppLoader from "./app-loader";
-
+import './styles/dialog-box.css'
 interface DialogBoxProps {
   isOpen: boolean;
   setOpen: (val: boolean) => void;
@@ -18,9 +19,9 @@ interface DialogBoxProps {
   onClose?: () => void;
   action?: () => void;
   loading?: boolean;
-  size?: "xs" | "sm" | "md" | "lg" | "full" | "cover";
   isValid?: boolean;
   error?: string;
+  size?: ConditionalValue<"sm" | "md" | "lg" | "xl" | "full" | "xs" | undefined>
 }
 
 export default function DialogBox({
@@ -69,12 +70,6 @@ export default function DialogBox({
             </Dialog.Body>
 
             <Dialog.Footer>
-              <Dialog.ActionTrigger asChild>
-                <Button variant="outline" onClick={onCancel} disabled={loading}>
-                  Cancel
-                </Button>
-              </Dialog.ActionTrigger>
-
               {action && (
                 <Button
                   onClick={action}
@@ -82,9 +77,15 @@ export default function DialogBox({
                   _hover={{ background: "green.500" }}
                   disabled={loading || !isValid}
                 >
-                  {loading ? "Submitting..." : "Summit"}
+                  {loading ? "Submitting..." : "Submit"}
                 </Button>
               )}
+              <Dialog.ActionTrigger asChild>
+                <Button variant="outline" onClick={onCancel} disabled={loading}>
+                  Cancel
+                </Button>
+              </Dialog.ActionTrigger>
+
             </Dialog.Footer>
 
             <Dialog.CloseTrigger asChild>

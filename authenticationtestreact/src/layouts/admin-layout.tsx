@@ -3,7 +3,7 @@ import httpClient from "../axios.config";
 import "./layout.css";
 import { useState } from "react";
 import { OpenToast } from "../utilities/toast";
-import { Box, Button, HStack, Menu } from "@chakra-ui/react";
+import { Box, HStack, Menu } from "@chakra-ui/react";
 import Header from "../components/header";
 import SideNav from "../components/sidenav";
 import AppLoader from "../components/app-loader";
@@ -12,7 +12,7 @@ import AppMenu from "../components/menu";
 import AppDrawer from "../components/app-drawer";
 import layoutPreference, { type layoutPreferenceType } from "./layout-consts";
 import type { MenuItemModel } from "../components/menu-item3";
-import { FiBriefcase, FiSettings, FiPower } from "react-icons/fi";
+import { FiBriefcase, FiSettings } from "react-icons/fi";
 
 function AdminLayout() {
   const navigate = useNavigate();
@@ -58,7 +58,7 @@ function AdminLayout() {
     <>
       <AppLoader show={loading} />
 
-      <Box h="100vh">
+      <Box h="100vh" >
         {/* header section */}
         <Header
           hasCollapseIcon={true}

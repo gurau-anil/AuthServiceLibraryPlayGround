@@ -1,0 +1,7 @@
+.chakra-dialog__positioner{
+  z-index: 100 !important;
+}
+
+.chakra-dialog__backdrop{
+  z-index: 50 !important;
+}

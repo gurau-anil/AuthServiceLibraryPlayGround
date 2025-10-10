@@ -66,7 +66,6 @@ function toggleExpand(items: MenuItemModel[], targetName: string): MenuItemModel
 
   return (
     <>
-      <Box px={4}>
         <Menu.Root>
           {LinkItems.map((link, index) => (
             <AppMenuItem
@@ -77,7 +76,6 @@ function toggleExpand(items: MenuItemModel[], targetName: string): MenuItemModel
             value={index+link.name}/>
           ))}
         </Menu.Root>
-      </Box>
     </>
   );
 }

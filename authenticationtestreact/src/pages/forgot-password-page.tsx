@@ -3,7 +3,7 @@ import httpClient from "../axios.config";
 import {Box,Button,Center,Container,Field,Flex,Heading,HStack,Input,Separator,Stack} from "@chakra-ui/react";
 import { OpenToast } from "../utilities/toast";
 
-function ForgotPassword() {
+export default function ForgotPasswordPage() {
   const [email, setEmail] = useState<string>("");
   const [emailErr, setEmailErr] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
@@ -90,4 +90,3 @@ function ForgotPassword() {
   );
 }
 
-export default ForgotPassword;

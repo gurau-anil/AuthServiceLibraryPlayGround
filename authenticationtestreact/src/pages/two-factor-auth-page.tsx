@@ -18,7 +18,7 @@ import { OpenToast } from "../utilities/toast";
 import { useState } from "react";
 import AppLoader from "../components/app-loader";
 
-function TwoFactorAuth() {
+export default function TwoFactorAuthPage() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const userName = searchParams.get("userName");
@@ -167,5 +167,3 @@ function TwoFactorAuth() {
     </>
   );
 }
-
-export default TwoFactorAuth;

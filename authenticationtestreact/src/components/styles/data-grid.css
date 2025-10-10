@@ -3,16 +3,11 @@
 }
 
 .ag-row-even {
-    /* Set the color for the even rows */
-    background-color: #f5f5f5; /* A very light gray */
+    background-color: white;
 }
 
-/* * You typically don't need to style ag-row-odd unless 
- * you want a specific color for both even and odd rows. 
- * By default, ag-row-odd will use the main theme color.
- */
 .ag-row-odd {
-    background-color: white; /* Explicitly set the odd row color if needed */
+    background-color: #f3f3f3;
 }
 
 .ag-root-wrapper {
@@ -21,4 +16,13 @@
 .ag-cell:focus {
     outline: none !important;
     border: unset !important;
+}
+
+.action-icon{
+    cursor: pointer;
+}
+.ag-header-row {
+  background-color: #f0f0f0;
+  color: #333;
+  font-weight: bold;
 }

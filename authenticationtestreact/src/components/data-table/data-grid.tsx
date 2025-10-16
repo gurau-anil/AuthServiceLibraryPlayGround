@@ -1,6 +1,6 @@
 import { AgGridReact } from "ag-grid-react";
 import { useRef, useState } from "react";
-import type { ICellRendererParams, ColDef, RowDoubleClickedEvent, GridOptions} from "ag-grid-community";
+import type { ICellRendererParams, ColDef, GridOptions} from "ag-grid-community";
 import "../styles/data-grid.css";
 import { Box, Icon } from "@chakra-ui/react";
 import { FiEdit, FiEye, FiTrash2 } from "react-icons/fi";

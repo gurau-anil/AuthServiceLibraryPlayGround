@@ -2,33 +2,21 @@ import { useLoaderData } from "react-router";
 import AppWrapper from "../../../components/content-wrapper";
 import AppDataGrid from "../../../components/data-table/data-grid";
 import moment from "moment";
-import {
-  Badge,
-  Box,
-  Button,
-  ButtonGroup,
-  Flex,
-  Group,
-  IconButton,
-} from "@chakra-ui/react";
-import {
-  FiSend,
-  FiUserCheck,
-  FiUserPlus,
-  FiUserX,
-} from "react-icons/fi";
+import { Badge, Box, Button, Flex} from "@chakra-ui/react";
+import { FiUserCheck, FiUserPlus, FiUserX} from "react-icons/fi";
 import { useState } from "react";
 import CellRenderTemplate from "../../../components/data-table/cell-render-template";
-import { LuChevronDown, LuMailCheck, LuMailX } from "react-icons/lu";
+import { LuMailCheck, LuMailX } from "react-icons/lu";
 import { Tooltip } from "../../../components/ui/tooltip";
-import DropDownMenu from "../../../components/dropdown-menu";
+import RegisterFormModel from "./user-register";
+import { getUsers } from "../../../services/user-service";
 
 export default function UserManagePage() {
   const data = useLoaderData();
   const [enableActivate, setEnableActivate] = useState<boolean>(false);
   const [enableDeactivate, setEnableDeactivate] = useState<boolean>(false);
-  const [selectedRows, setSelectedRows] = useState<any[]>([]);
-
+  const [registerFormOpen, setRegisterFormOpen] = useState<boolean>(false);
+  const [gridData, setGridData] = useState<any>(data);
 
   function handleRowDoubleClicked(event: any) {
     console.log(event);
@@ -40,7 +28,6 @@ export default function UserManagePage() {
 
   function handleRowSelection(evt: any) {
     var rowsSelected: any[] = evt.api.getSelectedRows();
-    setSelectedRows(rowsSelected)
     if (rowsSelected.length > 0) {
       console.log(rowsSelected.every((c) => c.isActive === true))
       setEnableActivate(rowsSelected.every((c) => c.isActive === false));
@@ -51,11 +38,17 @@ export default function UserManagePage() {
     }
   }
 
+  async function onSubmissionComplete() {
+    setGridData(await getUsers());
+  }
+
   return (
     <>
       <AppWrapper title="Users">
         <Flex gap={2} wrap={"wrap"}>
-          <Button bg={"blue.500"} size={"sm"}>
+          <Button bg={"blue.500"} size={"sm"} onClick={()=>{
+            setRegisterFormOpen(true);
+          }}>
             <FiUserPlus /> Register New
           </Button>
           <Button bg={"green.500"} size={"sm"} disabled={!enableActivate}>
@@ -64,7 +57,7 @@ export default function UserManagePage() {
           <Button bg={"red.500"} size={"sm"} disabled={!enableDeactivate}>
             <FiUserX /> Deactivate
           </Button>
-          <Group attached>
+          {/* <Group attached>
             <Button variant="solid" bg={"teal.500"} disabled={selectedRows.length <= 0} size={"sm"}>
               <FiSend /> Send Email
             </Button>
@@ -80,7 +73,7 @@ export default function UserManagePage() {
                 { title: "Two Factor Auth Remainder", value: "3" },
               ]}
             />
-          </Group>
+          </Group> */}
           
         </Flex>
         <Box
@@ -145,7 +138,7 @@ export default function UserManagePage() {
                     : "",
               },
             ]}
-            data={data}
+            data={gridData}
             getRowStyle={(params: any) => {
               return params.data?.isActive === false
                 ? { backgroundColor: "#FFB8B8" }
@@ -158,7 +151,7 @@ export default function UserManagePage() {
           />
         </Box>
       </AppWrapper>
-
+      <RegisterFormModel isOpen={registerFormOpen} setOpen={setRegisterFormOpen} onSubmissionComplete={onSubmissionComplete}/>
     </>
   );
 }

@@ -1,4 +1,4 @@
-import {Box,Menu} from "@chakra-ui/react";
+import {Menu} from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import { useLocation } from "react-router";
 import type { MenuItemModel } from "./menu-item3";

@@ -1,13 +1,11 @@
 import { isAdminAuthenticated } from "../../auth-check";
-import httpClient from "../../axios.config";
+import { getUsers } from "../../services/user-service";
 
 const UsersLoader = async ({ request }: { request: Request }) => {
   isAdminAuthenticated(request);
 
   try {
-    let result = httpClient.get(`/api/user/get-all`);
-
-    return (await result).data;
+    return await getUsers();
   } catch (error) {}
 };
 

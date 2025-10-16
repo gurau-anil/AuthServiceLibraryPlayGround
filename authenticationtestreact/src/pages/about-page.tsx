@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import AppWrapper from "../components/content-wrapper";
 import AppDataGrid from "../components/data-table/data-grid";
 import CellRenderTemplate from "../components/data-table/cell-render-template";
 import { FiCheck, FiX } from "react-icons/fi";
-import { Box, Icon } from "@chakra-ui/react";
+import { Box, Button, Icon } from "@chakra-ui/react";
+import { useSignalR } from "../hooks/use-signalr";
 
 function AboutPage() {
   const [data] = useState([
@@ -51,41 +52,74 @@ function AboutPage() {
     },
   ]);
 
+  const [message, setMessage] = useState<string>("");
+  const connection = useSignalR("dashboard");
+
+  useEffect(() => {
+    if (!connection) return;
+
+    // connection.on('ReceiveMessage', (data: {message: string}) => {
+    //   console.log(data);
+    //   setMessage(data.message)
+    // });
+
+    connection.on("UpdateDashboard", (data: any) => {
+      alert("a")
+      console.log(data)
+      setMessage(JSON.stringify(data));
+    });
+
+    return () => {
+      // connection.off('ReceiveMessage');
+      connection.off("UpdateDashboard");
+    };
+  }, [connection]);
+
   function handleRowDoubleClicked(event: any) {
     console.log(event);
   }
 
-  function handleAction (evt: any) {
+  function handleAction(evt: any) {
     console.log(evt.data);
-  };
+  }
 
   return (
     <>
+      {message}
+      <Button
+        onClick={async () =>
+          await connection?.invoke("UpdateDashboard", "This is a test message")
+        }
+      >
+        Invoke
+      </Button>
       <AppWrapper title="Users">
-        <Box overflowX={"scroll"} w="full" h="full">
+        <Box overflowX={"scroll"} w="full" h="50vh">
           <AppDataGrid
-          columnDefs={[
-            { field: "id", hide: true },
-            { field: "make" },
-            { field: "model" },
-            { field: "price" },
-            {
-              field: "electric",
-              cellRenderer: CellRenderTemplate,
-              cellRendererParams: (params: any)=> (
-                {
-                children: (
-                    <Icon as={params.data.electric? FiCheck : FiX} color={params.data.electric? "green.500" : "red.500"} size={"sm"}/>
-                ),
-              }
-              ),
-            },
-          ]}
-          data={data}
-          onRowDoubleClicked={handleRowDoubleClicked}
-          onActionClicked={handleAction}
-          //   showActionsColumn={false}
-        />
+            columnDefs={[
+              { field: "id", hide: true },
+              { field: "make" },
+              { field: "model" },
+              { field: "price" },
+              {
+                field: "electric",
+                cellRenderer: CellRenderTemplate,
+                cellRendererParams: (params: any) => ({
+                  children: (
+                    <Icon
+                      as={params.data.electric ? FiCheck : FiX}
+                      color={params.data.electric ? "green.500" : "red.500"}
+                      size={"sm"}
+                    />
+                  ),
+                }),
+              },
+            ]}
+            data={data}
+            onRowDoubleClicked={handleRowDoubleClicked}
+            onActionClicked={handleAction}
+            //   showActionsColumn={false}
+          />
         </Box>
       </AppWrapper>
     </>

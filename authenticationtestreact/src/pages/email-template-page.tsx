@@ -87,6 +87,7 @@ function EmailTemplatePage() {
       <AppLoader show={loading}></AppLoader>
       <Box mb={3} w={{base: "full", md: "320px"}}>
         <AppSelect
+          label="Select Email Template"
           collection={emailTemplates}
           value={[emailType.toString()]}
           onValueChange={handleChange}

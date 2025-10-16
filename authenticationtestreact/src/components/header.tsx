@@ -22,7 +22,8 @@ function Header({
   onSideNavCollapseTriggered,
   onDrawerTriggered,
   onLogOutAction,
-  children
+  children,
+  extra
 }: {
   sideNavCollapsed: boolean;
   hasCollapseIcon?: boolean;
@@ -30,7 +31,8 @@ function Header({
   onSideNavCollapseTriggered: () => void;
   onDrawerTriggered?: () => void;
   onLogOutAction?: () => void;
-  children?: ReactNode
+  children?: ReactNode,
+  extra?: string
 }) {
   return (
     <>
@@ -63,6 +65,9 @@ function Header({
             </HStack>
           </HStack>
 
+            <Flex alignItems={"end"} flexDirection={"column"}>
+
+             {extra && <div style={{marginBottom: "6px"}}>online: {extra}</div>}
           <Menu.Root positioning={{ placement: "bottom" }}>
             <Menu.Trigger rounded="full" focusRing="outside">
               <Avatar.Root size="md">
@@ -89,6 +94,7 @@ function Header({
               </Menu.Positioner>
             </Portal>
           </Menu.Root>
+            </Flex>
         </Flex>
       </Box>
     </>

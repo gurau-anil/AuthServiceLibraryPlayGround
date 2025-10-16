@@ -145,7 +145,7 @@ function AppMenuItem({ data,
         {data?.submenu?.map((sub: any, index) => (
             <Collapsible.Root open={data.expanded} key={sub.name+index}>
                 <Collapsible.Content bg={"ghostwhite"} ml={6}>
-                        <AppMenuItem key={sub.name+index} data={sub} sideNavCollapsed={sideNavCollapsed} type={"submenu"} 
+                        <AppMenuItem key={sub.name+index} data={sub} sideNavCollapsed={sideNavCollapsed} type={"submenu"} color={"gray.500"}
                         onMenuItemClicked={onMenuItemClicked} 
                         // onExpandToggle = {onExpandToggle}
                         value={sub.name+index}/>

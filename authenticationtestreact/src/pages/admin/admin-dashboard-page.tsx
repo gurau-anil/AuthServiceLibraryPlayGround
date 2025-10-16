@@ -6,9 +6,12 @@ import AppWrapper from "../../components/content-wrapper";
 import { ResponsiveLine } from "@nivo/line";
 import { ResponsivePie } from "@nivo/pie";
 import { useLoaderData } from "react-router";
+import { useSignalR } from "../../hooks/use-signalr";
+import { useEffect, useState } from "react";
 
 export default function AdminDashboardPage() {
-  const summaryData: {
+  const connection = useSignalR("dashboard");
+  const dashboardData: {
     totalUsers: number;
     activeUsers: number;
     inActiveUsers: number;
@@ -16,6 +19,27 @@ export default function AdminDashboardPage() {
     totalRoles: number;
     userRegisterDatas: { registeredDate: string; userRegistered: number }[];
   } = useLoaderData();
+
+  const [summaryData, setSummaryData] = useState<{
+    totalUsers: number;
+    activeUsers: number;
+    inActiveUsers: number;
+    pendingEmailConfirmations: number;
+    totalRoles: number;
+    userRegisterDatas: { registeredDate: string; userRegistered: number }[];
+  }>(dashboardData);
+
+  useEffect(() => {
+    if (!connection) return;
+
+    connection.on("UpdateDashboard", (data: any) => {
+      setSummaryData(data);
+    });
+
+    return () => {
+      connection.off("UpdateDashboard");
+    };
+  }, [connection]);
 
   const pieChartData = [
     {
@@ -38,7 +62,16 @@ export default function AdminDashboardPage() {
   return (
     <>
       <AppWrapper title={"Dashboard"}>
-        <SimpleGrid columns={{ base: 1, sm: 2, lg: 4 }} gap={4} w="full">
+        <SimpleGrid columns={{ base: 1, sm: 2, md:2, lg: 3, xl: 5 }} gap={4} w="full">
+          <DashboardAnalyticsCard
+            title="Total Users"
+            tooltipText="Number of Registered Users"
+            value={`${summaryData.totalUsers}`}
+            link={{ text: "view users", href: "/admin/user/home" }}
+            icon={LuUser}
+            iconBg="blue.100"
+            iconColor="blue.400"
+          />
           <DashboardAnalyticsCard
             title="Total Users"
             tooltipText="Number of Registered Users"
@@ -86,7 +119,7 @@ export default function AdminDashboardPage() {
               margin={{ top: 60, right: 30, bottom: 60, left: 46 }}
               innerRadius={0.6}
               padAngle={0.6}
-            //   cornerRadius={2}
+              //   cornerRadius={2}
               activeOuterRadiusOffset={8}
               enableArcLinkLabels={false}
               arcLinkLabelsTextOffset={0}
@@ -171,4 +204,3 @@ export default function AdminDashboardPage() {
     </>
   );
 }
-

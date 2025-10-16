@@ -26,7 +26,7 @@ function SideNav({ menuItem, sideNavCollapsed, background = "white", textColor= 
         shadow="inset"
         display={{ base: "none", md: "block" }}
       > 
-      <Box height={"calc(100vh - 6rem)"} w={"full"} overflowY={"auto"} pb={"2rem"} px={4}>
+      <Box height={"calc(100vh - 6rem)"} w={"full"} overflowY={"auto"} pb={"4rem"} px={4}>
         <AppMenu data={menuItem} 
           sideNavCollapsed={sideNavCollapsed} 
           color={layoutPreference.Menu.textColor}

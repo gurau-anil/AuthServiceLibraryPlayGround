@@ -5,6 +5,7 @@ export default interface RegisterModel {
     username: string;
     password: string;
     confirmPassword: string;
+    roles?: string[];
 }
 
 

@@ -1,6 +1,5 @@
-import { Menu, Avatar, Portal, HStack } from "@chakra-ui/react";
+import { Menu, Portal, HStack } from "@chakra-ui/react";
 import type { ReactNode } from "react";
-import { FiUser, FiPower } from "react-icons/fi";
 
 export default function DropDownMenu({triggerItem, items}:{triggerItem: ReactNode, items: any[]}) {
     return ( <>

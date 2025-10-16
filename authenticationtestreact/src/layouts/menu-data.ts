@@ -1,4 +1,4 @@
-import { FiLayout, FiUsers, FiSettings, FiBriefcase, FiClock, FiMail, FiCpu, FiPrinter, FiMessageSquare, FiGrid, FiSliders } from "react-icons/fi";
+import { FiUsers, FiBriefcase, FiClock, FiMail, FiCpu, FiPrinter, FiMessageSquare, FiGrid, FiSliders } from "react-icons/fi";
 
 const GetMenuItemData = () => {
   return [

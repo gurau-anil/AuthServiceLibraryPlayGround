@@ -32,7 +32,7 @@ namespace AuthenticationTestApi
                 {
                     opt.AllowAnyMethod();
                     opt.AllowAnyHeader();
-                    opt.WithOrigins($"{config.GetValue<string>("ClientUrl")}");
+                    opt.WithOrigins($"{config.GetValue<string>("ClientUrl")}", "http://localhost:5174");
                     opt.AllowCredentials();
 
                 });

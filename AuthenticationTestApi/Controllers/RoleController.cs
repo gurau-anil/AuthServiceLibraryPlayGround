@@ -36,7 +36,8 @@ namespace AuthenticationTestApi.Controllers
         public async Task<IActionResult> GetRoles()
         {
             var roles = await _roleService.GetAllAsync();
-            return Ok(roles);
+            return Ok(roles.Except(["SuperAdmin"]));
+            //return Ok(new List<String> { "Anil", "Sunil", "Jessica", "Sunita", "Salina", "Shibu", "Dinesh", "Keeran", "Sudeep", "Vineet", "Bikram" });
         }
 
         // DELETE: api/role/{roleId}

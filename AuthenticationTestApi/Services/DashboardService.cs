@@ -33,16 +33,16 @@ namespace AuthenticationTestApi.Services
                             FROM AspNetUsers;
 
                             WITH DateRange AS (
-                                SELECT CAST(GETDATE() - 29 AS DATE) AS [Date]
+                                SELECT CAST(GETUTCDATE() - 29 AS DATE) AS [Date]
                                 UNION ALL
                                 SELECT DATEADD(DAY, 1, [Date])
                                 FROM DateRange
-                                WHERE [Date] < CAST(GETDATE() AS DATE)
+                                WHERE [Date] < CAST(GETUTCDATE() AS DATE)
                             ),
                             Registrations AS (
                                 SELECT CAST(CreatedAt AS DATE) AS [Date], COUNT(*) AS [UserRegistered]
                                 FROM AspNetUsers
-                                WHERE CreatedAt >= DATEADD(DAY, -30, GETDATE())
+                                WHERE CreatedAt >= DATEADD(DAY, -30, GETUTCDATE())
                                 GROUP BY CAST(CreatedAt AS DATE)
                             )
                             SELECT 

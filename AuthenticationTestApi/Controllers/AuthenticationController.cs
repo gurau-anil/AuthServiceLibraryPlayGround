@@ -1,6 +1,7 @@
 ﻿using AuthenticationTestApi.Entities;
 using AuthenticationTestApi.enums;
 using AuthenticationTestApi.Helpers;
+using AuthenticationTestApi.Hubs;
 using AuthenticationTestApi.Models;
 using AuthenticationTestApi.Models.MergeField;
 using AuthenticationTestApi.Services;
@@ -11,6 +12,7 @@ using EmailService.Model;
 using EmailService.Services.Interfaces;
 using Hangfire;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.AspNetCore.WebUtilities;
 using Scriban;
 using System.Text;

@@ -6,14 +6,12 @@ import { OpenToast } from "../utilities/toast";
 import {Box,Container,useBreakpointValue} from "@chakra-ui/react";
 import Header from "../components/header";
 import AppLoader from "../components/app-loader";
-import { useSignalR } from "../hooks/use-signalr";
 
 function Layout() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState<boolean>(false);
   const [sideNavCollapsed, setSideNavCollapsed] = useState<boolean>(false);
   const isDesktop = useBreakpointValue({ base: false, md: true });
-  const connection = useSignalR("auth");
  
   useEffect(() => {
     setSideNavCollapsed(!isDesktop);
@@ -25,7 +23,6 @@ function Layout() {
       await httpClient.get("api/auth/logout");
       OpenToast("error", "Logged Out");
       localStorage.removeItem("authResult");
-      await connection?.invoke("LogoutEvent");
       navigate("/auth/login");
     } catch (error: any) {
       setLoading(false);

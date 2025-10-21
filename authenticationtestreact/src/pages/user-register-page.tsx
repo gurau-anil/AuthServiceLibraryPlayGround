@@ -29,20 +29,28 @@ function RegisterPage() {
     }));
   };
 
-  const validateField = (name: string, value: string) => {
+  const validateField = (name: string, value: string | number | string[]) => {
+
+    if (typeof value === "string") {
+    
+  } else if (typeof value === "number") {
+    
+  } else if (Array.isArray(value)) {
+    
+  }
     switch (name) {
       case "firstName":
-        if (!value.trim()) return "First name is required";
+        if (typeof value === "string" && !value.trim()) return "First name is required";
         break;
       case "lastName":
-        if (!value.trim()) return "Last name is required";
+        if (typeof value === "string" && !value.trim()) return "Last name is required";
         break;
       case "username":
-        if (!value.trim()) return "Username is required";
+        if (typeof value === "string" && !value.trim()) return "Username is required";
         break;
       case "email":
-        if (!value.trim()) return "Email is required";
-        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) return "Invalid email format";
+        if (typeof value === "string" && !value.trim()) return "Email is required";
+        if (typeof value === "string" && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) return "Invalid email format";
         break;
       case "password":
         if (!value) return "Password is required";

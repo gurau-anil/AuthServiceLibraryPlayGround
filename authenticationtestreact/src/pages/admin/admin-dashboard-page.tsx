@@ -6,12 +6,9 @@ import AppWrapper from "../../components/content-wrapper";
 import { ResponsiveLine } from "@nivo/line";
 import { ResponsivePie } from "@nivo/pie";
 import { useLoaderData } from "react-router";
-import { useSignalR } from "../../hooks/use-signalr";
-import { useEffect, useState } from "react";
 
 export default function AdminDashboardPage() {
-  const connection = useSignalR("dashboard");
-  const dashboardData: {
+  const summaryData: {
     totalUsers: number;
     activeUsers: number;
     inActiveUsers: number;
@@ -19,27 +16,6 @@ export default function AdminDashboardPage() {
     totalRoles: number;
     userRegisterDatas: { registeredDate: string; userRegistered: number }[];
   } = useLoaderData();
-
-  const [summaryData, setSummaryData] = useState<{
-    totalUsers: number;
-    activeUsers: number;
-    inActiveUsers: number;
-    pendingEmailConfirmations: number;
-    totalRoles: number;
-    userRegisterDatas: { registeredDate: string; userRegistered: number }[];
-  }>(dashboardData);
-
-  useEffect(() => {
-    if (!connection) return;
-
-    connection.on("UpdateDashboard", (data: any) => {
-      setSummaryData(data);
-    });
-
-    return () => {
-      connection.off("UpdateDashboard");
-    };
-  }, [connection]);
 
   const pieChartData = [
     {

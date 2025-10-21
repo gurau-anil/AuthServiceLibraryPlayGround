@@ -1,6 +1,5 @@
 ﻿using AuthenticationTestApi.enums;
 using AuthenticationTestApi.Helpers;
-using AuthenticationTestApi.Hubs;
 using AuthenticationTestApi.Models;
 using AuthenticationTestApi.Models.MergeField;
 using AuthenticationTestApi.Services;
@@ -12,8 +11,6 @@ using EmailService.Services.Interfaces;
 using FluentValidation;
 using Hangfire;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.SignalR;
-using Org.BouncyCastle.Bcpg.OpenPgp;
 using System.Security.Claims;
 
 namespace AuthenticationTestApi.Controllers
@@ -27,10 +24,8 @@ namespace AuthenticationTestApi.Controllers
         private readonly IConfiguration _config;
         private readonly IEmailService _emailService;
         private readonly IEmailTemplateService _emailTemplateService;
-        private readonly IHubContext<DashboardHub, IDashboardClient> _dashboardHubContext;
-        private readonly IDashboardService _dashboardService;
 
-        public UserManagementController(IUserManagementService userManagementService, IMapper mapper, IValidator<RegisterDTO> validator, IConfiguration config, IEmailService emailService, IEmailTemplateService emailTemplateService, IHubContext<DashboardHub, IDashboardClient> dashboardHubContext, IDashboardService dashboardService)
+        public UserManagementController(IUserManagementService userManagementService, IMapper mapper, IValidator<RegisterDTO> validator, IConfiguration config, IEmailService emailService, IEmailTemplateService emailTemplateService)
         {
             _userManagementService = userManagementService;
             _mapper = mapper;
@@ -38,8 +33,6 @@ namespace AuthenticationTestApi.Controllers
             _config = config;
             _emailService = emailService;
             _emailTemplateService = emailTemplateService;
-            _dashboardHubContext = dashboardHubContext;
-            _dashboardService = dashboardService;
         }
 
 
@@ -73,8 +66,6 @@ namespace AuthenticationTestApi.Controllers
             await ValidateModelAsync(model, hasMultipleError: true);
             var result = await _userManagementService.RegisterUser(_mapper.Map<UserRegisterModel>(model));
 
-            await UpdateDashboardSummary();
-
             var emailConfirmationLink = $"{_config.GetValue<string>("ClientUrl")}/auth/confirm-email?email={model.Email}&token={result.Token}";
             
             var emailTemplate = await _emailTemplateService.GetEmailTemplateAsync(EmailType.UserRegisterEmailConfirmation);
@@ -107,12 +98,6 @@ namespace AuthenticationTestApi.Controllers
             UserDTO user =_mapper.Map<UserDTO>(await _userManagementService.GetByUsernameAsync(username));
             await _userManagementService.DeleteByUsernameAsync(username);
             return Ok($"User: {username} removed from the system");
-        }
-
-
-        private async Task UpdateDashboardSummary()
-        {
-            await _dashboardHubContext.Clients.All.UpdateDashboard(await _dashboardService.GetDashboardData());
         }
     }
 }

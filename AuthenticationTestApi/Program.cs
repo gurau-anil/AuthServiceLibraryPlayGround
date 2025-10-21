@@ -20,7 +20,7 @@ builder.Configuration
     .Add(new DbConfigurationSource(provider));
 
 builder.Services.AddSingleton(provider);
-builder.Services.AddSignalR();
+//builder.Services.AddSignalR();
 // Add services to the container.
 builder.Services.AddJwtAuthentication(connectionString, options =>
 {
@@ -121,8 +121,8 @@ app.UseSpaStaticFiles();
 
 app.UseSpa(spa =>
 {
-    spa.Options.SourcePath = app.Environment.IsDevelopment()? "../../../ClientApp" : "wwwroot";
+    spa.Options.SourcePath = app.Environment.IsDevelopment()? "../../ClientApp" : "wwwroot";
 });
-app.MapHub<DashboardHub>("/dashboard");
-app.MapHub<AuthHub>("/auth");
+//app.MapHub<DashboardHub>("/dashboard");
+//app.MapHub<AuthHub>("/auth");
 app.Run();

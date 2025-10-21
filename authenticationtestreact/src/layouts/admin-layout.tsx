@@ -1,7 +1,7 @@
-import { Outlet, useLocation, useNavigate } from "react-router";
+import { Outlet, useNavigate } from "react-router";
 import httpClient from "../axios.config";
 import "./layout.css";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { OpenToast } from "../utilities/toast";
 import { Box, HStack, Menu } from "@chakra-ui/react";
 import Header from "../components/header";
@@ -13,10 +13,8 @@ import AppDrawer from "../components/app-drawer";
 import layoutPreference, { type layoutPreferenceType } from "./layout-consts";
 import type { MenuItemModel } from "../components/menu-item3";
 import { FiBriefcase, FiSettings } from "react-icons/fi";
-import { useSignalR } from "../hooks/use-signalr";
 
 function AdminLayout() {
-  const connection = useSignalR("auth");
   const navigate = useNavigate();
   const [loading, setLoading] = useState<boolean>(false);
   const [sideNavCollapsed, setSideNavCollapsed] = useState<boolean>(() => {
@@ -31,7 +29,6 @@ function AdminLayout() {
   });
   const [showDrawer, setShowDrawer] = useState<boolean>(false);
   const [showSecondaryDrawer, setShowSecondaryDrawer] = useState<boolean>(false);
-  const [onlineUsers, setOnlineUsers] = useState<number>(0);
   //   const isDesktop = useBreakpointValue({ base: false, md: true });
   
   //   useEffect(() => {
@@ -57,21 +54,6 @@ function AdminLayout() {
       }
     }
     const menuItemData = GetMenuItemData();
-
-    
-    useEffect(() => {
-      if (!connection) return;
-      connection.on("OnlineUserCount", (count: number) => {
-        setOnlineUsers(count);
-      });
-
-      connection.invoke("GetOnlineUserCount");
-
-      return ()=>{
-        connection.off("OnlineUserCount");
-      }
-
-    }, [connection]);
     
   return (
     <>
@@ -80,7 +62,6 @@ function AdminLayout() {
       <Box h="100vh" >
         {/* header section */}
         <Header
-          extra= {`${onlineUsers}`}
           hasCollapseIcon={true}
           isSideNavDefault={layoutPreference.defaultNavMode === "sidenav"}
           sideNavCollapsed={sideNavCollapsed}

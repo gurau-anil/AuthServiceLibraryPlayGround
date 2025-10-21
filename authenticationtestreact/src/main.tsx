@@ -6,9 +6,9 @@ import router from "./router/router.ts";
 import { ChakraProvider, defaultSystem } from "@chakra-ui/react";
 
 createRoot(document.getElementById("root")!).render(
-  // <StrictMode>
+  <StrictMode>
     <ChakraProvider value={defaultSystem}>
       <RouterProvider router={router} />
     </ChakraProvider>
-  // </StrictMode>
+  </StrictMode>
 );

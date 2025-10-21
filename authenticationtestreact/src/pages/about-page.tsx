@@ -3,8 +3,8 @@ import AppWrapper from "../components/content-wrapper";
 import AppDataGrid from "../components/data-table/data-grid";
 import CellRenderTemplate from "../components/data-table/cell-render-template";
 import { FiCheck, FiX } from "react-icons/fi";
-import { Box, Button, Icon } from "@chakra-ui/react";
-import { useSignalR } from "../hooks/use-signalr";
+import { Box, Icon } from "@chakra-ui/react";
+import httpClient from "../axios.config";
 
 function AboutPage() {
   const [data] = useState([
@@ -51,33 +51,15 @@ function AboutPage() {
       electric: false,
     },
   ]);
-
-  const [message, setMessage] = useState<string>("");
-  const connection = useSignalR("dashboard");
-
-  useEffect(() => {
-    if (!connection) return;
-
-    // connection.on('ReceiveMessage', (data: {message: string}) => {
-    //   console.log(data);
-    //   setMessage(data.message)
-    // });
-
-    connection.on("UpdateDashboard", (data: any) => {
-      alert("a")
-      console.log(data)
-      setMessage(JSON.stringify(data));
-    });
-
-    return () => {
-      // connection.off('ReceiveMessage');
-      connection.off("UpdateDashboard");
-    };
-  }, [connection]);
-
   function handleRowDoubleClicked(event: any) {
     console.log(event);
   }
+
+  useEffect(()=>{
+    httpClient.get("/api/role/all").then(result=>{
+      console.log(result)
+    });
+  },[])
 
   function handleAction(evt: any) {
     console.log(evt.data);
@@ -85,14 +67,6 @@ function AboutPage() {
 
   return (
     <>
-      {message}
-      <Button
-        onClick={async () =>
-          await connection?.invoke("UpdateDashboard", "This is a test message")
-        }
-      >
-        Invoke
-      </Button>
       <AppWrapper title="Users">
         <Box overflowX={"scroll"} w="full" h="50vh">
           <AppDataGrid

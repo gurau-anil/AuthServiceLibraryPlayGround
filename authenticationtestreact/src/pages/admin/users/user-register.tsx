@@ -1,16 +1,5 @@
-import {
-  Stack,
-  Field,
-  Input,
-  Button,
-  HStack,
-  Separator,
-  Flex,
-  createListCollection,
-  type ListCollection,
-} from "@chakra-ui/react";
+import { Stack, Field, Input, Flex, createListCollection, type ListCollection} from "@chakra-ui/react";
 import FormDialogBox from "../../../components/FormDialogBox";
-import { PasswordInput } from "../../../components/ui/password-input";
 import { useEffect, useState } from "react";
 import type RegisterModel from "../../../interfaces/RegisterModel";
 import httpClient from "../../../axios.config";
@@ -71,36 +60,29 @@ export default function RegisterFormModel({
       validateForm(retVal);
       setErrors((prev) => ({
         ...prev,
-        [name]: name== 'roles'? validateField(name, '', value) : validateField(name, value),
+        [name]: validateField(name, value),
       }));
 
       return retVal;
     });
   };
 
-  const validateField = (name: string, value: string, values?: string[]) => {
+  function validateField(name: string, value: string | number | string[]){
     switch (name) {
       case "firstName":
-        if (!value.trim()) return "First name is required";
+        if (typeof value === "string" && !value.trim()) return "First name is required";
         break;
       case "lastName":
-        if (!value.trim()) return "Last name is required";
+        if (typeof value === "string" && !value.trim()) return "Last name is required";
         break;
       case "username":
-        if (!value.trim()) return "Username is required";
+        if (typeof value === "string" && !value.trim()) return "Username is required";
         break;
       case "email":
-        if (!value.trim()) return "Email is required";
-        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value))
+        if (typeof value === "string" && !value.trim()) return "Email is required";
+        if (typeof value === "string" && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value))
           return "Invalid email format";
         break;
-    //   case "password":
-    //     if (!value) return "Password is required";
-    //     break;
-    //   case "confirmPassword":
-    //     if (!value) return "Confirm password is required";
-    //     if (value !== form.password) return "Passwords do not match";
-    //     break;
     }
     return "";
   };
@@ -131,7 +113,7 @@ export default function RegisterFormModel({
 
     const newErrors: typeof errors = {};
     (Object.keys(form) as (keyof RegisterModel)[]).forEach((field) => {
-      const errorMsg = field=='roles'? validateField(field, "", form[field] ) : validateField(field, form[field] || "");
+      const errorMsg = validateField(field, form[field] || "");
       if (errorMsg) newErrors[field] = errorMsg;
     });
 

@@ -32,7 +32,7 @@ namespace AuthenticationTestApi
                 {
                     opt.AllowAnyMethod();
                     opt.AllowAnyHeader();
-                    opt.WithOrigins($"{config.GetValue<string>("ClientUrl")}", "http://localhost:5174");
+                    opt.WithOrigins($"{config.GetValue<string>("ClientUrl")}", "http://localhost:5174", "http://localhost:57113");
                     opt.AllowCredentials();
 
                 });
@@ -83,6 +83,8 @@ namespace AuthenticationTestApi
                 });
             });
             services.AddMemoryCache();
+
+            services.AddScoped<IUserService, UserService>();
         }
     }
 }

@@ -24,8 +24,9 @@ namespace AuthenticationTestApi.Controllers
         private readonly IConfiguration _config;
         private readonly IEmailService _emailService;
         private readonly IEmailTemplateService _emailTemplateService;
+        private readonly IUserService _userService;
 
-        public UserManagementController(IUserManagementService userManagementService, IMapper mapper, IValidator<RegisterDTO> validator, IConfiguration config, IEmailService emailService, IEmailTemplateService emailTemplateService)
+        public UserManagementController(IUserManagementService userManagementService, IMapper mapper, IValidator<RegisterDTO> validator, IConfiguration config, IEmailService emailService, IEmailTemplateService emailTemplateService, IUserService userService)
         {
             _userManagementService = userManagementService;
             _mapper = mapper;
@@ -33,6 +34,7 @@ namespace AuthenticationTestApi.Controllers
             _config = config;
             _emailService = emailService;
             _emailTemplateService = emailTemplateService;
+            _userService = userService;
         }
 
 
@@ -41,6 +43,14 @@ namespace AuthenticationTestApi.Controllers
         public async Task<IActionResult> GetUsersAsync()
         {
             IEnumerable<UserDTO> users = _mapper.Map<List<UserDTO>>(await _userManagementService.GetAllAsync());
+            return Ok(users);
+        }
+
+        [HttpGet]
+        [Route("get")]
+        public async Task<IActionResult> GetAsync(int pageNumber, int pageSize)
+        {
+            PagedResult<UserDTO> users = await _userService.GetUsersAsync(pageNumber, pageSize);
             return Ok(users);
         }
 

@@ -38,16 +38,7 @@ export default function AdminDashboardPage() {
   return (
     <>
       <AppWrapper title={"Dashboard"}>
-        <SimpleGrid columns={{ base: 1, sm: 2, md:2, lg: 3, xl: 5 }} gap={4} w="full">
-          <DashboardAnalyticsCard
-            title="Total Users"
-            tooltipText="Number of Registered Users"
-            value={`${summaryData.totalUsers}`}
-            link={{ text: "view users", href: "/admin/user/home" }}
-            icon={LuUser}
-            iconBg="blue.100"
-            iconColor="blue.400"
-          />
+        <SimpleGrid columns={{ base: 1, sm: 2, md:2, lg: 3, xl: 4 }} gap={4} w="full">
           <DashboardAnalyticsCard
             title="Total Users"
             tooltipText="Number of Registered Users"

@@ -82,6 +82,8 @@ builder.Services.RegisterServices(builder.Configuration);
 //});
 
 var app = builder.Build();
+app.UseDefaultFiles();
+app.UseStaticFiles();
 //await app.RunDbMigrationAsync();
 
 //using (var scope = app.Services.CreateScope())
@@ -89,8 +91,8 @@ var app = builder.Build();
 //    await scope.ServiceProvider.GetRequiredService<AppDbContext>().Database.MigrateAsync();
 //}
 
-    //fetched from UserSecrets
-    List<UserRegisterModel> userSeeds = builder.Configuration.GetSection("UserSeeds").Get<List<UserRegisterModel>>() ?? new List<UserRegisterModel>();
+//fetched from UserSecrets
+List<UserRegisterModel> userSeeds = builder.Configuration.GetSection("UserSeeds").Get<List<UserRegisterModel>>() ?? new List<UserRegisterModel>();
 if (userSeeds.Count > 0)
 {
     //Seed Database with initial users
@@ -125,4 +127,5 @@ app.UseSpa(spa =>
 });
 //app.MapHub<DashboardHub>("/dashboard");
 //app.MapHub<AuthHub>("/auth");
+app.MapFallbackToFile("/index.html");
 app.Run();

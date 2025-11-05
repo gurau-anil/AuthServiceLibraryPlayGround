@@ -8,6 +8,7 @@ namespace AuthServiceLibrary.Services.Interfaces
         Task<AuthResult> RegisterUser(UserRegisterModel model);
         Task<UserModel> GetByUsernameAsync(string username);
         Task<IEnumerable<UserModel>> GetAllAsync();
+        Task<IQueryable<UserModel>> GetAsync();
         Task DeleteByUsernameAsync(string username);
     }
 }

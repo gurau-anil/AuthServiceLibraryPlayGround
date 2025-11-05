@@ -56,6 +56,19 @@ namespace AuthServiceLibrary.Services
             }
         }
 
+        public async Task<IQueryable<UserModel>> GetAsync()
+        {
+            try
+            {
+                IQueryable<ApplicationUser> result = _userManager.Users;
+                return _mapper.ProjectTo<UserModel>(result);
+            }
+            catch (Exception ex)
+            {
+                throw new DatabaseException("Failed to fetch users.", ex);
+            }
+        }
+
         public async Task<UserModel> GetByUsernameAsync(string username)
         {
 

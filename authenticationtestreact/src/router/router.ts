@@ -7,10 +7,11 @@ import BaseLayout from "../layouts/base-layout";
 import NotFoundPage from "../pages/notfound-page";
 import adminRoutes from "./admin-router";
 import authRoutes from "./auth-router";
+import isUserAuthenticated from "../auth-check";
 
-// const AppLoader = async ({ request }: { request: Request }) => {
-//   isUserAuthenticated(request);
-// };
+const AppLoader = async ({ request }: { request: Request }) => {
+  isUserAuthenticated(request);
+};
 
 const router = createBrowserRouter([
   {
@@ -22,7 +23,7 @@ const router = createBrowserRouter([
           {
             path: "/",
             Component: App,
-            // loader: AppLoader,
+            loader: AppLoader,
           },
           {
             path: "about",

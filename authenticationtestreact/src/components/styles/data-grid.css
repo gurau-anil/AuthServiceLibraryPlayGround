@@ -1,13 +1,15 @@
 .ag-input-field-input.ag-text-field-input{
     padding-left: 24px !important;
 }
-
+.ag-row {
+    color: #646B72;
+}
 .ag-row-even {
     background-color: white;
 }
 
 .ag-row-odd {
-    background-color: #f3f3f3;
+    background-color: #F7F7F7;
 }
 
 .ag-root-wrapper {
@@ -22,7 +24,7 @@
     cursor: pointer;
 }
 .ag-header-row {
-  background-color: #f0f0f0;
+  background-color: #eaeaea;
   color: #333;
   font-weight: bold;
 }

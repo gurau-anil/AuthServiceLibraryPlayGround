@@ -5,21 +5,23 @@ import AppWrapper from "../../../components/content-wrapper";
 import AppLoader from "../../../components/app-loader";
 import { SettingsSection, type AppSetting } from "../../../components/settings-section";
 
-export default function EmailSettingsPage() {
+export default function AccountSettingsPage() {
   const appSettings: AppSetting[] = useLoaderData() ?? [];
   const [loading, setLoading] = useState(false);
 
-  const emailSettings = appSettings.filter((c) =>
-    c.key.startsWith("EmailSettings:")
+  const loginSettings = appSettings.filter((c) =>
+    c.key.startsWith("AccountSettings:") &&
+    (c.key.includes("MaxLoginAttempts") || c.key.includes("LockoutDuration"))
   );
-  const passwordSettings = appSettings.filter((c) =>
-    c.key.startsWith("PasswordSettings:")
+  const accountOptions = appSettings.filter((c) =>
+    c.key.startsWith("AccountSettings:") &&
+    (c.key.includes("RequireEmailConfirmation") || c.key.includes("AllowMultipleSessions"))
   );
 
   return (
     <>
       <AppLoader show={loading} />
-      <AppWrapper title="Email Settings">
+      <AppWrapper title="Account Settings">
         <SimpleGrid
           columns={{ base: 1, md: 1, lg: 4 }}
           gap={4}
@@ -27,13 +29,13 @@ export default function EmailSettingsPage() {
           alignItems="start"
         >
           <SettingsSection
-            title="Email Settings"
-            settings={emailSettings}
+            title="Login & Lockout"
+            settings={loginSettings}
             onLoadingChange={setLoading}
           />
           <SettingsSection
-            title="Password Settings"
-            settings={passwordSettings}
+            title="Account Options"
+            settings={accountOptions}
             onLoadingChange={setLoading}
           />
         </SimpleGrid>

@@ -54,10 +54,10 @@ const GetMenuItemData = () => {
       // icon: FiSettings,
       icon: FiSliders,
       submenu: [
-        { name: "General", expanded: false },
-        { name: "Email", expanded: false, link: "/admin/settings"  },
-        { name: "Account", expanded: false},
-        { name: "Registration", expanded: false},
+        { name: "General", expanded: false, link: "/admin/settings/general" },
+        { name: "Email", expanded: false, link: "/admin/settings/email" },
+        { name: "Account", expanded: false, link: "/admin/settings/account" },
+        { name: "Registration", expanded: false, link: "/admin/settings/registration" },
       ],
     },
   ];

@@ -1,9 +1,14 @@
 import { Editor } from "@tinymce/tinymce-react";
-import { useEffect, useRef, useState } from "react";
+import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from "react";
 import "./tiny-editor.css";
+
 interface MergeFieldModel {
   title: string;
   value: string;
+}
+
+export interface TinyEditorHandle {
+  insertContent: (content: string) => void;
 }
 
 interface TinyEditorProps{
@@ -35,9 +40,15 @@ const editorPlugins = [
   "wordcount",
 ];
 
-const TinyEditor = ({initialContent = "", height = "50vh", width = "100%", mergeFields = [], onChangeContent, onDirty}: TinyEditorProps) => {
-  
+const TinyEditor = forwardRef<TinyEditorHandle, TinyEditorProps>(
+  ({ initialContent = "", height = "50vh", width = "100%", mergeFields = [], onChangeContent, onDirty }, ref) => {
   const editorRef = useRef<any>(null);
+
+  useImperativeHandle(ref, () => ({
+    insertContent: (content: string) => {
+      editorRef.current?.insertContent(content);
+    },
+  }));
   const [editorKey, setEditorKey] = useState<string>(crypto.randomUUID());
   const [editorInit, setEditorInit] = useState<{}>({
     height: height,
@@ -166,6 +177,8 @@ const TinyEditor = ({initialContent = "", height = "50vh", width = "100%", merge
       />
     </>
   );
-};
+});
+
+TinyEditor.displayName = "TinyEditor";
 
 export default TinyEditor;

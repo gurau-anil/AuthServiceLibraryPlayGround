@@ -30,7 +30,8 @@ const GetMenuItemData = () => {
     },
     {
       name: "History",
-      icon: FiClock 
+      icon: FiClock,
+      link: "/admin/history"
     },
     {
       name: "Email Templates",
